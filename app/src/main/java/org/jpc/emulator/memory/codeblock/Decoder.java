@@ -33,6 +33,8 @@
 
 package org.jpc.emulator.memory.codeblock;
 
+import android.support.annotation.Nullable;
+
 /**
  * Converts a stream of x86 bytes into a stream of JPC instructions.
  * @author Chris Dennis
@@ -45,6 +47,7 @@ public interface Decoder
      * @param limit max x86 instructions to decode.
      * @return decoded instruction stream
      */
+    @Nullable
     public InstructionSource decodeReal(ByteSource source, int limit);
 
     /**
@@ -57,6 +60,7 @@ public interface Decoder
      * @param limit max x86 instructions to decode.
      * @return decoded instruction stream
      */
+    @Nullable
     public InstructionSource decodeProtected(ByteSource source, boolean operandSize, int limit);
 
     /**
@@ -65,5 +69,6 @@ public interface Decoder
      * @param limit max x86 instructions to decode.
      * @return decoded instruction stream
      */
+    @Nullable
     public InstructionSource decodeVirtual8086(ByteSource source, int limit);
 }

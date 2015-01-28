@@ -33,9 +33,17 @@
 
 package org.jpc.emulator.memory;
 
-import java.util.Arrays;
-import org.jpc.emulator.memory.codeblock.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import org.jpc.emulator.memory.codeblock.CodeBlockManager;
+import org.jpc.emulator.memory.codeblock.CodeBlockReplacementException;
+import org.jpc.emulator.memory.codeblock.ProtectedModeCodeBlock;
+import org.jpc.emulator.memory.codeblock.RealModeCodeBlock;
+import org.jpc.emulator.memory.codeblock.Virtual8086ModeCodeBlock;
 import org.jpc.emulator.processor.Processor;
+
+import java.util.Arrays;
 
 /**
  * <code>Memory</code> object with simple execute capabilities.  Uses a
@@ -50,11 +58,15 @@ public class LazyCodeBlockMemory extends AbstractMemory {
 
     private CodeBlockManager codeBlockManager;
     private static final BlankCodeBlock PLACEHOLDER = new BlankCodeBlock();
+    @Nullable
     private RealModeCodeBlock[] realCodeBuffer;
+    @Nullable
     private ProtectedModeCodeBlock[] protectedCodeBuffer;
+    @Nullable
     private Virtual8086ModeCodeBlock[] virtual8086CodeBuffer;
     private static final int ALLOCATION_THRESHOLD = 10;
     private final int size;
+    @Nullable
     private byte[] buffer = null;
     private int nullReadCount = 0;
 
@@ -88,7 +100,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         protectedCodeBuffer = new ProtectedModeCodeBlock[(int) getSize()];
     }
 
-    public int executeProtected(Processor cpu, int offset) {
+    public int executeProtected(@NonNull Processor cpu, int offset) {
         int x86Count = 0;
         int ip = cpu.getInstructionPointer();
 
@@ -117,7 +129,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         return x86Count;
     }
 
-    public int executeReal(Processor cpu, int offset) {
+    public int executeReal(@NonNull Processor cpu, int offset) {
         int x86Count = 0;
         int ip = cpu.getInstructionPointer();
 
@@ -146,7 +158,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         return x86Count;
     }
 
-    public int executeVirtual8086(Processor cpu, int offset) {
+    public int executeVirtual8086(@NonNull Processor cpu, int offset) {
         int x86Count = 0;
         int ip = cpu.getInstructionPointer();
 
@@ -175,6 +187,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         return x86Count;
     }
 
+    @Nullable
     private RealModeCodeBlock getRealModeCodeBlockAt(int offset) {
         try {
             return realCodeBuffer[offset];
@@ -184,6 +197,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         }
     }
 
+    @Nullable
     private ProtectedModeCodeBlock getProtectedModeCodeBlockAt(int offset) {
         try {
             return protectedCodeBuffer[offset];
@@ -193,6 +207,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         }
     }
 
+    @Nullable
     private Virtual8086ModeCodeBlock getVirtual8086ModeCodeBlockAt(int offset) {
         try {
             return virtual8086CodeBuffer[offset];
@@ -313,7 +328,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         }
     }
 
-    private void setVirtual8086CodeBlockAt(int offset, Virtual8086ModeCodeBlock block) {
+    private void setVirtual8086CodeBlockAt(int offset, @Nullable Virtual8086ModeCodeBlock block) {
         removeVirtual8086CodeBlockAt(offset);
         if (block == null) {
             return;
@@ -328,7 +343,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         }
     }
 
-    private void setProtectedCodeBlockAt(int offset, ProtectedModeCodeBlock block) {
+    private void setProtectedCodeBlockAt(int offset, @Nullable ProtectedModeCodeBlock block) {
         removeProtectedCodeBlockAt(offset);
         if (block == null) {
             return;
@@ -343,7 +358,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         }
     }
 
-    private void setRealCodeBlockAt(int offset, RealModeCodeBlock block) {
+    private void setRealCodeBlockAt(int offset, @Nullable RealModeCodeBlock block) {
         removeRealCodeBlockAt(offset);
         if (block == null) {
             return;
@@ -430,6 +445,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         buffer = null;
     }
 
+    @NonNull
     public String toString() {
         return "LazyCodeBlockMemory[" + getSize() + "]";
     }
@@ -454,15 +470,18 @@ public class LazyCodeBlockMemory extends AbstractMemory {
             return false;
         }
 
+        @NonNull
         public String getDisplayString() {
             return "\n\n<<Blank Block>>\n\n";
         }
 
+        @NonNull
         public String toString() {
             return " -- Blank --\n";
         }
     }
 
+    @Nullable
     public ProtectedModeCodeBlock getProtectedBlock(int offset, boolean size) {
         if (protectedCodeBuffer == null) {
             allocateBuffer();
@@ -478,6 +497,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         return block;
     }
 
+    @Nullable
     public Virtual8086ModeCodeBlock getVirtual8086Block(int offset) {
         if (virtual8086CodeBuffer == null) {
             allocateBuffer();
@@ -493,6 +513,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         return block;
     }
 
+    @Nullable
     public RealModeCodeBlock getRealBlock(int offset) {
         if (realCodeBuffer == null) {
             allocateBuffer();
@@ -515,7 +536,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         }
     }
 
-    public void copyContentsIntoArray(int address, byte[] buf, int off, int len) {
+    public void copyContentsIntoArray(int address, @NonNull byte[] buf, int off, int len) {
         try {
             System.arraycopy(buffer, address, buf, off, len);
         } catch (NullPointerException e) {
@@ -531,7 +552,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         }
     }
 
-    public void loadInitialContents(int address, byte[] buf, int off, int len) {
+    public void loadInitialContents(int address, @NonNull byte[] buf, int off, int len) {
         try {
             System.arraycopy(buf, off, buffer, address, len);
         } catch (NullPointerException e) {
@@ -540,7 +561,7 @@ public class LazyCodeBlockMemory extends AbstractMemory {
         }
     }
 
-    public void copyArrayIntoContents(int address, byte[] buf, int off, int len) {
+    public void copyArrayIntoContents(int address, @NonNull byte[] buf, int off, int len) {
         try {
             System.arraycopy(buf, off, buffer, address, len);
         } catch (NullPointerException e) {

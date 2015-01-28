@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.constantpool;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -45,7 +47,7 @@ public class ClassInfo extends ConstantPoolInfo
 {
     private final int nameIndex;
 
-    ClassInfo(DataInputStream in) throws IOException
+    ClassInfo(@NonNull DataInputStream in) throws IOException
     {
         this(in.readUnsignedShort());
     }
@@ -72,7 +74,7 @@ public class ClassInfo extends ConstantPoolInfo
         return nameIndex;
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         out.writeByte(CLASS);
         out.writeShort(nameIndex);
@@ -81,11 +83,11 @@ public class ClassInfo extends ConstantPoolInfo
     public boolean equals(Object obj)
     {
         if (obj == this) return true;
-        if (!(obj instanceof ClassInfo)) return false;
+        return obj instanceof ClassInfo && getNameIndex() == ((ClassInfo) obj).getNameIndex();
 
-        return getNameIndex() == ((ClassInfo) obj).getNameIndex();
     }
 
+    @NonNull
     public String toString()
     {
         return "CONSTANT_Class_info : name=" + getNameIndex();

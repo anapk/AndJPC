@@ -33,12 +33,17 @@
 
 package org.jpc.emulator.memory.codeblock;
 
-import java.util.logging.*;
+import android.support.annotation.NonNull;
 
+import org.jpc.emulator.PC;
 import org.jpc.emulator.memory.Memory;
 import org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler;
-import org.jpc.emulator.memory.codeblock.optimised.*;
-import org.jpc.emulator.PC;
+import org.jpc.emulator.memory.codeblock.optimised.OptimisedCompiler;
+import org.jpc.emulator.memory.codeblock.optimised.ProtectedModeUDecoder;
+import org.jpc.emulator.memory.codeblock.optimised.RealModeUDecoder;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides the outer skin for the codeblock construction system.
@@ -50,10 +55,14 @@ public class CodeBlockManager {
 
     private static final Logger LOGGING = Logger.getLogger(CodeBlockManager.class.getName());
     public static volatile int BLOCK_LIMIT = 1000; //minimum of 2 because of STI/CLI
+    @NonNull
     private final CodeBlockFactory realModeChain;
+    @NonNull
     private final CodeBlockFactory protectedModeChain;
+    @NonNull
     private final CodeBlockFactory virtual8086ModeChain;
     private CodeBlockFactory compilingRealModeChain,  compilingProtectedModeChain,  compilingVirtual8086ModeChain;
+    @NonNull
     private final ByteSourceWrappedMemory byteSource;
 
     /**
@@ -104,7 +113,7 @@ public class CodeBlockManager {
         }
     }
     
-    private RealModeCodeBlock tryRealModeFactory(CodeBlockFactory ff, Memory memory, int offset) {
+    private RealModeCodeBlock tryRealModeFactory(@NonNull CodeBlockFactory ff, Memory memory, int offset) {
         try {
             byteSource.set(memory, offset);
             return ff.getRealModeCodeBlock(byteSource);
@@ -113,7 +122,7 @@ public class CodeBlockManager {
         }
     }
 
-    private ProtectedModeCodeBlock tryProtectedModeFactory(CodeBlockFactory ff, Memory memory, int offset, boolean operandSizeFlag) {
+    private ProtectedModeCodeBlock tryProtectedModeFactory(@NonNull CodeBlockFactory ff, Memory memory, int offset, boolean operandSizeFlag) {
         try {
             byteSource.set(memory, offset);
             return ff.getProtectedModeCodeBlock(byteSource, operandSizeFlag);
@@ -122,7 +131,7 @@ public class CodeBlockManager {
         }
     }
 
-    private Virtual8086ModeCodeBlock tryVirtual8086ModeFactory(CodeBlockFactory ff, Memory memory, int offset) {
+    private Virtual8086ModeCodeBlock tryVirtual8086ModeFactory(@NonNull CodeBlockFactory ff, Memory memory, int offset) {
         try {
             byteSource.set(memory, offset);
             return ff.getVirtual8086ModeCodeBlock(byteSource);

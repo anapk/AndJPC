@@ -33,7 +33,11 @@
 
 package org.jpc.support;
 
-import org.jpc.emulator.*;
+import android.support.annotation.NonNull;
+
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.Timer;
+import org.jpc.emulator.TimerResponsive;
 
 /**
  * Interface providing an external time source to the emulator for the provision
@@ -67,6 +71,7 @@ public interface Clock extends HardwareComponent
      * @param object callback object
      * @return <code>Timer</code> instance
      */
+    @NonNull
     public Timer newTimer(TimerResponsive object);
 
     /**

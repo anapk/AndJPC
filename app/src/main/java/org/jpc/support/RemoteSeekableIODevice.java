@@ -33,9 +33,17 @@
 
 package org.jpc.support;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 public class RemoteSeekableIODevice implements SeekableIODevice
 {
@@ -43,6 +51,7 @@ public class RemoteSeekableIODevice implements SeekableIODevice
     private static final int DEFAULT_CACHE_SIZE = 32*1024*1024;
     private static final int NETWORK_TIMEOUT = 10000;
 
+    @Nullable
     private URI drive;
     private final int sectorSize;
     private final int cacheSectors;
@@ -60,7 +69,7 @@ public class RemoteSeekableIODevice implements SeekableIODevice
         this(drive, DEFAULT_SECTOR_SIZE, DEFAULT_CACHE_SIZE);
     }
 
-    private RemoteSeekableIODevice(URI drive, int sectorSize, int cacheSize) throws IOException
+    private RemoteSeekableIODevice(@Nullable URI drive, int sectorSize, int cacheSize) throws IOException
     {
         this.sectorSize = sectorSize;
         this.cacheSectors = Math.max(1, cacheSize / sectorSize);
@@ -72,7 +81,7 @@ public class RemoteSeekableIODevice implements SeekableIODevice
             setImageLocation(drive);
     }
 
-    public void configure(String spec) throws IOException
+    public void configure(@NonNull String spec) throws IOException
     {
         try
         {
@@ -84,7 +93,7 @@ public class RemoteSeekableIODevice implements SeekableIODevice
         }
     }
 
-    synchronized void setImageLocation(URI drive) throws IOException
+    synchronized void setImageLocation(@NonNull URI drive) throws IOException
     {
         position = 0;
         this.drive = drive;
@@ -141,6 +150,7 @@ public class RemoteSeekableIODevice implements SeekableIODevice
         this.position = offset;
     }
 
+    @NonNull
     private synchronized byte[] getSector(int index) throws IOException
     {
         Integer key = index;
@@ -190,14 +200,14 @@ public class RemoteSeekableIODevice implements SeekableIODevice
                 {
                     Thread.sleep(1000);
                 }
-                catch (Exception ee) {}
+                catch (Exception ignored) {}
             }
         }
         
         throw new IOException("Could not contact remote disk server");
     }
 
-    public synchronized int read(byte[] data, int offset, int length) throws IOException
+    public synchronized int read(@NonNull byte[] data, int offset, int length) throws IOException
     {
         if (this.length < 0)
             throw new IOException("Remote device closed");
@@ -217,7 +227,7 @@ public class RemoteSeekableIODevice implements SeekableIODevice
             int off = (int) (position % sectorSize);
             byte[] s = (byte[]) writtenSectors.get(index);
             if (s == null)
-                s = getSector(index.intValue());
+                s = getSector(index);
             
             int r = Math.min(s.length - off, toRead);
             System.arraycopy(s, off, data, pos, r);
@@ -228,7 +238,7 @@ public class RemoteSeekableIODevice implements SeekableIODevice
         }
     }
 
-    public synchronized int write(byte[] data, int offset, int length) throws IOException
+    public synchronized int write(@NonNull byte[] data, int offset, int length) throws IOException
     {
         if (this.length < 0)
             throw new IOException("Remote device closed");
@@ -250,7 +260,7 @@ public class RemoteSeekableIODevice implements SeekableIODevice
             byte[] s = (byte[]) writtenSectors.get(index);
             if (s == null)
             {
-                s = getSector(index.intValue());
+                s = getSector(index);
                 sectorIndex.remove(index);
                 writtenSectors.put(index, s);
             }

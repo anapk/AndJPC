@@ -33,6 +33,8 @@
 
 package org.jpc.emulator.memory.codeblock;
 
+import android.support.annotation.NonNull;
+
 import org.jpc.emulator.processor.Processor;
 
 /**
@@ -68,6 +70,7 @@ public abstract class AbstractCodeBlockWrapper implements CodeBlock
 	return actualBlock.execute(cpu);
     }
     
+    @NonNull
     public String getDisplayString()
     {
         return "WRAP " + actualBlock.getDisplayString();

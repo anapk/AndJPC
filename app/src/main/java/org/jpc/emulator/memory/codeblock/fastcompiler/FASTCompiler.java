@@ -33,20 +33,53 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import org.jpc.emulator.processor.ProcessorException;
-import org.jpc.emulator.memory.codeblock.*;
-import org.jpc.classfile.*;
+import org.jpc.classfile.ClassFile;
+import org.jpc.classfile.MethodOutputStream;
 import org.jpc.classfile.attribute.CodeAttribute;
+import org.jpc.emulator.memory.codeblock.ArrayBackedInstructionSource;
+import org.jpc.emulator.memory.codeblock.CodeBlockCompiler;
+import org.jpc.emulator.memory.codeblock.InstructionSource;
+import org.jpc.emulator.memory.codeblock.ProtectedModeCodeBlock;
+import org.jpc.emulator.memory.codeblock.RealModeCodeBlock;
+import org.jpc.emulator.memory.codeblock.Virtual8086ModeCodeBlock;
+import org.jpc.emulator.memory.codeblock.fastcompiler.prot.ProtectedModeBytecodeFragments;
+import org.jpc.emulator.memory.codeblock.fastcompiler.prot.ProtectedModeExceptionHandler;
+import org.jpc.emulator.memory.codeblock.fastcompiler.prot.ProtectedModeRPNNode;
+import org.jpc.emulator.memory.codeblock.fastcompiler.prot.ProtectedModeTemplateBlock;
+import org.jpc.emulator.memory.codeblock.fastcompiler.real.RealModeBytecodeFragments;
+import org.jpc.emulator.memory.codeblock.fastcompiler.real.RealModeExceptionHandler;
+import org.jpc.emulator.memory.codeblock.fastcompiler.real.RealModeRPNNode;
+import org.jpc.emulator.memory.codeblock.fastcompiler.real.RealModeTemplateBlock;
+import org.jpc.emulator.memory.codeblock.fastcompiler.virt.Virtual8086ModeBytecodeFragments;
+import org.jpc.emulator.memory.codeblock.fastcompiler.virt.Virtual8086ModeExceptionHandler;
+import org.jpc.emulator.memory.codeblock.fastcompiler.virt.Virtual8086ModeRPNNode;
+import org.jpc.emulator.memory.codeblock.fastcompiler.virt.Virtual8086ModeTemplateBlock;
+import org.jpc.emulator.processor.ProcessorException;
 
-import org.jpc.emulator.memory.codeblock.fastcompiler.real.*;
-import org.jpc.emulator.memory.codeblock.fastcompiler.prot.*;
-import org.jpc.emulator.memory.codeblock.fastcompiler.virt.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import static org.jpc.classfile.JavaOpcode.*;
+import static org.jpc.classfile.JavaOpcode.ALOAD_1;
+import static org.jpc.classfile.JavaOpcode.ARETURN;
+import static org.jpc.classfile.JavaOpcode.ASTORE_1;
+import static org.jpc.classfile.JavaOpcode.IASTORE;
+import static org.jpc.classfile.JavaOpcode.ILOAD;
+import static org.jpc.classfile.JavaOpcode.IRETURN;
+import static org.jpc.classfile.JavaOpcode.ISTORE;
+import static org.jpc.classfile.JavaOpcode.LDC;
+import static org.jpc.classfile.JavaOpcode.LDC_W;
+import static org.jpc.classfile.JavaOpcode.NEWARRAY;
 
 /**
  * 
@@ -108,9 +141,10 @@ public class FASTCompiler implements CodeBlockCompiler
     static final int VARIABLE_EXECUTE_COUNT_INDEX = 10;
     private static final int VARIABLE_OFFSET = 11;
     private int bufferOffset = 0;
+    @NonNull
     private int[] bufferMicrocodes = new int[10],  bufferPositions = new int[10];
 
-    public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public static void main(@NonNull String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         if (args.length != 1)
         {
             System.out.println("");
@@ -124,7 +158,7 @@ public class FASTCompiler implements CodeBlockCompiler
         comp.compileProtectedModeBlock("newclass", source);
     }
 
-    private void buildCodeBlockBuffers(InstructionSource source)
+    private void buildCodeBlockBuffers(@NonNull InstructionSource source)
     {
         source.reset();
         bufferOffset = 0;
@@ -159,6 +193,7 @@ public class FASTCompiler implements CodeBlockCompiler
         }
     }
 
+    @NonNull
     int[] getMicrocodesArray()
     {
         int[] newMicrocodes = new int[bufferOffset];
@@ -166,6 +201,7 @@ public class FASTCompiler implements CodeBlockCompiler
         return newMicrocodes;
     }
 
+    @NonNull
     int[] getPositionsArray()
     {
         int[] newPositions = new int[bufferOffset];
@@ -205,7 +241,7 @@ public class FASTCompiler implements CodeBlockCompiler
 //        }
 //        return "ABADHASH";
 //    }
-    public static int getHash(int[] microcodes)
+    public static int getHash(@NonNull int[] microcodes)
     {
         int hash = 0;
         for (int microcode : microcodes) {
@@ -214,7 +250,8 @@ public class FASTCompiler implements CodeBlockCompiler
         return hash;
     }
 
-    ProtectedModeCodeBlock compileProtectedModeBlock(String className, InstructionSource source)
+    @Nullable
+    ProtectedModeCodeBlock compileProtectedModeBlock(@Nullable String className, @NonNull InstructionSource source)
     {
         MicrocodeNode[] microcodes = MicrocodeNode.getMicrocodes(source);
 
@@ -307,12 +344,14 @@ public class FASTCompiler implements CodeBlockCompiler
         return null;
     }
 
-    public ProtectedModeCodeBlock getProtectedModeCodeBlock(InstructionSource source)
+    @Nullable
+    public ProtectedModeCodeBlock getProtectedModeCodeBlock(@NonNull InstructionSource source)
     {
         return getProtectedModeCodeBlock(null, source);
     }
 
-    ProtectedModeCodeBlock getProtectedModeCodeBlock(String className, InstructionSource source)
+    @Nullable
+    ProtectedModeCodeBlock getProtectedModeCodeBlock(String className, @NonNull InstructionSource source)
     {
         try
         {
@@ -335,7 +374,8 @@ public class FASTCompiler implements CodeBlockCompiler
         return null;
     }
 
-    RealModeCodeBlock compileRealModeBlock(String className, InstructionSource source)
+    @Nullable
+    RealModeCodeBlock compileRealModeBlock(@Nullable String className, @NonNull InstructionSource source)
     {
         MicrocodeNode[] microcodes = MicrocodeNode.getMicrocodes(source);
 
@@ -423,12 +463,14 @@ public class FASTCompiler implements CodeBlockCompiler
         return null;
     }
 
-    public RealModeCodeBlock getRealModeCodeBlock(InstructionSource source)
+    @Nullable
+    public RealModeCodeBlock getRealModeCodeBlock(@NonNull InstructionSource source)
     {
         return getRealModeCodeBlock(null, source);
     }
 
-    RealModeCodeBlock getRealModeCodeBlock(String className, InstructionSource source)
+    @Nullable
+    RealModeCodeBlock getRealModeCodeBlock(String className, @NonNull InstructionSource source)
     {
         try
         {
@@ -448,7 +490,8 @@ public class FASTCompiler implements CodeBlockCompiler
         return null;
     }
 
-    Virtual8086ModeCodeBlock compileVirtual8086ModeBlock(String className, InstructionSource source)
+    @Nullable
+    Virtual8086ModeCodeBlock compileVirtual8086ModeBlock(@Nullable String className, @NonNull InstructionSource source)
     {
         MicrocodeNode[] microcodes = MicrocodeNode.getMicrocodes(source);
 
@@ -531,12 +574,14 @@ public class FASTCompiler implements CodeBlockCompiler
         return null;
     }
 
-    public Virtual8086ModeCodeBlock getVirtual8086ModeCodeBlock(InstructionSource source)
+    @Nullable
+    public Virtual8086ModeCodeBlock getVirtual8086ModeCodeBlock(@NonNull InstructionSource source)
     {
         return getVirtual8086ModeCodeBlock(null, source);
     }
 
-    Virtual8086ModeCodeBlock getVirtual8086ModeCodeBlock(String className, InstructionSource source)
+    @Nullable
+    Virtual8086ModeCodeBlock getVirtual8086ModeCodeBlock(String className, @NonNull InstructionSource source)
     {
         try
         {
@@ -555,7 +600,7 @@ public class FASTCompiler implements CodeBlockCompiler
         return null;
     }
 
-    private static void compileProtectedModeExecuteMethod(MicrocodeNode[] microcodes, ClassFile cf, int x86CountIndex) throws IOException
+    private static void compileProtectedModeExecuteMethod(@NonNull MicrocodeNode[] microcodes, @NonNull ClassFile cf, int x86CountIndex) throws IOException
     {
         List<RPNNode> externalEffects = new ArrayList<>();
         Map<Integer, RPNNode> currentElements = new HashMap<>();
@@ -712,7 +757,7 @@ public class FASTCompiler implements CodeBlockCompiler
         cf.setMethodCode("execute", byteCodes.toByteArray(), exceptionTable);
     }
 
-    private static void compileRealModeExecuteMethod(MicrocodeNode[] microcodes, ClassFile cf, int x86CountIndex) throws IOException
+    private static void compileRealModeExecuteMethod(@NonNull MicrocodeNode[] microcodes, @NonNull ClassFile cf, int x86CountIndex) throws IOException
     {
         List<RPNNode> externalEffects = new ArrayList<>();
         Map<Integer, RPNNode> currentElements = new HashMap<>();
@@ -867,7 +912,7 @@ public class FASTCompiler implements CodeBlockCompiler
         cf.setMethodCode("execute", byteCodes.toByteArray(), exceptionTable);
     }
 
-    private static void compileVirtual8086ModeExecuteMethod(MicrocodeNode[] microcodes, ClassFile cf, int x86CountIndex) throws IOException
+    private static void compileVirtual8086ModeExecuteMethod(@NonNull MicrocodeNode[] microcodes, @NonNull ClassFile cf, int x86CountIndex) throws IOException
     {
         List<RPNNode> externalEffects = new ArrayList<>();
         Map<Integer, RPNNode> currentElements = new HashMap<>();
@@ -1021,7 +1066,7 @@ public class FASTCompiler implements CodeBlockCompiler
         cf.setMethodCode("execute", byteCodes.toByteArray(), exceptionTable);
     }
 
-    private void compileGetArrayMethod(ClassFile cf, int[] microcodes, String name)
+    private void compileGetArrayMethod(@NonNull ClassFile cf, @NonNull int[] microcodes, String name)
     {
         ByteArrayOutputStream byteCodes = new ByteArrayOutputStream();
         
@@ -1058,7 +1103,7 @@ public class FASTCompiler implements CodeBlockCompiler
         cf.setMethodCode(name, byteCodes.toByteArray(), null);
     }
 
-    private static void compileX86CountMethod(ClassFile cf, int x86CountIndex)
+    private static void compileX86CountMethod(@NonNull ClassFile cf, int x86CountIndex)
     {
         ByteArrayOutputStream byteCodes = new ByteArrayOutputStream();
         byteCodes.write(LDC);
@@ -1068,7 +1113,7 @@ public class FASTCompiler implements CodeBlockCompiler
         cf.setMethodCode("getX86Count", byteCodes.toByteArray(), null);
     }
 
-    private static void compileX86LengthMethod(ClassFile cf, int x86LengthIndex)
+    private static void compileX86LengthMethod(@NonNull ClassFile cf, int x86LengthIndex)
     {
         ByteArrayOutputStream byteCodes = new ByteArrayOutputStream();
 
@@ -1079,7 +1124,7 @@ public class FASTCompiler implements CodeBlockCompiler
         cf.setMethodCode("getX86Length", byteCodes.toByteArray(), null);
     }
 
-    private static void dumpClass(ClassFile cls)
+    private static void dumpClass(@NonNull ClassFile cls)
     {
         try
         {

@@ -33,6 +33,8 @@
 
 package org.jpc.emulator.memory.codeblock;
 
+import android.support.annotation.Nullable;
+
 /**
  * Converts a stream of JPC instructions into an executable codeblock.
  * @author Chris Dennis
@@ -44,6 +46,7 @@ public interface CodeBlockCompiler
      * @param source instructions read from here
      * @return codeblock instance
      */
+    @Nullable
     public RealModeCodeBlock getRealModeCodeBlock(InstructionSource source);
 
     /**
@@ -51,6 +54,7 @@ public interface CodeBlockCompiler
      * @param source instructions read from here
      * @return codeblock instance
      */
+    @Nullable
     public ProtectedModeCodeBlock getProtectedModeCodeBlock(InstructionSource source);
 
     /**
@@ -58,5 +62,6 @@ public interface CodeBlockCompiler
      * @param source instructions read from here
      * @return codeblock instance
      */
+    @Nullable
     public Virtual8086ModeCodeBlock getVirtual8086ModeCodeBlock(InstructionSource source);
 }

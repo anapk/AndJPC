@@ -33,12 +33,21 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler;
 
-import java.lang.reflect.*;
-import java.util.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
 
-import org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet;
 import org.jpc.classfile.JavaOpcode;
+import org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -58,7 +67,7 @@ public class UCodeMethodParser
                 int mods = f.getModifiers();
                 if (!Modifier.isStatic(mods) || !Modifier.isPublic(mods) || !Modifier.isFinal(mods))
                     continue;
-                microcodeIndex.put(f.getName(), Integer.valueOf(f.getInt(null)));
+                microcodeIndex.put(f.getName(), f.getInt(null));
             }
         } catch (IllegalAccessException e) {
             LOGGING.log(Level.WARNING, "microcode lookup table incomplete", e);
@@ -75,7 +84,7 @@ public class UCodeMethodParser
                     String name = f.getName();
                     if (name.startsWith("PROCESSOR_ELEMENT_")) {
                         name = name.substring("PROCESSOR_ELEMENT_".length());
-                        elementIndex.put(name, Integer.valueOf(value));
+                        elementIndex.put(name, value);
                     }
                 }
             }
@@ -90,13 +99,14 @@ public class UCodeMethodParser
                     continue;
                 if (f.getType() != Integer.TYPE)
                     continue;
-                opcodeIndex.put(f.getName(), Integer.valueOf(f.getInt(null)));
+                opcodeIndex.put(f.getName(), f.getInt(null));
             }
         } catch (IllegalAccessException e) {
             LOGGING.log(Level.WARNING, "opcode lookup table incomplete", e);
         }
     }
         
+    @NonNull
     private final Class fragments;
     private final Object[][][] operations;
     private final int[][][] operandArray;
@@ -105,7 +115,7 @@ public class UCodeMethodParser
 
     private final Map<String, Object> constantPoolIndex = new HashMap<>();
 
-    public UCodeMethodParser(Class fragments, Object[][][] operations, int[][][] operandArray, boolean[][] externalEffectsArray, boolean[][] explicitThrowArray)
+    public UCodeMethodParser(@NonNull Class fragments, Object[][][] operations, int[][][] operandArray, boolean[][] externalEffectsArray, boolean[][] explicitThrowArray)
     {
         this.fragments = fragments;
         this.operations = operations;
@@ -120,7 +130,7 @@ public class UCodeMethodParser
             constantPoolIndex.put(m.getName(), new ConstantPoolSymbol(m));
     }
 
-    private void insertIntoFragmentArrays(String uCodeName, String resultName, String[] args, boolean externalEffect, boolean explicitThrow, List instructions)
+    private void insertIntoFragmentArrays(String uCodeName, String resultName, @NonNull String[] args, boolean externalEffect, boolean explicitThrow, @NonNull List instructions)
     {
         Integer codeVal = microcodeIndex.get(uCodeName);
         if (codeVal == null) {
@@ -128,7 +138,7 @@ public class UCodeMethodParser
             return;
         }
 
-        int uCode = codeVal.intValue();
+        int uCode = codeVal;
         if (operations[uCode] == null)
             operations[uCode] = new Object[FASTCompiler.ELEMENT_COUNT][];
         if (operandArray[uCode] == null)
@@ -142,11 +152,11 @@ public class UCodeMethodParser
             return;
         }
 
-        int elementId = elementValue.intValue();
+        int elementId = elementValue;
 
         int[] argIds = new int[args.length];
         for (int i = 0; i < argIds.length; i++)
-            argIds[i] = (elementIndex.get(args[i])).intValue();
+            argIds[i] = elementIndex.get(args[i]);
 
         operandArray[uCode][elementId] = argIds;
 
@@ -156,7 +166,7 @@ public class UCodeMethodParser
         explicitThrowArray[uCode][elementId] = explicitThrow;
     }
 
-    private void parseMethod(Method m)
+    private void parseMethod(@NonNull Method m)
     {
         String name = m.getName();
 
@@ -195,20 +205,20 @@ public class UCodeMethodParser
         int newArgc = argc;
         for (int i = 0; i < argc; i++)
             if (constantPoolIndex.containsKey(args[i])) {
-                instructions.add(Integer.valueOf(JavaOpcode.LDC));
+                instructions.add((int) JavaOpcode.LDC);
                 instructions.add(constantPoolIndex.get(args[i]));
                 args[i] = null;
                 newArgc--;
             }
     
-        instructions.add(Integer.valueOf(JavaOpcode.INVOKESTATIC));
+        instructions.add((int) JavaOpcode.INVOKESTATIC);
         instructions.add(constantPoolIndex.get(name));
         if ("EXECUTECOUNT".equals(result)) {
-            instructions.add(Integer.valueOf(JavaOpcode.ILOAD));
-            instructions.add(Integer.valueOf(FASTCompiler.VARIABLE_EXECUTE_COUNT_INDEX));
-            instructions.add(Integer.valueOf(JavaOpcode.IADD));
-            instructions.add(Integer.valueOf(JavaOpcode.ISTORE));
-            instructions.add(Integer.valueOf(FASTCompiler.VARIABLE_EXECUTE_COUNT_INDEX));
+            instructions.add((int) JavaOpcode.ILOAD);
+            instructions.add(FASTCompiler.VARIABLE_EXECUTE_COUNT_INDEX);
+            instructions.add((int) JavaOpcode.IADD);
+            instructions.add((int) JavaOpcode.ISTORE);
+            instructions.add(FASTCompiler.VARIABLE_EXECUTE_COUNT_INDEX);
         }
 
         String[] newArgs;

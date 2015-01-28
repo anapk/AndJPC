@@ -1,21 +1,29 @@
 package uk.co.jads.android.jpc;
 
-import android.content.*;
-import org.jpc.emulator.peripheral.*;
-import android.view.inputmethod.*;
-import android.graphics.*;
-import android.view.*;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.support.annotation.NonNull;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+
+import org.jpc.emulator.peripheral.Keyboard;
 
 class OnScreenButtons implements View.OnTouchListener
 {
     private static final int BUTTON_SPACING = 75;
+    @NonNull
     private final String[] BUTTON_LABELS;
+    @NonNull
     private final Paint buttonHeldPaint;
+    @NonNull
     private final Paint buttonPaint;
     private int buttonState;
     private int buttonsXPosition;
     private final Context context;
     private final Keyboard keyboard;
+    @NonNull
     private final Paint labelPaint;
     
     public OnScreenButtons(final Keyboard keyboard, final Context context) {
@@ -111,7 +119,7 @@ class OnScreenButtons implements View.OnTouchListener
         return n;
     }
     
-    void onDraw(final Canvas canvas) {
+    void onDraw(@NonNull final Canvas canvas) {
         this.buttonsXPosition = -100 + canvas.getWidth();
         final int n = this.buttonsXPosition + (canvas.getWidth() - this.buttonsXPosition) / 2;
         for (int i = 0; i < 6; ++i) {
@@ -128,7 +136,7 @@ class OnScreenButtons implements View.OnTouchListener
         }
     }
     
-    public boolean onTouch(final View view, final MotionEvent motionEvent) {
+    public boolean onTouch(final View view, @NonNull final MotionEvent motionEvent) {
         boolean b = true;
         final int n = 0xFF & motionEvent.getAction();
         final int n2 = (0xFF00 & motionEvent.getAction()) >> 8;

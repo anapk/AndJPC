@@ -33,6 +33,8 @@
 
 package org.jpc.emulator.memory;
 
+import android.support.annotation.Nullable;
+
 /**
  * Provides default implementations of most <code>Memory</code> methods that
  * defer to the <code>getByte</code> and <code>setByte</code> methods.
@@ -224,7 +226,7 @@ public abstract class AbstractMemory implements Memory
      * @param target array to be cleared.
      * @param value new entry.
      */
-    static void clearArray(Object[] target, Object value)
+    static void clearArray(@Nullable Object[] target, Object value)
     {
         if (target == null)
             return;
@@ -238,7 +240,7 @@ public abstract class AbstractMemory implements Memory
      * @param target array to be cleared.
      * @param value new byte value.
      */
-    public static void clearArray(byte[] target, byte value)
+    public static void clearArray(@Nullable byte[] target, byte value)
     {
         if (target == null)
             return;

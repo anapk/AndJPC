@@ -33,7 +33,10 @@
 
 package org.jpc.classfile.constantpool;
 
-import java.io.*;
+import android.support.annotation.NonNull;
+
+import java.io.DataInputStream;
+import java.io.IOException;
 
 /**
  * Constant pool element for a method reference.
@@ -41,7 +44,7 @@ import java.io.*;
  */
 public class MethodRefInfo extends RefInfo
 {
-    MethodRefInfo(DataInputStream in) throws IOException
+    MethodRefInfo(@NonNull DataInputStream in) throws IOException
     {
         super(in);
     }

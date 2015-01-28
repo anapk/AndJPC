@@ -33,9 +33,13 @@
 
 package org.jpc.storage;
 
+import android.support.annotation.NonNull;
+
+import java.io.IOException;
 import java.net.URI;
-import java.util.*;
-import java.io.*;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 class CopyOnWriteIO {
 
@@ -47,13 +51,13 @@ class CopyOnWriteIO {
     private DataIO dio;
     private long bufferSize;
     private long start = -1;
-    private long end = -1;;
+    private long end = -1;
 
-    public CopyOnWriteIO(URI uri) throws IOException{
+    public CopyOnWriteIO(@NonNull URI uri) throws IOException{
         this(uri, COWIO_BUF_SIZE);
     }
 
-    private CopyOnWriteIO(URI uri, long bufferSize) throws IOException{
+    private CopyOnWriteIO(@NonNull URI uri, long bufferSize) throws IOException{
         try{
             this.dio = IOFactory.open(uri);
         }catch(IOException ioe){
@@ -63,7 +67,7 @@ class CopyOnWriteIO {
         contentStoreMap = new LinkedHashMap<>();
     }
 
-    public int write(long address, byte[] content, int offset, int length) throws IOException{
+    public int write(long address, @NonNull byte[] content, int offset, int length) throws IOException{
 
         ioArgCheck(address, content, offset, length);
 
@@ -164,7 +168,7 @@ class CopyOnWriteIO {
         end = -1;
     }
 
-    private void ioArgCheck(long address, byte[] content, int offset, int length) throws IOException{
+    private void ioArgCheck(long address, @NonNull byte[] content, int offset, int length) throws IOException{
 
         if(this.dio == null){
             throw new IOException("Null DataIO object found");

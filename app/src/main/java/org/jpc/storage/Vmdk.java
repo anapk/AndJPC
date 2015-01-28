@@ -33,10 +33,17 @@
 
 package org.jpc.storage;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.io.IOException;
 import java.net.URI;
-import java.io.*;
-import java.nio.*;
-import java.util.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Vmdk implements SeekableDataIO
 {
@@ -46,19 +53,22 @@ public class Vmdk implements SeekableDataIO
     private static final int VMDK4HEADER_1P_SIZE = VMDK4MAGIC.length()+4+4+8+8+8+8+4+8+8+8+1+4;
     private static final int L2_CACHE_SIZE = 16;
     
+    @Nullable
     private VmdkMetaData metadata;
+    @Nullable
     private Vmdk4Header header;
     private VmdkState state;
     private int sectorNum = 0;
     private int sectorOffset = 0;
+    @NonNull
     private final DataIO dio;
 
-    public Vmdk(URI uri) throws IOException
+    public Vmdk(@NonNull URI uri) throws IOException
     {
         this(IOFactory.open(uri), getName(uri));
     }
 
-    private Vmdk(DataIO dio, String name) throws IOException
+    private Vmdk(@NonNull DataIO dio, String name) throws IOException
     {
         this.dio = dio;
         metadata = new VmdkMetaData();
@@ -68,7 +78,8 @@ public class Vmdk implements SeekableDataIO
         }
     }
 
-    public static Vmdk create(URI uri, long length) throws IOException
+    @NonNull
+    public static Vmdk create(@NonNull URI uri, long length) throws IOException
     {
          Vmdk vmdk = new Vmdk(IOFactory.create(uri), getName(uri));
          vmdk.createVmdk(length);
@@ -83,12 +94,11 @@ public class Vmdk implements SeekableDataIO
         sectorOffset = (int)(position - (sectorNum << 9));
     }
 
-    public long getPosition() throws IOException
-    {
+    public long getPosition() {
         return (sectorNum << 9) + sectorOffset;
     }
 
-    public int readFully(byte[] content, int offset, int length) throws IOException
+    public int readFully(@NonNull byte[] content, int offset, int length) throws IOException
     {
         int toRead = Math.min(content.length - offset, length);
         toRead = (int) Math.min(toRead, getLength()- getPosition());
@@ -115,14 +125,14 @@ public class Vmdk implements SeekableDataIO
         return totalRead;
     }
 
-    public int read(byte[] content, int offset, int length) throws IOException
+    public int read(@NonNull byte[] content, int offset, int length) throws IOException
     {
         int toRead = Math.min(content.length - offset, length);
         toRead = (int) Math.min(toRead, getLength()-getPosition());
         return readFully(content, offset, toRead);
     }
 
-    public int write(byte[] content, int offset, int length) throws IOException
+    public int write(@NonNull byte[] content, int offset, int length) throws IOException
     {
         state = new VmdkState();
         int toWrite = Math.min(content.length - offset, length);
@@ -153,7 +163,7 @@ public class Vmdk implements SeekableDataIO
         return totalWritten;
     }
 
-    public void writeFully(byte[] content, int offset, int length) throws IOException
+    public void writeFully(@NonNull byte[] content, int offset, int length) throws IOException
     {
         int toWrite = Math.min(content.length - offset, length);
         while (toWrite > 0)
@@ -199,7 +209,7 @@ public class Vmdk implements SeekableDataIO
             }
         }
 
-        if(found == false)
+        if(!found)
         {
             int minIndex = 0;
             long minCount = 0xffffffff;
@@ -487,7 +497,7 @@ public class Vmdk implements SeekableDataIO
     }
 
 
-    private static String getName(URI uri){
+    private static String getName(@NonNull URI uri){
         if(uri.getPath().contains("/")){
             String[] tempPathArray = uri.getPath().split("/");
             return tempPathArray[tempPathArray.length -1];
@@ -523,7 +533,9 @@ public class Vmdk implements SeekableDataIO
 
         byte[] l2Cache;
         Map l2Table;
+        @NonNull
         int[] l2CacheOffsets = new int[Vmdk.L2_CACHE_SIZE];
+        @NonNull
         int[] l2CacheCounts = new int[Vmdk.L2_CACHE_SIZE];
 
         Map l2BackupTable;

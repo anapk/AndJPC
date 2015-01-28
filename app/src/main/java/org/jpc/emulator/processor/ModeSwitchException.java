@@ -34,6 +34,8 @@
 
 package org.jpc.emulator.processor;
 
+import android.support.annotation.NonNull;
+
 /**
  * 
  * @author Chris Dennis
@@ -48,6 +50,7 @@ public class ModeSwitchException extends RuntimeException
     {
     }
 
+    @NonNull
     public String toString()
     {
         if (this == REAL_MODE_EXCEPTION)

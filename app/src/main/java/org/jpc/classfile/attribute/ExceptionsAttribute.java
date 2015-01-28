@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.attribute;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -45,14 +47,14 @@ public class ExceptionsAttribute extends AttributeInfo
 {
     private int[] exceptionIndexTable;
 
-    ExceptionsAttribute(DataInputStream in, int index) throws IOException
+    ExceptionsAttribute(@NonNull DataInputStream in, int index) throws IOException
     {
         super(in, index);
         exceptionIndexTable = new int[in.readUnsignedShort()];
         for (int i = 0; i < exceptionIndexTable.length; i++) exceptionIndexTable[i] = in.readUnsignedShort();
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         super.write(out);
         out.writeShort(exceptionIndexTable.length);

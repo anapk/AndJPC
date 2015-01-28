@@ -33,7 +33,10 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler;
 
-import java.lang.reflect.*;
+import android.support.annotation.NonNull;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * Immutable wrapper for objects which can be referenced in the constant pool.
@@ -41,6 +44,7 @@ import java.lang.reflect.*;
  */
 class ConstantPoolSymbol
 {
+    @NonNull
     private final Object poolEntity;
 
     /**
@@ -61,7 +65,7 @@ class ConstantPoolSymbol
      * @param o object being wrapped.  
      * @throws IllegalArgumentException if o is not a valid constant pool object
      */
-    ConstantPoolSymbol(Object o)
+    ConstantPoolSymbol(@NonNull Object o)
     {
         Class cls = o.getClass();
         
@@ -83,11 +87,13 @@ class ConstantPoolSymbol
      * Returns the object being wrapped by this symbol.
      * @return object being wrapped
      */
+    @NonNull
     Object poolEntity()
     {
         return poolEntity;
     }
 
+    @NonNull
     public String toString()
     {
         return "ConstantPoolSymbol["+poolEntity+"]";

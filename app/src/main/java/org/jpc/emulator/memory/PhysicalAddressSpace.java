@@ -33,11 +33,17 @@
 
 package org.jpc.emulator.memory;
 
-import java.io.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import org.jpc.emulator.*;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.PC;
 import org.jpc.emulator.memory.codeblock.CodeBlockManager;
 import org.jpc.emulator.processor.Processor;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * Class that emulates the 32bit physical address space of the machine.  Mappings
@@ -63,13 +69,19 @@ public final class PhysicalAddressSpace extends AddressSpace implements Hardware
     private static final int BOTTOM_INDEX_MASK = BOTTOM_INDEX_SIZE - 1;
     private static final Memory UNCONNECTED = new UnconnectedMemoryBlock();
     private boolean gateA20MaskState;
+    @NonNull
     private final Memory[] quickNonA20MaskedIndex;
+    @NonNull
     private final Memory[] quickA20MaskedIndex;
     private Memory[] quickIndex;
+    @NonNull
     private final Memory[][] nonA20MaskedIndex;
+    @NonNull
     private final Memory[][] a20MaskedIndex;
     private Memory[][] index;
+    @Nullable
     private LinearAddressSpace linearAddr;
+    @Nullable
     private CodeBlockManager manager = null;
 
     /**
@@ -91,12 +103,12 @@ public final class PhysicalAddressSpace extends AddressSpace implements Hardware
         setGateA20State(false);
     }
 
-    public void saveState(DataOutput output) throws IOException {
+    public void saveState(@NonNull DataOutput output) throws IOException {
         output.writeBoolean(gateA20MaskState);
         dumpMemory(output, quickNonA20MaskedIndex, nonA20MaskedIndex);
     }
 
-    private static void dumpMemory(DataOutput output, Memory[] quick, Memory[][] full) throws IOException {
+    private static void dumpMemory(@NonNull DataOutput output, @NonNull Memory[] quick, @NonNull Memory[][] full) throws IOException {
         byte[] temp = new byte[0];
         output.writeInt(quick.length);
         for (Memory block : quick) {
@@ -157,7 +169,7 @@ public final class PhysicalAddressSpace extends AddressSpace implements Hardware
         }
     }
 
-    private static void loadMemory(DataInput input, Memory[] quick, Memory[][] full) throws IOException {
+    private static void loadMemory(@NonNull DataInput input, Memory[] quick, Memory[][] full) throws IOException {
         byte[] temp = new byte[0];
         int quickLength = input.readInt();
         for (int i = 0; i < quickLength; i++) {
@@ -202,7 +214,7 @@ public final class PhysicalAddressSpace extends AddressSpace implements Hardware
         }
     }
 
-    public void loadState(DataInput input, CodeBlockManager manager) throws IOException {
+    public void loadState(@NonNull DataInput input, CodeBlockManager manager) throws IOException {
         clearArray(quickA20MaskedIndex, UNCONNECTED);
         clearArray(quickNonA20MaskedIndex, UNCONNECTED);
 
@@ -272,6 +284,7 @@ public final class PhysicalAddressSpace extends AddressSpace implements Hardware
     
     public void loadState(DataInput in) {}
 
+    @Nullable
     public CodeBlockManager getCodeBlockManager()
     {
         return manager;
@@ -482,6 +495,7 @@ public final class PhysicalAddressSpace extends AddressSpace implements Hardware
             throw new IllegalStateException("Cannot execute protected mode block in physical memory");
         }
 
+        @NonNull
         public String toString() {
             return "Mapped Memory";
         }
@@ -541,7 +555,7 @@ public final class PhysicalAddressSpace extends AddressSpace implements Hardware
      * @param length size of mapped region.
      * @throws java.lang.IllegalStateException if there is an error in the mapping.
      */
-    public void mapMemoryRegion(Memory underlying, int start, int length) {
+    public void mapMemoryRegion(@NonNull Memory underlying, int start, int length) {
         if (underlying.getSize() < length) {
             throw new IllegalStateException("Underlying memory (length=" + underlying.getSize() + ") is too short for mapping into region " + length + " bytes long");
         }
@@ -570,7 +584,7 @@ public final class PhysicalAddressSpace extends AddressSpace implements Hardware
      * @param block object to be mapped.
      * @throws java.lang.IllegalStateException if there is an error in the mapping.
      */
-    public void mapMemory(int start, Memory block) {
+    public void mapMemory(int start, @NonNull Memory block) {
         if ((start % BLOCK_SIZE) != 0) {
             throw new IllegalStateException("Cannot allocate memory starting at " + Integer.toHexString(start) + "; this is not aligned to " + BLOCK_SIZE + " bytes");
         }
@@ -660,6 +674,7 @@ public final class PhysicalAddressSpace extends AddressSpace implements Hardware
             throw new IllegalStateException("Trying to execute in Unconnected Block @ 0x" + Integer.toHexString(offset));
         }
 
+        @NonNull
         public String toString() {
             return "Unconnected Memory";
         }
@@ -691,6 +706,7 @@ public final class PhysicalAddressSpace extends AddressSpace implements Hardware
         }
     }
 
+    @NonNull
     public String toString() {
         return "Physical Address Bus";
     }

@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.attribute;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -43,7 +45,7 @@ import java.io.IOException;
  */
 class SyntheticAttribute extends AttributeInfo
 {
-    SyntheticAttribute(DataInputStream in, int index) throws IOException
+    SyntheticAttribute(@NonNull DataInputStream in, int index) throws IOException
     {
         super(in, index);
     }

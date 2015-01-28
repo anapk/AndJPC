@@ -33,12 +33,27 @@
 
 package org.jpc.emulator.peripheral;
 
-import org.jpc.emulator.motherboard.*;
-import org.jpc.support.*;
-import org.jpc.emulator.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
-import java.util.logging.*;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.Hibernatable;
+import org.jpc.emulator.Timer;
+import org.jpc.emulator.TimerResponsive;
+import org.jpc.emulator.motherboard.DMAController;
+import org.jpc.emulator.motherboard.DMATransferCapable;
+import org.jpc.emulator.motherboard.IOPortCapable;
+import org.jpc.emulator.motherboard.IOPortHandler;
+import org.jpc.emulator.motherboard.InterruptController;
+import org.jpc.support.BlockDevice;
+import org.jpc.support.Clock;
+import org.jpc.support.DriveSet;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -81,7 +96,9 @@ public class FloppyController implements IOPortCapable, DMATransferCapable, Hard
     private static final int DMA_CHANNEL = 2;
     private static final int IOPORT_BASE = 0x3f0;
     private boolean drivesUpdated;
+    @Nullable
     private Timer resultTimer;
+    @Nullable
     private Clock clock;
     private int state;
     private boolean dmaEnabled;
@@ -110,7 +127,9 @@ public class FloppyController implements IOPortCapable, DMATransferCapable, Hard
 
     /* Drives */
     private FloppyDrive[] drives;
+    @Nullable
     private InterruptController irqDevice;
+    @Nullable
     private DMAController dma;
 
     public FloppyController()
@@ -124,7 +143,7 @@ public class FloppyController implements IOPortCapable, DMATransferCapable, Hard
         fifo = new byte[SECTOR_LENGTH];
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(state);
         output.writeBoolean(dmaEnabled);
@@ -149,7 +168,7 @@ public class FloppyController implements IOPortCapable, DMATransferCapable, Hard
         resultTimer.saveState(output);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         drivesUpdated = false;
         ioportRegistered = false;
@@ -192,6 +211,7 @@ public class FloppyController implements IOPortCapable, DMATransferCapable, Hard
         return drives[number].drive;
     }
 
+    @NonNull
     public int[] ioPortsRequested()
     {
         return new int[]{IOPORT_BASE + 1, IOPORT_BASE + 2, IOPORT_BASE + 3,
@@ -958,7 +978,7 @@ public class FloppyController implements IOPortCapable, DMATransferCapable, Hard
         return 0;
     }
 
-    public int handleTransfer(DMAController.DMAChannel channel, int pos, int size)
+    public int handleTransfer(@NonNull DMAController.DMAChannel channel, int pos, int size)
     {
         byte status0 = 0x00, status1 = 0x00, status2 = 0x00;
 
@@ -1092,6 +1112,7 @@ public class FloppyController implements IOPortCapable, DMATransferCapable, Hard
         int maxTrack;
         int bps;
         int readOnly;
+        @Nullable
         FloppyFormat format;
 
         FloppyDrive(BlockDevice device)
@@ -1104,7 +1125,7 @@ public class FloppyController implements IOPortCapable, DMATransferCapable, Hard
             maxTrack = 0;
         }
 
-        public void saveState(DataOutput output) throws IOException
+        public void saveState(@NonNull DataOutput output) throws IOException
         {
             output.writeInt(drive.ordinal());
             output.writeInt(driveFlags);
@@ -1122,7 +1143,7 @@ public class FloppyController implements IOPortCapable, DMATransferCapable, Hard
             output.writeInt(readOnly);
         }
 
-        public void loadState(DataInput input) throws IOException
+        public void loadState(@NonNull DataInput input) throws IOException
         {
             drive = DriveType.values()[input.readInt()];
             driveFlags = input.readInt();
@@ -1238,6 +1259,7 @@ public class FloppyController implements IOPortCapable, DMATransferCapable, Hard
             driveFlags |= REVALIDATE;
         }
 
+        @NonNull
         public String toString()
         {
             return (device == null) ? "<none>" : format.toString();
@@ -1343,6 +1365,7 @@ public class FloppyController implements IOPortCapable, DMATransferCapable, Hard
         //	}
     }
 
+    @NonNull
     public String toString()
     {
         return "Intel 82078 Floppy Controller [" + drives[0].toString() + ", " + drives[1].toString() + "]";

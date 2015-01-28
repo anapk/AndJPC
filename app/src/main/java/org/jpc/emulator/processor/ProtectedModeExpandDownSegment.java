@@ -33,11 +33,14 @@
 
 package org.jpc.emulator.processor;
 
+import android.support.annotation.NonNull;
+
+import org.jpc.emulator.memory.AddressSpace;
+
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jpc.emulator.memory.AddressSpace;
 
 /**
  *
@@ -104,7 +107,7 @@ private static final Logger LOGGING = Logger.getLogger(ProtectedModeSegment.clas
         system = (descriptor & (1L << 44)) != 0;
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(3);
         output.writeInt(selector);
@@ -145,7 +148,6 @@ private static final Logger LOGGING = Logger.getLogger(ProtectedModeSegment.clas
             }
         } else if (offset > 0)
         {
-            return;
         } else
         {
             LOGGING.log(Level.INFO, this + "expand down segment: offset not within bounds.");

@@ -33,9 +33,12 @@
 
 package org.jpc.emulator.processor;
 
+import android.support.annotation.NonNull;
+
+import org.jpc.emulator.memory.AddressSpace;
+
 import java.io.DataOutput;
 import java.io.IOException;
-import org.jpc.emulator.memory.AddressSpace;
 
 /**
  *
@@ -62,7 +65,7 @@ public class Virtual8086ModeSegment extends Segment {
             type = ProtectedModeSegment.TYPE_DATA_WRITABLE | ProtectedModeSegment.TYPE_ACCESSED;
     }
 
-    public Virtual8086ModeSegment(AddressSpace memory, Segment ancestor)
+    public Virtual8086ModeSegment(AddressSpace memory, @NonNull Segment ancestor)
     {
         super(memory);
         selector = ancestor.getSelector();
@@ -71,7 +74,7 @@ public class Virtual8086ModeSegment extends Segment {
         limit = 0xffffffffL & ancestor.getLimit();
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(1);
         output.writeInt(selector);

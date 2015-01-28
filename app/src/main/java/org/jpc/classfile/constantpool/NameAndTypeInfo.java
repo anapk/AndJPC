@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.constantpool;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -49,7 +51,7 @@ public class NameAndTypeInfo extends ConstantPoolInfo
     private final int nameIndex;
     private final int descriptorIndex;
 
-    NameAndTypeInfo(DataInputStream in) throws IOException
+    NameAndTypeInfo(@NonNull DataInputStream in) throws IOException
     {
         this(in.readUnsignedShort(), in.readUnsignedShort());
     }
@@ -86,7 +88,7 @@ public class NameAndTypeInfo extends ConstantPoolInfo
         return descriptorIndex;
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         out.writeByte(NAMEANDTYPE);
         out.writeShort(nameIndex);
@@ -96,11 +98,11 @@ public class NameAndTypeInfo extends ConstantPoolInfo
     public boolean equals(Object obj)
     {
         if (obj == this) return true;
-        if (!(obj instanceof NameAndTypeInfo)) return false;
+        return obj instanceof NameAndTypeInfo && (getNameIndex() == ((NameAndTypeInfo) obj).getNameIndex()) && (getDescriptorIndex() == ((NameAndTypeInfo) obj).getDescriptorIndex());
 
-        return (getNameIndex() == ((NameAndTypeInfo) obj).getNameIndex()) && (getDescriptorIndex() == ((NameAndTypeInfo) obj).getDescriptorIndex());
     }
 
+    @NonNull
     public String toString()
     {
         return "CONSTANT_NameAndType_info : descriptor=" + getDescriptorIndex() + " : name=" + getNameIndex();

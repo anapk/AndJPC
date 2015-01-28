@@ -33,6 +33,8 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler.prot;
 
+import android.support.annotation.Nullable;
+
 import org.jpc.emulator.memory.codeblock.fastcompiler.BytecodeFragments;
 import org.jpc.emulator.memory.codeblock.fastcompiler.UCodeMethodParser;
 
@@ -61,6 +63,7 @@ public class ProtectedModeBytecodeFragments extends BytecodeFragments
     }
 
 
+    @Nullable
     public static Object[] getOperation(int element, int microcode, int x86Position)
     {
         Object[] ops = operationArray[microcode][element];
@@ -79,6 +82,7 @@ public class ProtectedModeBytecodeFragments extends BytecodeFragments
         return temp;
     }
 
+    @Nullable
     public static Object[] getOperation(int element, int microcode, int x86Position, int immediate)
     {
         Object[] temp = getOperation(element, microcode, x86Position);

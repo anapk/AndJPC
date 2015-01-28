@@ -33,6 +33,9 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler.prot;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.jpc.emulator.memory.codeblock.ProtectedModeCodeBlock;
 
 /**
@@ -41,6 +44,7 @@ import org.jpc.emulator.memory.codeblock.ProtectedModeCodeBlock;
  */
 public abstract class ProtectedModeTemplateBlock implements ProtectedModeCodeBlock
 {
+    @NonNull
     private static final boolean[] parityMap;
 
     static
@@ -50,7 +54,9 @@ public abstract class ProtectedModeTemplateBlock implements ProtectedModeCodeBlo
             parityMap[i] = ((Integer.bitCount(i) & 0x1) == 0);
     }
 
+    @Nullable
     public abstract int[] getMicrocodes();
+    @Nullable
     public abstract int[] getPositions();
     
     public String getDisplayString()
@@ -63,6 +69,7 @@ public abstract class ProtectedModeTemplateBlock implements ProtectedModeCodeBlo
         return false;
     }
 
+    @NonNull
     public String toString()
     {
         return "ByteCodeCompiled ProtectedModeUBlock";

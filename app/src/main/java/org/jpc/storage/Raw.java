@@ -33,6 +33,8 @@
 
 package org.jpc.storage;
 
+import android.support.annotation.NonNull;
+
 import java.io.IOException;
 import java.net.URI;
 
@@ -45,18 +47,18 @@ public class Raw implements SeekableDataIO{
         this(IOFactory.open(uri));
     }
 
-    private Raw(DataIO dio) throws IOException{
+    private Raw(DataIO dio) {
         this.dio = dio;
     }
 
+    @NonNull
     public static Raw create(URI uri, long length) throws IOException{
         Raw raw = new Raw(IOFactory.create(uri));
         raw.setLength(length);
         return raw;
     }
 
-    public long getPosition() throws IOException
-    {
+    public long getPosition() {
         return address;
     }
 

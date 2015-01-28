@@ -33,7 +33,11 @@
 
 package org.jpc.classfile.constantpool;
 
-import java.io.*;
+import android.support.annotation.NonNull;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * Common superclass for field and method reference constant pool elements.
@@ -44,7 +48,7 @@ public abstract class RefInfo extends ConstantPoolInfo
     private final int classIndex;
     private final int nameAndTypeIndex;
 
-    RefInfo(DataInputStream in) throws IOException
+    RefInfo(@NonNull DataInputStream in) throws IOException
     {
         this(in.readUnsignedShort(), in.readUnsignedShort());
     }
@@ -82,7 +86,7 @@ public abstract class RefInfo extends ConstantPoolInfo
 
     abstract int getTag();
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         out.writeByte(getTag());
         out.writeShort(classIndex);
@@ -94,9 +98,7 @@ public abstract class RefInfo extends ConstantPoolInfo
         if (obj == this)
             return true;
 
-        if (!(obj instanceof RefInfo))
-            return false;
+        return obj instanceof RefInfo && (getClassIndex() == ((RefInfo) obj).getClassIndex()) && (getNameAndTypeIndex() == ((RefInfo) obj).getNameAndTypeIndex());
 
-        return (getClassIndex() == ((RefInfo) obj).getClassIndex()) && (getNameAndTypeIndex() == ((RefInfo) obj).getNameAndTypeIndex());
     }
 }

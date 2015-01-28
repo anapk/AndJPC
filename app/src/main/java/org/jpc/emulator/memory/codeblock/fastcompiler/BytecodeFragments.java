@@ -33,10 +33,61 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler;
 
+import android.support.annotation.NonNull;
+
 import org.jpc.emulator.processor.Processor;
 
-import static org.jpc.classfile.JavaOpcode.*;
-import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.*;
+import static org.jpc.classfile.JavaOpcode.ALOAD_1;
+import static org.jpc.classfile.JavaOpcode.DUP;
+import static org.jpc.classfile.JavaOpcode.DUP_X2;
+import static org.jpc.classfile.JavaOpcode.GETFIELD;
+import static org.jpc.classfile.JavaOpcode.ICONST_0;
+import static org.jpc.classfile.JavaOpcode.INVOKEVIRTUAL;
+import static org.jpc.classfile.JavaOpcode.POP;
+import static org.jpc.classfile.JavaOpcode.PUTFIELD;
+import static org.jpc.classfile.JavaOpcode.SWAP;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.ELEMENT_COUNT;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_ACFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_ADDR0;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_AFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_CFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_COUNT;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_CPL;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_CPU;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_CS;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_DFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_DS;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_EAX;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_EBP;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_EBX;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_ECX;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_EDI;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_EDX;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_EIP;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_ES;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_ESI;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_ESP;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_FS;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_GDTR;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_GS;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_IDFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_IDTR;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_IFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_IOPL;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_IOPORTS;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_LDTR;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_NTFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_OFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_PFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_RFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_SFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_SS;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_TFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_TSS;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_VIFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_VIPFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_VMFLAG;
+import static org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler.PROCESSOR_ELEMENT_ZFLAG;
 
 /**
  * Provides bytecode fragments that load and store values from the
@@ -365,12 +416,14 @@ public abstract class BytecodeFragments
         return temp;
     }
 
+    @NonNull
     private static ConstantPoolSymbol field(String name)
     {
         return field(Processor.class, name);
     }
 
-    private static ConstantPoolSymbol field(Class cls, String name)
+    @NonNull
+    private static ConstantPoolSymbol field(@NonNull Class cls, String name)
     {
         try {
             return new ConstantPoolSymbol(cls.getDeclaredField(name));
@@ -379,22 +432,26 @@ public abstract class BytecodeFragments
         }
     }
 
+    @NonNull
     private static ConstantPoolSymbol method(String name)
     {
         return method(name, new Class[0]);
     }
 
+    @NonNull
     private static ConstantPoolSymbol method(String name, Class arg)
     {
         return method(name, new Class[]{arg});
     }
 
+    @NonNull
     private static ConstantPoolSymbol method(String name, Class[] args)
     {
         return method(Processor.class, name, args);
     }
 
-    private static ConstantPoolSymbol method(Class cls, String name, Class[] args)
+    @NonNull
+    private static ConstantPoolSymbol method(@NonNull Class cls, String name, Class[] args)
     {
         try {
             return new ConstantPoolSymbol(cls.getMethod(name, args));
@@ -403,11 +460,13 @@ public abstract class BytecodeFragments
         }
     }
 
+    @NonNull
     protected static ConstantPoolSymbol integer(int value)
     {
         return new ConstantPoolSymbol(value);
     }
 
+    @NonNull
     protected static ConstantPoolSymbol longint(long value)
     {
 	return new ConstantPoolSymbol(value);

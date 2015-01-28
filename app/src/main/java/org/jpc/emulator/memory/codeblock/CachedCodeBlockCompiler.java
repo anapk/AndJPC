@@ -33,13 +33,23 @@
 
 package org.jpc.emulator.memory.codeblock;
 
-import java.util.*;
-import java.util.jar.*;
-import java.net.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.jpc.emulator.memory.codeblock.fastcompiler.FASTCompiler;
 import org.jpc.emulator.memory.codeblock.fastcompiler.prot.ProtectedModeTemplateBlock;
 import org.jpc.emulator.memory.codeblock.fastcompiler.real.RealModeTemplateBlock;
+
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -47,6 +57,7 @@ import org.jpc.emulator.memory.codeblock.fastcompiler.real.RealModeTemplateBlock
  */
 public class CachedCodeBlockCompiler implements CodeBlockCompiler
 {
+    @Nullable
     private HashSet availableClassNames = null;
     private boolean loadedClass = false, listedClassNames = false;
 
@@ -95,7 +106,8 @@ public class CachedCodeBlockCompiler implements CodeBlockCompiler
         catch (Exception ignored) {}
     }
     
-    public RealModeCodeBlock getRealModeCodeBlock(InstructionSource source)
+    @Nullable
+    public RealModeCodeBlock getRealModeCodeBlock(@NonNull InstructionSource source)
     {
         if (!listedClassNames)
             getAvailableClassNames();
@@ -137,7 +149,7 @@ public class CachedCodeBlockCompiler implements CodeBlockCompiler
             else
                 return null;
         } 
-        catch (InstantiationException | IllegalAccessException ex)
+        catch (@NonNull InstantiationException | IllegalAccessException ex)
         {
             Logger.getLogger(CachedCodeBlockCompiler.class.getName()).log(Level.SEVERE, null, ex);
         } catch (VerifyError e)
@@ -149,7 +161,8 @@ public class CachedCodeBlockCompiler implements CodeBlockCompiler
         return null;
     }
 
-    public ProtectedModeCodeBlock getProtectedModeCodeBlock(InstructionSource source)
+    @Nullable
+    public ProtectedModeCodeBlock getProtectedModeCodeBlock(@NonNull InstructionSource source)
     {
         if (!listedClassNames)
             getAvailableClassNames();
@@ -196,7 +209,7 @@ public class CachedCodeBlockCompiler implements CodeBlockCompiler
             else
                 return null;
         } 
-        catch (InstantiationException | IllegalAccessException ex)
+        catch (@NonNull InstantiationException | IllegalAccessException ex)
         {
             Logger.getLogger(CachedCodeBlockCompiler.class.getName()).log(Level.SEVERE, null, ex);
         } catch (VerifyError e)
@@ -208,6 +221,7 @@ public class CachedCodeBlockCompiler implements CodeBlockCompiler
         return null;
     }
 
+    @Nullable
     public Virtual8086ModeCodeBlock getVirtual8086ModeCodeBlock(InstructionSource source)
     {
         if (!listedClassNames)
@@ -216,7 +230,8 @@ public class CachedCodeBlockCompiler implements CodeBlockCompiler
         return null;
     }
 
-    private int[] getMicrocodesArray(InstructionSource source)
+    @NonNull
+    private int[] getMicrocodesArray(@NonNull InstructionSource source)
     {
         source.reset();
         List<Integer> m = new ArrayList<>();

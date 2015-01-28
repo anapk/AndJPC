@@ -33,7 +33,7 @@
 
 package org.jpc.support;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  * Object which provides data backing for a disk device.  Currently this
@@ -53,7 +53,7 @@ public interface BlockDevice
      * Possible values are <code>HARDDRIVE</code>, <code>CDROM</code> and
      * <code>FLOPPY</code>.
      */
-    public static enum Type {HARDDRIVE, CDROM, FLOPPY};
+    public static enum Type {HARDDRIVE, CDROM, FLOPPY}
 
     /**
      * Closes the current device.  Once <code>close</code> has been called any further reads

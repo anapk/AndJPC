@@ -33,6 +33,9 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler.virt;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.jpc.emulator.memory.codeblock.RealModeCodeBlock;
 
 /**
@@ -41,6 +44,7 @@ import org.jpc.emulator.memory.codeblock.RealModeCodeBlock;
  */
 public abstract class Virtual8086ModeTemplateBlock implements RealModeCodeBlock
 {
+    @NonNull
     private static final boolean[] parityMap;
 
     static
@@ -57,7 +61,9 @@ public abstract class Virtual8086ModeTemplateBlock implements RealModeCodeBlock
         }
     }
 
+    @Nullable
     public abstract int[] getMicrocodes();
+    @Nullable
     public abstract int[] getPositions();
 
     public String getDisplayString()
@@ -70,6 +76,7 @@ public abstract class Virtual8086ModeTemplateBlock implements RealModeCodeBlock
         return false;
     }
 
+    @NonNull
     public String toString()
     {
         return "ByteCodeCompiled RealModeUBlock";

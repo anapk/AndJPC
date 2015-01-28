@@ -35,9 +35,17 @@
 package org.jpc.emulator.processor.fpu64;
 
 // import java.math.BigDecimal;
-import org.jpc.emulator.processor.*;
-import java.io.*;
-import java.util.logging.*;
+
+import android.support.annotation.NonNull;
+
+import org.jpc.emulator.processor.Processor;
+import org.jpc.emulator.processor.ProcessorException;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -74,7 +82,7 @@ public class FpuState64 extends FpuState
     private boolean precision;
     private boolean stackFault;
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(statusWord);
         output.writeInt(maskWord);
@@ -95,7 +103,7 @@ public class FpuState64 extends FpuState
         for (int aSpecialTag : specialTag) output.writeInt(aSpecialTag);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         statusWord  = input.readInt();
         maskWord = input.readInt();
@@ -273,8 +281,7 @@ public class FpuState64 extends FpuState
         int exponent = (int)((n >> 52) & 0x7ff);
         if (exponent != 0) return false;
         long fraction = (n & ~(0xfffL << 52));
-        if (fraction == 0L) return false;
-        return true;
+        return fraction != 0L;
     }
 
     public static boolean isSNaN(long n)
@@ -284,8 +291,7 @@ public class FpuState64 extends FpuState
         int exponent = (int)((n >> 52) & 0x7ff);
         if (exponent != 0x7ff) return false;
         long fraction = (n & ~(0xfffL << 52));
-        if ((fraction & (1L << 51)) != 0) return false;
-        return (fraction != 0L);
+        return (fraction & (1L << 51)) == 0 && (fraction != 0L);
     }
 
     // SNaN's aren't generated internally by x87.  Instead, they are
@@ -487,6 +493,7 @@ public class FpuState64 extends FpuState
     // it understands (which looks like an infinity).  For now we
     // simply don't support using NaN bits in this way.
 
+    @NonNull
     public static byte[] doubleToExtended(double x, boolean isSignalNaN)
     {
         byte[] b = new byte[10];
@@ -500,11 +507,11 @@ public class FpuState64 extends FpuState
         else
         {
             long n = Double.doubleToRawLongBits(x);
-            fraction = (n & ~(0xfff << 52));
+            fraction = (n & ~(0xfff << 20));
             iexp = ((int)(n >> 52) & 0x7ff);
-            boolean sgn = ((n & (1 << 63)) != 0);
+            boolean sgn = ((n & (1 << 31)) != 0);
             // insert implicit 1
-            fraction |= (1 << 52);
+            fraction |= (1 << 20);
             fraction <<= 11;
             // re-bias exponent
             iexp += (16383 - 1023);
@@ -666,7 +673,7 @@ public class FpuState64 extends FpuState
                 }
                 fraction &= ~(0xfffL << 52); // this cuts off explicit 1
                 fraction |= (((long)iexp & 0x7ff) << 52);
-                if (sgn) fraction |= (1 << 63);
+                if (sgn) fraction |= (1 << 31);
                 return Double.longBitsToDouble(fraction);
             }
             else

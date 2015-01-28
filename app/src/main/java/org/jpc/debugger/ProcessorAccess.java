@@ -34,10 +34,14 @@
 
 package org.jpc.debugger;
 
-import java.lang.reflect.*;
-import java.util.*;
+import android.support.annotation.NonNull;
 
-import org.jpc.emulator.processor.*;
+import org.jpc.emulator.processor.Processor;
+import org.jpc.emulator.processor.Segment;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 class ProcessorAccess
 {
@@ -91,7 +95,7 @@ class ProcessorAccess
         lookup.put(fieldName, targetField);   
     }
 
-    public int getValue(String name, int defaultValue)
+    public int getValue(@NonNull String name, int defaultValue)
     {
         if (name.equals("eflags"))
             return processor.getEFlags();

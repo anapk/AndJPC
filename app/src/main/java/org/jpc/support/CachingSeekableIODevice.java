@@ -33,7 +33,9 @@
 
 package org.jpc.support;
 
-import java.io.*;
+import android.support.annotation.NonNull;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,7 +62,7 @@ public class CachingSeekableIODevice implements SeekableIODevice
         byteOffset = offset;
     }
 
-    public int write(byte[] data, int offset, int length) throws IOException
+    public int write(@NonNull byte[] data, int offset, int length) throws IOException
     {
         if (byteOffset % BlockDevice.SECTOR_SIZE != 0)
         {
@@ -104,7 +106,7 @@ public class CachingSeekableIODevice implements SeekableIODevice
         }
     }
 
-    public int read(byte[] data, int offset, int length) throws IOException
+    public int read(@NonNull byte[] data, int offset, int length) throws IOException
     {
         if (byteOffset % BlockDevice.SECTOR_SIZE != 0)
         {
@@ -186,6 +188,7 @@ public class CachingSeekableIODevice implements SeekableIODevice
         parent.configure(opts);
     }
 
+    @NonNull
     public String toString()
     {
         if (parent == null)

@@ -33,15 +33,20 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler.real;
 
-import java.io.*;
-import java.util.Map;
+import android.support.annotation.NonNull;
 
 import org.jpc.classfile.ClassFile;
-import org.jpc.emulator.processor.*;
-
 import org.jpc.emulator.memory.codeblock.fastcompiler.ExceptionHandler;
+import org.jpc.emulator.processor.Processor;
+import org.jpc.emulator.processor.ProcessorException;
 
-import static org.jpc.classfile.JavaOpcode.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Map;
+
+import static org.jpc.classfile.JavaOpcode.ALOAD_1;
+import static org.jpc.classfile.JavaOpcode.INVOKEVIRTUAL;
+import static org.jpc.classfile.JavaOpcode.SWAP;
 /**
  * 
  * @author Chris Dennis
@@ -53,7 +58,7 @@ public class RealModeExceptionHandler extends ExceptionHandler
 	super(lastX86Position, initialNode, stateMap);
     }
 
-    protected void writeHandlerRoutine(OutputStream byteCodes, ClassFile cf) throws IOException
+    protected void writeHandlerRoutine(@NonNull OutputStream byteCodes, @NonNull ClassFile cf) throws IOException
     {
 	byteCodes.write(ALOAD_1);
 	byteCodes.write(SWAP);

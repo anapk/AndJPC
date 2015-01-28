@@ -33,11 +33,16 @@
 
 package org.jpc.emulator.pci.peripheral;
 
-import org.jpc.emulator.Hibernatable;
-import org.jpc.emulator.pci.IOPortIORegion;
-import org.jpc.emulator.memory.Memory;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
+import org.jpc.emulator.Hibernatable;
+import org.jpc.emulator.memory.Memory;
+import org.jpc.emulator.pci.IOPortIORegion;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * 
@@ -59,6 +64,7 @@ class BMDMAIORegion implements IOPortIORegion, Hibernatable
     private byte status;
     private int address, dtpr;
     /* current transfer state */
+    @Nullable
     private IDEChannel.IDEState ideDevice;
     private int ideDMAFunction;
     
@@ -70,7 +76,7 @@ class BMDMAIORegion implements IOPortIORegion, Hibernatable
 	this.next = next;
     }
     
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(baseAddress);
         output.writeLong(size);
@@ -82,7 +88,7 @@ class BMDMAIORegion implements IOPortIORegion, Hibernatable
             ideDevice.saveState(output);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         baseAddress = input.readInt();
         size = input.readLong();
@@ -226,6 +232,7 @@ class BMDMAIORegion implements IOPortIORegion, Hibernatable
 	}
     }
     
+    @NonNull
     public int[] ioPortsRequested()
     {
 	return new int[]{baseAddress, baseAddress + 2,

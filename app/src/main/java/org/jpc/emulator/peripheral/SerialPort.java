@@ -33,12 +33,21 @@
 
 package org.jpc.emulator.peripheral;
 
-import org.jpc.emulator.*;
-import org.jpc.emulator.motherboard.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.motherboard.IOPortCapable;
+import org.jpc.emulator.motherboard.IOPortHandler;
+import org.jpc.emulator.motherboard.InterruptController;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Emulates a standard 16450 UART.
@@ -117,6 +126,7 @@ public class SerialPort extends AbstractHardwareComponent implements IOPortCapab
     private boolean thrIPending; /* transmitter holding register interrupt */
     private int irq; /* irq channel */
     private int baseAddress; /* base I/O Port Address */
+    @Nullable
     private InterruptController irqDevice;
 
     private final StringBuilder serialOutputBuffer = new StringBuilder();
@@ -138,7 +148,7 @@ public class SerialPort extends AbstractHardwareComponent implements IOPortCapab
         serialOutput = Logger.getLogger(SerialPort.class.getName() + ".port" + portNumber);
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeShort(divider);
         output.writeByte(receiverBufferRegister);
@@ -154,7 +164,7 @@ public class SerialPort extends AbstractHardwareComponent implements IOPortCapab
         output.writeInt(baseAddress);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         ioportRegistered = false;
         divider = input.readShort();
@@ -226,6 +236,7 @@ public class SerialPort extends AbstractHardwareComponent implements IOPortCapab
 	return 0xffffffff;
     }
 
+    @NonNull
     public int[] ioPortsRequested()
     {
 	return new int[]{baseAddress, baseAddress + 1, baseAddress + 2, baseAddress + 3, baseAddress + 4, baseAddress + 5, baseAddress + 6, baseAddress + 7};
@@ -372,7 +383,7 @@ public class SerialPort extends AbstractHardwareComponent implements IOPortCapab
 	}
     }
 
-    private void print(String data)
+    private void print(@NonNull String data)
     {
         synchronized (serialOutputBuffer) {
             int newline;

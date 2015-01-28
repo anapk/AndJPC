@@ -33,8 +33,12 @@
 
 package org.jpc.emulator.memory;
 
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+
 import org.jpc.emulator.memory.codeblock.CodeBlockManager;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides a read-only memory implementation in which the contents of ROM chips
@@ -55,7 +59,7 @@ public class EPROMMemory extends LazyCodeBlockMemory
      * @param offset index into <code>data</code> array.
      * @param length number of bytes copied into object.
      */
-    public EPROMMemory(byte[] data, int offset, int length, CodeBlockManager manager)
+    public EPROMMemory(@NonNull byte[] data, int offset, int length, CodeBlockManager manager)
     {
         this(length, 0, data, offset, length, manager);
     }
@@ -69,7 +73,7 @@ public class EPROMMemory extends LazyCodeBlockMemory
      * @param offset offset in array to copy data from.
      * @param length number of bytes to copy.
      */
-    public EPROMMemory(int size, int base, byte[] data, int offset, int length, CodeBlockManager manager)
+    public EPROMMemory(int size, int base, @NonNull byte[] data, int offset, int length, CodeBlockManager manager)
     {
         super(size, manager);
         super.copyArrayIntoContents(base, data, offset, Math.min(size - base, Math.min(length, data.length - offset)));
@@ -102,7 +106,7 @@ public class EPROMMemory extends LazyCodeBlockMemory
     /**
      * Silently returns as this is a read-only instance.
      */
-    public void copyArrayIntoContents(int address, byte[] buf, int off, int len)
+    public void copyArrayIntoContents(int address, @NonNull byte[] buf, int off, int len)
     {
         writeAttempted(address, len);
     }
@@ -112,6 +116,7 @@ public class EPROMMemory extends LazyCodeBlockMemory
 	constructCodeBlocksArray();
     }
     
+    @NonNull
     public String toString()
     {
         return "EPROM Memory [" + getSize() + "]";

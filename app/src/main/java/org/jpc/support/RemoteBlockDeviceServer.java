@@ -33,9 +33,14 @@
 
 package org.jpc.support;
 
-import java.io.*;
-import java.net.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -45,7 +50,7 @@ class RemoteBlockDeviceServer
 {
     private static final Logger LOGGING = Logger.getLogger(RemoteBlockDeviceServer.class.getName());
     
-    public static void main(String[] args) throws Exception
+    public static void main(@NonNull String[] args) throws Exception
     {
         DriveSet set = DriveSet.buildFromArgs(args);
         

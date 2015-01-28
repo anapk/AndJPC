@@ -33,12 +33,21 @@
 
 package org.jpc.j2se;
 
-import org.jpc.emulator.*;
-import org.jpc.support.Clock;
-import java.io.*;
-import java.util.PriorityQueue;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.PC;
+import org.jpc.emulator.Timer;
+import org.jpc.emulator.TimerResponsive;
 import org.jpc.emulator.processor.Processor;
+import org.jpc.support.Clock;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.PriorityQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -49,6 +58,7 @@ public class VirtualClock extends AbstractHardwareComponent implements Clock
     private static final long IPS = Processor.IPS;
     private static final long NSPI = 10*1000000000L/IPS; //Nano seconds per instruction
     private static final Logger LOGGING = Logger.getLogger(VirtualClock.class.getName());
+    @NonNull
     private final PriorityQueue<Timer> timers;
     private volatile boolean ticksEnabled;
     private long ticksOffset;
@@ -66,20 +76,21 @@ public class VirtualClock extends AbstractHardwareComponent implements Clock
         currentTime = getSystemTimer();
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeBoolean(ticksEnabled);
         output.writeLong(ticksOffset);
         output.writeLong(getTime());
     }
 
-    public void loadState(DataInput input, PC pc) throws IOException
+    public void loadState(@NonNull DataInput input, PC pc) throws IOException
     {
         ticksEnabled = input.readBoolean();
         ticksOffset = input.readLong();
         ticksStatic = input.readLong();
     }
 
+    @NonNull
     public synchronized Timer newTimer(TimerResponsive object)
     {
         Timer tempTimer = new Timer(object, this);
@@ -90,13 +101,10 @@ public class VirtualClock extends AbstractHardwareComponent implements Clock
     {
         Timer tempTimer;
         tempTimer = timers.peek();
-        if ((tempTimer == null) || !tempTimer.check(getTime()))
-            return false;
-        else
-            return true;
+        return !((tempTimer == null) || !tempTimer.check(getTime()));
     }
 
-    public synchronized void update(Timer object)
+    public synchronized void update(@NonNull Timer object)
     {
         timers.remove(object);
         if (object.enabled())
@@ -155,6 +163,7 @@ public class VirtualClock extends AbstractHardwareComponent implements Clock
             ticksStatic = 0;
     }
 
+    @NonNull
     public String toString()
     {
         return "Virtual Clock";

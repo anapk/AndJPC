@@ -49,7 +49,7 @@ public interface SeekableDataIO{
 
     public void seek(long offset) throws IOException;
 
-    public long getPosition() throws IOException;
+    public long getPosition();
 
     public long getLength() throws IOException;
 

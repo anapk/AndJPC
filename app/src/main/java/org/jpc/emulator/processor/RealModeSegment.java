@@ -33,9 +33,13 @@
 
 package org.jpc.emulator.processor;
 
-import java.io.*;
+import android.support.annotation.NonNull;
 
 import org.jpc.emulator.memory.AddressSpace;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * 
@@ -62,7 +66,7 @@ final class RealModeSegment extends Segment
         type = ProtectedModeSegment.TYPE_DATA_WRITABLE | ProtectedModeSegment.TYPE_ACCESSED;
     }
 
-    public RealModeSegment(AddressSpace memory, Segment ancestor)
+    public RealModeSegment(AddressSpace memory, @NonNull Segment ancestor)
     {
         super(memory);
         selector = ancestor.getSelector();
@@ -75,7 +79,7 @@ final class RealModeSegment extends Segment
         rpl = ancestor.getRPL();
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(0);
         output.writeInt(selector);
@@ -87,7 +91,7 @@ final class RealModeSegment extends Segment
         output.writeBoolean(present);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         type = input.readInt();
         rpl = input.readInt();

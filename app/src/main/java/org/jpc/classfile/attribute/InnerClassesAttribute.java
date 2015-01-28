@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.attribute;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -46,14 +48,14 @@ public class InnerClassesAttribute extends AttributeInfo
 {
     private ClassEntry[] classes;
 
-    InnerClassesAttribute(DataInputStream in, int index) throws IOException
+    InnerClassesAttribute(@NonNull DataInputStream in, int index) throws IOException
     {
         super(in, index);
         classes = new ClassEntry[in.readUnsignedShort()];
         for (int i = 0; i < classes.length; i++) classes[i] = new ClassEntry(in);
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         super.write(out);
         out.writeShort(classes.length);
@@ -78,7 +80,7 @@ public class InnerClassesAttribute extends AttributeInfo
         static final int ANNOTATION = 8192;
         static final int ENUM = 16384;
 
-        ClassEntry(DataInputStream in) throws IOException
+        ClassEntry(@NonNull DataInputStream in) throws IOException
         {
             super();
             innnerClassInfoIndex = in.readUnsignedShort();
@@ -87,7 +89,7 @@ public class InnerClassesAttribute extends AttributeInfo
             innnerClassAccessFlags = in.readUnsignedShort();
         }
 
-        void write(DataOutputStream out) throws IOException
+        void write(@NonNull DataOutputStream out) throws IOException
         {
             out.writeShort(innnerClassInfoIndex);
             out.writeShort(outerClassInfoIndex);

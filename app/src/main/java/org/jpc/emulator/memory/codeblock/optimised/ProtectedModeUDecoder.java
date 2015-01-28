@@ -33,9 +33,15 @@
 
 package org.jpc.emulator.memory.codeblock.optimised;
 
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import org.jpc.emulator.memory.codeblock.*;
+import org.jpc.emulator.memory.codeblock.ByteSource;
+import org.jpc.emulator.memory.codeblock.Decoder;
+import org.jpc.emulator.memory.codeblock.InstructionSource;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.*;
 
@@ -175,16 +181,19 @@ public final class ProtectedModeUDecoder implements Decoder, InstructionSource
 	this.working = new Operation();
     }
 
+    @Nullable
     public InstructionSource decodeReal(ByteSource source, int limit)
     {
 	return null;
     }
 
+    @Nullable
     public InstructionSource decodeVirtual8086(ByteSource source, int limit)
     {
 	return null;
     }
 
+    @NonNull
     public InstructionSource decodeProtected(ByteSource source, boolean operandSize, int limit)
     {
         //limit=1;
@@ -247,11 +256,7 @@ public final class ProtectedModeUDecoder implements Decoder, InstructionSource
 
     private boolean decodingAddressMode()
     {
-	if (addressModeDecoded) {
-	    return false;
-	} else {
-	    return (addressModeDecoded = true);
-	}
+        return !addressModeDecoded && (addressModeDecoded = true);
     }
             
     private void decodeComplete(int position)

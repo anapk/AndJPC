@@ -33,6 +33,8 @@
 
 package org.jpc.storage;
 
+import android.support.annotation.NonNull;
+
 import java.net.URI;
 
 
@@ -40,7 +42,7 @@ class CmdMain {
 
 
 
-    public static void main(String[] args) throws Exception
+    public static void main(@NonNull String[] args) throws Exception
     {
 
         String usage = "usage: java -jar JPCImg.jar -in <input uri> -infmt <input format> -out <output uri> -outfmt <output format>";

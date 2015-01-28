@@ -33,15 +33,17 @@
 
 package org.jpc.storage;
 
-import java.net.URI;
+import android.support.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.URI;
 
 public class FileIO implements DataIO{
 
     private RandomAccessFile raf;
 
-    public FileIO(URI uri) throws IOException{
+    public FileIO(@NonNull URI uri) throws IOException{
         raf = new RandomAccessFile(uri.getPath(), "rw");
     }
 

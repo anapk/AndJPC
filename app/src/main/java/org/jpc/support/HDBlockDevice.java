@@ -33,7 +33,10 @@
 
 package org.jpc.support;
 
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Hard-drive block device implementation.
@@ -81,7 +84,6 @@ public class HDBlockDevice extends RawBlockDevice
                     detectedCylinders = (int) (this.getTotalSectors() / (detectedHeads * detectedSectors));
                     if (detectedCylinders < 1 || detectedCylinders > 16383) {
                         detectedCylinders = 0;
-                        continue;
                     }
                 }
             }
@@ -131,11 +133,13 @@ public class HDBlockDevice extends RawBlockDevice
         return sectors;
     }
 
+    @NonNull
     public Type getType()
     {
         return Type.HARDDRIVE;
     }
     
+    @NonNull
     public String toString()
     {
         return "HD: " + super.toString();

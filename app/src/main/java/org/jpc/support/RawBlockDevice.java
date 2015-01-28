@@ -33,8 +33,12 @@
 
 package org.jpc.support;
 
-import java.io.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A generic block device backed by a <code>SeekableIODevice</code> instance.
@@ -44,6 +48,7 @@ public abstract class RawBlockDevice implements BlockDevice
 {
     private static final Logger LOGGING = Logger.getLogger(RawBlockDevice.class.getName());
     
+    @Nullable
     private SeekableIODevice data;
     private long totalSectors;
 
@@ -56,7 +61,7 @@ public abstract class RawBlockDevice implements BlockDevice
         setData(data);
     }
 
-    public int read(long sectorNumber, byte[] buffer, int size)
+    public int read(long sectorNumber, @NonNull byte[] buffer, int size)
     {
         Integer t;
         try {
@@ -124,7 +129,7 @@ public abstract class RawBlockDevice implements BlockDevice
      * Changes the backing for this device.
      * @param data new backing device
      */
-    final void setData(SeekableIODevice data)
+    final void setData(@Nullable SeekableIODevice data)
     {
         this.data = data;
         if (data == null)

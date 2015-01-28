@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.attribute;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -46,14 +48,14 @@ public class LineNumberTableAttribute extends AttributeInfo
 {
     private LineNumberEntry[] lineNumberTable;
 
-    LineNumberTableAttribute(DataInputStream in, int index) throws IOException
+    LineNumberTableAttribute(@NonNull DataInputStream in, int index) throws IOException
     {
         super(in, index);
         lineNumberTable = new LineNumberEntry[in.readUnsignedShort()];
         for (int i = 0; i < lineNumberTable.length; i++) lineNumberTable[i] = new LineNumberEntry(in);
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         super.write(out);
         out.writeShort(lineNumberTable.length);
@@ -66,14 +68,14 @@ public class LineNumberTableAttribute extends AttributeInfo
         private int startPC;
         private int lineNumber;
 
-        LineNumberEntry(DataInputStream in) throws IOException
+        LineNumberEntry(@NonNull DataInputStream in) throws IOException
         {
             super();
             startPC = in.readUnsignedShort();
             lineNumber = in.readUnsignedShort();
         }
 
-        void write(DataOutputStream out) throws IOException
+        void write(@NonNull DataOutputStream out) throws IOException
         {
             out.writeShort(startPC);
             out.writeShort(lineNumber);

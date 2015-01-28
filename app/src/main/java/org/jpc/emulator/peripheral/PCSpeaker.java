@@ -1,9 +1,19 @@
 package org.jpc.emulator.peripheral;
 
-import org.jpc.emulator.*;
-import org.jpc.emulator.motherboard.*;
-import java.util.logging.*;
-import java.io.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.motherboard.IOPortCapable;
+import org.jpc.emulator.motherboard.IOPortHandler;
+import org.jpc.emulator.motherboard.IntervalTimer;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PCSpeaker extends AbstractHardwareComponent implements IOPortCapable
 {
@@ -20,7 +30,7 @@ public class PCSpeaker extends AbstractHardwareComponent implements IOPortCapabl
     private int dummyRefreshClock;
     private boolean enabled;
     private boolean ioportRegistered;
-    private int mode;
+    @Nullable
     private IntervalTimer pit;
     private int speakerOn;
     private int waitingForPit;
@@ -116,6 +126,7 @@ public class PCSpeaker extends AbstractHardwareComponent implements IOPortCapabl
             return;
         speakerOn = (data >> 1) & 1;
         pit.setGate(2, (data & 1) != 0);
+        int mode;
         if ((data & 1 ) == 1)
         {
             if (speakerOn == 1)
@@ -154,13 +165,14 @@ public class PCSpeaker extends AbstractHardwareComponent implements IOPortCapabl
         this.ioPortWriteByte(n + 1, n2 >> 8);
     }
 
+    @NonNull
     @Override
     public int[] ioPortsRequested() {
         return new int[] { 97 };
     }
 
     @Override
-    public void loadState(final DataInput dataInput) throws IOException {
+    public void loadState(@NonNull final DataInput dataInput) throws IOException {
         this.ioportRegistered = false;
         this.dummyRefreshClock = dataInput.readInt();
         this.speakerOn = dataInput.readInt();
@@ -185,7 +197,7 @@ public class PCSpeaker extends AbstractHardwareComponent implements IOPortCapabl
     }
 
     @Override
-    public void saveState(final DataOutput dataOutput) throws IOException {
+    public void saveState(@NonNull final DataOutput dataOutput) throws IOException {
         dataOutput.writeInt(this.dummyRefreshClock);
         dataOutput.writeInt(this.speakerOn);
     }

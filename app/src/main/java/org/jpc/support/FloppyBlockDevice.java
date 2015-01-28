@@ -33,6 +33,8 @@
 
 package org.jpc.support;
 
+import android.support.annotation.NonNull;
+
 /**
  * A <code>RawBlockDevice</code> subclass for floppy disk drives.
  * @author Chris Dennis
@@ -80,11 +82,13 @@ public class FloppyBlockDevice extends RawBlockDevice
         return -1;
     }
 
+    @NonNull
     public Type getType()
     {
         return Type.FLOPPY;
     }
 
+    @NonNull
     public String toString()
     {
         return "Floppy: " + super.toString();

@@ -33,9 +33,13 @@
 
 package org.jpc.emulator;
 
-import java.io.*;
+import android.support.annotation.NonNull;
 
 import org.jpc.support.Clock;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * This class provides for the triggering of events on <code>TimerResponsive</code>
@@ -65,13 +69,13 @@ public class Timer implements Comparable, Hibernatable
         enabled = false;
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeLong(expireTime);
         output.writeBoolean(enabled);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         setExpiry(input.readLong());
         setStatus(input.readBoolean());
@@ -142,7 +146,8 @@ public class Timer implements Comparable, Hibernatable
         return expireTime;
     }
 
-    public int compareTo(Object o)
+    @Override
+    public int compareTo(@NonNull Object o)
     {
         if (!(o instanceof Timer))
             return -1;

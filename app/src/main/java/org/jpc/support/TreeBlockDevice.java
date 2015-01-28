@@ -33,11 +33,30 @@
 
 package org.jpc.support;
 
-import java.io.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.io.BufferedOutputStream;
+import java.io.DataOutput;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
-import java.util.*;
-import java.util.logging.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Presents a directory on the local machine as a FAT32 volume within the guest.
@@ -119,8 +138,11 @@ public class TreeBlockDevice implements BlockDevice
     
     private int numberOfOpenFiles = 0;
     
+    @NonNull
     private Map<Long, FatEntry> sectorToFatEntry = new HashMap<>();
+    @NonNull
     private Map<Long, byte[]> bufferedWrites = new HashMap<>();
+    @NonNull
     private Set<Long> unmappedClusters = new HashSet<>();
     private OpenFilesCache fileCache;
     private boolean bufferWrites = false; 
@@ -161,7 +183,7 @@ public class TreeBlockDevice implements BlockDevice
      * @param specs specification string
      * @throws java.io.IOException on an underlying fs error
      */
-    public void configure(String specs) throws IOException
+    public void configure(@NonNull String specs) throws IOException
     {
         boolean buffer = true;
         String rootName = specs;
@@ -214,6 +236,7 @@ public class TreeBlockDevice implements BlockDevice
         System.arraycopy(fsinfo, 0, start, (HIDDEN_SECTORS + BACKUP_BOOT_SECTOR + FSINFO_SECTOR) * SECTOR_SIZE, fsinfo.length);        
     }
     
+    @NonNull
     private static byte[] buildMasterBootRecord(long start, long end)
     {
         byte[] mbr = new byte[SECTOR_SIZE];
@@ -238,6 +261,7 @@ public class TreeBlockDevice implements BlockDevice
         return mbr;
     }
 
+    @NonNull
     private static byte[] buildPartitionBootRecord(long volumeSize, int fatSize)
     {
         byte[] pbr = new byte[SECTOR_SIZE];
@@ -278,6 +302,7 @@ public class TreeBlockDevice implements BlockDevice
         return pbr;
     }
 
+    @NonNull
     private static byte[] buildFsInfoSector()
     {
         byte[] fsinfo = new byte[SECTOR_SIZE];
@@ -309,7 +334,7 @@ public class TreeBlockDevice implements BlockDevice
     }
 
     //READ up to 16 sectors at a time
-    public int read(long sectorNumber, byte[] buffer, int size)
+    public int read(long sectorNumber, @NonNull byte[] buffer, int size)
     {
         if (size != 1)
             LOGGING.log(Level.WARNING, "Request to do multiple sector read.");
@@ -318,7 +343,7 @@ public class TreeBlockDevice implements BlockDevice
             return -1;
 
         //check map of writes to see if sector has been written to
-        byte[] entry = bufferedWrites.get(Long.valueOf(sectorNumber));
+        byte[] entry = bufferedWrites.get(sectorNumber);
         if (entry != null)
             System.arraycopy(entry, 0, buffer, 0, SECTOR_SIZE);
         else if (sectorNumber < HEADER_SECTION_LENGTH) // Initial sectors
@@ -330,9 +355,9 @@ public class TreeBlockDevice implements BlockDevice
         return 0;
     }
     
-    private int readFromFileSystem(long sectorNumber, byte[] buffer)
+    private int readFromFileSystem(long sectorNumber, @NonNull byte[] buffer)
     {
-        FatEntry entry = sectorToFatEntry.get(Long.valueOf(sectorNumber));
+        FatEntry entry = sectorToFatEntry.get(sectorNumber);
         if (entry != null)
             try {
                 entry.read(sectorNumber, buffer);
@@ -342,12 +367,12 @@ public class TreeBlockDevice implements BlockDevice
             }
         else {
             System.arraycopy(EMPTY, 0, buffer, 0, SECTOR_SIZE);
-            LOGGING.log(Level.FINE, "Read empty sector number {0,number,integer}", Long.valueOf(sectorNumber));
+            LOGGING.log(Level.FINE, "Read empty sector number {0,number,integer}", sectorNumber);
         }
         return 0;
     }
 
-    public int write(long sectorNumber, byte[] buffer, int size)
+    public int write(long sectorNumber, @NonNull byte[] buffer, int size)
     {
         if (size != 1)
             LOGGING.log(Level.WARNING, "Request to do multiple sector write.");
@@ -358,7 +383,7 @@ public class TreeBlockDevice implements BlockDevice
         if (bufferWrites) {
             byte[] write = new byte[SECTOR_SIZE];
             System.arraycopy(buffer, 0, write, 0, SECTOR_SIZE);
-            bufferedWrites.put(Long.valueOf(sectorNumber), write);
+            bufferedWrites.put(sectorNumber, write);
         } else if (sectorNumber < HEADER_SECTION_LENGTH)
             System.arraycopy(buffer, 0, start, (int) sectorNumber * SECTOR_SIZE, SECTOR_SIZE);
         else if (sectorNumber < dataSectionStart)
@@ -369,7 +394,7 @@ public class TreeBlockDevice implements BlockDevice
         return 0;
     }
 
-    private void writeToFat(byte[] buffer, long sectorNumber)
+    private void writeToFat(@NonNull byte[] buffer, long sectorNumber)
     {
         //read old fatImage first to compare to
         byte[] oldSector = new byte[SECTOR_SIZE];
@@ -390,14 +415,14 @@ public class TreeBlockDevice implements BlockDevice
             if (entryChanged)
                 if (followFatChainLink(minCluster + (entryOffset >>> 2)) == 0) {
                     //a fatImage entry has been set to zero so we need to delete a file or dir
-                    FatEntry entry = sectorToFatEntry.get(Long.valueOf(getSectorNumber(entryOffset + minCluster)));
+                    FatEntry entry = sectorToFatEntry.get(getSectorNumber(entryOffset + minCluster));
                     if (entry != null) {
                         entry.getFile().delete();
 
                         //remove all references to the file from the data Map
                         long startingSector = getSectorNumber(entry.getStartCluster());
                         for (int k = 0; k < SECTORS_PER_CLUSTER; k++)
-                            sectorToFatEntry.remove(Long.valueOf(startingSector + k));
+                            sectorToFatEntry.remove(startingSector + k);
                     }
                 }
         }
@@ -405,14 +430,14 @@ public class TreeBlockDevice implements BlockDevice
         //need to check if references have been made to allow us to commit writes from writeMap
         Iterator<Long> itt = unmappedClusters.iterator();
         while (itt.hasNext()) {
-            long thisCluster = itt.next().longValue();
+            long thisCluster = itt.next();
             //see if anything has been allocated with thisCluster value in fatImage
             for (long cluster = minCluster; cluster < minCluster + (SECTOR_SIZE >> 2); cluster++)
                 if (followFatChainLink((int) cluster) == thisCluster) {
-                    FatEntry entry = sectorToFatEntry.get(Long.valueOf(getSectorNumber(cluster)));
+                    FatEntry entry = sectorToFatEntry.get(getSectorNumber(cluster));
                     if (entry != null) {
                         for (int j = 0; j < SECTORS_PER_CLUSTER; j++) {
-                            Long key = Long.valueOf(getSectorNumber(thisCluster) + j);
+                            Long key = getSectorNumber(thisCluster) + j;
                             byte[] array = bufferedWrites.remove(key);
                             if (array != null)
                                 write(key.longValue(), buffer, 1);
@@ -423,9 +448,9 @@ public class TreeBlockDevice implements BlockDevice
         }
     }
     
-    private int writeToFileSystem(long sectorNumber, byte[] buffer)
+    private int writeToFileSystem(long sectorNumber, @NonNull byte[] buffer)
     {
-        FatEntry entry = sectorToFatEntry.get(Long.valueOf(sectorNumber));
+        FatEntry entry = sectorToFatEntry.get(sectorNumber);
         if (entry != null)
             try {
                 entry.write(sectorNumber, buffer);
@@ -436,9 +461,9 @@ public class TreeBlockDevice implements BlockDevice
             //cluster is not allocated
             byte[] temp = new byte[SECTOR_SIZE];
             System.arraycopy(buffer, 0, temp, 0, SECTOR_SIZE);
-            bufferedWrites.put(Long.valueOf(sectorNumber), temp);
+            bufferedWrites.put(sectorNumber, temp);
             
-            unmappedClusters.add(Long.valueOf(getClusterNumber(sectorNumber)));
+            unmappedClusters.add(getClusterNumber(sectorNumber));
         }
         return 0;
     }
@@ -519,13 +544,15 @@ public class TreeBlockDevice implements BlockDevice
      * Returns <code>Type.HARDDRIVE</code>.
      * @return <code>Type.HARDDRIVE</code>
      */
+    @NonNull
     public Type getType()
     {
         return Type.HARDDRIVE;
     }
  
     //convert FATmap to fatImage
-    private byte[] createFatImage(Map<Long, FatEntry> fat)
+    @NonNull
+    private byte[] createFatImage(@NonNull Map<Long, FatEntry> fat)
     {
         byte[] image = new byte[fatSize * SECTOR_SIZE];
         
@@ -533,7 +560,7 @@ public class TreeBlockDevice implements BlockDevice
         putInt(image, 4, FAT_CHAIN_ENDMARK);
 
         for (Map.Entry<Long, FatEntry> entry : fat.entrySet()) {
-            long startCluster = entry.getKey().longValue();
+            long startCluster = entry.getKey();
             long lengthClusters = entry.getValue().getSizeInClusters();
             long endCluster = startCluster + lengthClusters;
 
@@ -552,15 +579,16 @@ public class TreeBlockDevice implements BlockDevice
     }
 
     //convert FATmap to data map
-    private Map<Long, FatEntry> createDataMap(Map<Long, FatEntry> fat)
+    @NonNull
+    private Map<Long, FatEntry> createDataMap(@NonNull Map<Long, FatEntry> fat)
     {
         Map<Long, FatEntry> dataMap = new HashMap<>();
 
         for (Map.Entry<Long, FatEntry> entry : fat.entrySet()) {
             FatEntry fatEntry = entry.getValue();
-            long startSector = getSectorNumber(entry.getKey().longValue());
+            long startSector = getSectorNumber(entry.getKey());
             for (long i = 0; i < fatEntry.getSizeSectors(); i++)
-                dataMap.put(Long.valueOf(startSector + i), fatEntry);
+                dataMap.put(startSector + i, fatEntry);
         }
         
         return dataMap;
@@ -570,7 +598,7 @@ public class TreeBlockDevice implements BlockDevice
      * Mirrors disk structure out to a new root directory.
      * @param root directory for copy
      */
-    public void writeNewTree(File root)
+    public void writeNewTree(@NonNull File root)
     {
         //write disk to a new directory structure
         {
@@ -591,7 +619,7 @@ public class TreeBlockDevice implements BlockDevice
                     //check it isn't empty
                     if (sum != 0)
                     {
-                        hashFAT.put(Integer.valueOf(j), Integer.valueOf(sum));
+                        hashFAT.put(j, sum);
                     }
                 }
                 readToWrite(hashFAT, 2, root);
@@ -600,7 +628,7 @@ public class TreeBlockDevice implements BlockDevice
     }
     
     //method to read a directory or file from this TBD and write it out to a new physical one
-    private void readToWrite(Map hashFAT, int startingCluster, File file) //make this return an int to signify success
+    private void readToWrite(@NonNull Map hashFAT, int startingCluster, @NonNull File file) //make this return an int to signify success
     {
         int cluster = startingCluster;
         byte[] buffer = new byte[SECTOR_SIZE];
@@ -628,7 +656,7 @@ public class TreeBlockDevice implements BlockDevice
                 dir = newdir;
                     
                 //check for more clusters
-                cluster = ((Integer) hashFAT.get(Integer.valueOf(cluster))).intValue();
+                cluster = (Integer) hashFAT.get(cluster);
                 if (cluster == 268435455)//251592447) //endmark
                     break;
             }
@@ -696,7 +724,7 @@ public class TreeBlockDevice implements BlockDevice
                                 break;
 
                             //if sector ends in a 0 and we are in the last cluster, then trim the zeroes from the end
-                            if ((((Integer) hashFAT.get(Integer.valueOf(cluster))).intValue() == 268435455) && (buffer[511] == 0))
+                            if (((Integer) hashFAT.get(cluster) == 268435455) && (buffer[511] == 0))
                             {
                                 int index = 511;
                                 while (buffer[index]==0)
@@ -713,7 +741,7 @@ public class TreeBlockDevice implements BlockDevice
                     }
                     
                     //check for more clusters
-                    cluster = ((Integer) hashFAT.get(Integer.valueOf(cluster))).intValue();
+                    cluster = (Integer) hashFAT.get(cluster);
                     if (cluster == 268435455) //EOF marker
                         break;
                 }
@@ -728,7 +756,7 @@ public class TreeBlockDevice implements BlockDevice
     }
     
     //write image of disk
-    public void writeImage(DataOutput dout) throws IOException
+    public void writeImage(@NonNull DataOutput dout) throws IOException
     {
 	byte[] buffer=new byte[SECTOR_SIZE];
         
@@ -747,6 +775,7 @@ public class TreeBlockDevice implements BlockDevice
         private String shortName;        
         private long startCluster, sizeSectors, sizeClusters;
  	private File file;
+        @NonNull
         public Map<Long, Long> clusterList = new HashMap<>(); // list of clusters in object
 
         private DirectoryEntry parent;
@@ -828,13 +857,13 @@ public class TreeBlockDevice implements BlockDevice
         void makeClusterList()
         {
             for (long counter = 0,  cluster = getStartCluster(); counter < getSizeInClusters(); counter++, cluster++)
-                clusterList.put(Long.valueOf(cluster), Long.valueOf(counter));
+                clusterList.put(cluster, counter);
         }
 
         void updateClusterList(long sectorNumber)
         {
-            if (!clusterList.containsKey(Long.valueOf(getClusterNumber(sectorNumber)))) {
-                clusterList.put(Long.valueOf(getClusterNumber(sectorNumber)), Long.valueOf(getSizeInClusters() + 1));
+            if (!clusterList.containsKey(getClusterNumber(sectorNumber))) {
+                clusterList.put(getClusterNumber(sectorNumber), getSizeInClusters() + 1);
                 setSizeClusters(getSizeInClusters() + 1);
             }
         }
@@ -869,7 +898,8 @@ public class TreeBlockDevice implements BlockDevice
             this.file = file;
         }
         
-	byte[] createLongFileNameEntry(String hint)
+	@NonNull
+    byte[] createLongFileNameEntry(@NonNull String hint)
 	{
             byte[] name = getShortName().getBytes(US_ASCII);
             byte checksum = 0;            
@@ -911,6 +941,7 @@ public class TreeBlockDevice implements BlockDevice
     private class FileEntry extends FatEntry
     {
         private long fileSize;
+        @Nullable
         private WeakReference<RandomAccessFile> backingFile;
         
         FileEntry(File file, long start, DirectoryEntry parent) throws IOException
@@ -927,7 +958,7 @@ public class TreeBlockDevice implements BlockDevice
  	public void read(long sectorNumber, byte[] buffer) throws IOException
 	{
             long oddsectors = getClusterOffset(sectorNumber);
-            long offset = clusterList.get(Long.valueOf(getClusterNumber(sectorNumber))).longValue() * SECTORS_PER_CLUSTER * SECTOR_SIZE;
+            long offset = clusterList.get(getClusterNumber(sectorNumber)) * SECTORS_PER_CLUSTER * SECTOR_SIZE;
             offset = offset + oddsectors * SECTOR_SIZE;
 
             //see if file is already open
@@ -957,8 +988,7 @@ public class TreeBlockDevice implements BlockDevice
             for (int nextCluster = (int) getStartCluster(); nextCluster != cluster; clusterCount++)
                 nextCluster = followFatChainLink(nextCluster);
 
-            RandomAccessFile out = new RandomAccessFile(getFile(), "rw");
-            try {
+            try (RandomAccessFile out = new RandomAccessFile(getFile(), "rw")) {
                 out.seek((clusterCount * SECTORS_PER_CLUSTER + offset) * SECTOR_SIZE);
                 int len = SECTOR_SIZE;
                 if ((clusterCount * SECTORS_PER_CLUSTER + offset + 1) * SECTOR_SIZE > getFileSize())
@@ -973,19 +1003,17 @@ public class TreeBlockDevice implements BlockDevice
                     System.err.println("length of write is: " + len);
                     System.err.println("offset: " + offset + ", clusterCount: " + clusterCount + ", fileSize: " + getFileSize());
                 }
-            } finally {
-                out.close();
             }
             //update file's clusterlist
             updateClusterList(sectorNumber);
 
-            sectorToFatEntry.put(Long.valueOf(sectorNumber), this);
+            sectorToFatEntry.put(sectorNumber, this);
         }
         
-        protected long buildTree(Map<Long, FatEntry> fat) throws IOException
+        protected long buildTree(@NonNull Map<Long, FatEntry> fat) throws IOException
         {
             makeClusterList();
-            fat.put(Long.valueOf(getStartCluster()), this);            
+            fat.put(getStartCluster(), this);
             return getSizeInClusters();
         }
                 
@@ -1027,9 +1055,12 @@ public class TreeBlockDevice implements BlockDevice
     class DirectoryEntry extends FatEntry
     {
 	// All files and directories in this directory:
-	private List<FatEntry> files = new ArrayList<>();
+	@NonNull
+    private List<FatEntry> files = new ArrayList<>();
         private long dirSubClusters;
-	private Set<String> shortNames = new HashSet<>();
+	@NonNull
+    private Set<String> shortNames = new HashSet<>();
+        @NonNull
         private byte[] dirEntry = new byte[0];
 	private int size;
 	
@@ -1039,6 +1070,7 @@ public class TreeBlockDevice implements BlockDevice
             this.dirSubClusters = 0;
         }
 
+        @NonNull
         String generateShortName(String hint)
         {
             hint = hint.toUpperCase();
@@ -1103,10 +1135,10 @@ public class TreeBlockDevice implements BlockDevice
         }
         
         //get set of directory entries for this directory
-        public void read(long sectorNumber, byte[] buffer) throws IOException
+        public void read(long sectorNumber, @NonNull byte[] buffer) throws IOException
         {
             long oddsectors = getClusterOffset(sectorNumber);
-            long offset = clusterList.get(Long.valueOf(getClusterNumber(sectorNumber))).longValue() * SECTORS_PER_CLUSTER * SECTOR_SIZE;
+            long offset = clusterList.get(getClusterNumber(sectorNumber)) * SECTORS_PER_CLUSTER * SECTOR_SIZE;
             offset = offset + oddsectors * SECTOR_SIZE;
 
             //   long clusterCount =  (sectorNumber - dataSectionStart -(super.getStartCluster()-2)*SECTORS_PER_CLUSTER) * SECTOR_SIZE;
@@ -1117,7 +1149,7 @@ public class TreeBlockDevice implements BlockDevice
                 buffer[i] = 0x00;            
         }
 
-        public void write(long sectorNumber, byte[] buffer)
+        public void write(long sectorNumber, @NonNull byte[] buffer)
         {
             //continually commit writes
             //check to see if the sector is in the data section
@@ -1136,11 +1168,11 @@ public class TreeBlockDevice implements BlockDevice
             //add buffer to directory's set of direntries
             writeDirectoryEntry(buffer, clusterCount * SECTORS_PER_CLUSTER + offset, sectorNumber);
             //update sectorToFatEntry
-            sectorToFatEntry.put(Long.valueOf(sectorNumber), this);
+            sectorToFatEntry.put(sectorNumber, this);
             for (int i = 0; i < 16; i++) {
                 int newStartCluster = (buffer[32 * i + 26] & 0xFF) + ((buffer[32 * i + 27] & 0xFF) << 8) + ((buffer[32 * i + 20] & 0xFF) << 16) + ((buffer[32 * i + 21] & 0xFF) << 24);
                 if (((buffer[32 * i] & 0xFF) == 0xE5) && (followFatChainLink(newStartCluster) == 0)) {
-                    FatEntry entry = sectorToFatEntry.get(Long.valueOf(getSectorNumber(newStartCluster)));
+                    FatEntry entry = sectorToFatEntry.get(getSectorNumber(newStartCluster));
 
                     if (entry != null) {
                         entry.getFile().delete();
@@ -1148,7 +1180,7 @@ public class TreeBlockDevice implements BlockDevice
                         //remove all entries for file in sectorToFatEntry          
                         for (int n = 0,  next = newStartCluster; n < clusterCount + 1; n++, next = followFatChainLink(next))
                             for (int s = 0; s < SECTORS_PER_CLUSTER; s++)
-                                sectorToFatEntry.remove(Long.valueOf(getSectorNumber(next) + s));
+                                sectorToFatEntry.remove(getSectorNumber(next) + s);
                     }
                 } else if ((buffer[32 * i + 11] & 0xFF) == 0xF)
                     //skip LFN's for now
@@ -1170,7 +1202,7 @@ public class TreeBlockDevice implements BlockDevice
                     long newStartSector = getSectorNumber(newStartCluster);
                     boolean isDirectory = (buffer[32 * i + 11] & 0x10) == 0x10;
                     //add in other attributes here like readonly, hidden etc.
-                    if (sectorToFatEntry.get(Long.valueOf(newStartSector)) == null) {
+                    if (sectorToFatEntry.get(newStartSector) == null) {
                         //new dir entry was created and we need to create a new File
 
                         File newFile;
@@ -1185,7 +1217,7 @@ public class TreeBlockDevice implements BlockDevice
                             for (int c = 0; c < zero.length; c++) zero[c] = 0;
                             newEntry.writeDirectoryEntry(zero, 0, newStartSector); //need to think about whether this is necessary
                             for (int d = 0; d < SECTORS_PER_CLUSTER; d++)
-                                sectorToFatEntry.put(Long.valueOf(newStartSector + d), newEntry);
+                                sectorToFatEntry.put(newStartSector + d, newEntry);
                         } else {
                             long fileSize = (buffer[32 * i + 28] & 0xFF) + ((buffer[32 * i + 29] & 0xFF) << 8) + ((buffer[32 * i + 30] & 0xFF) << 16) + ((buffer[32 * i + 31] & 0xFF) << 24);
 
@@ -1196,7 +1228,7 @@ public class TreeBlockDevice implements BlockDevice
                                 FileEntry newEntry = new FileEntry(newFile, newStartCluster, this);
                                 newEntry.setSizeClusters(-1);
                                 newEntry.setFileSize(fileSize);
-                                sectorToFatEntry.put(Long.valueOf(newStartSector), newEntry);
+                                sectorToFatEntry.put(newStartSector, newEntry);
                             } catch (IOException e) {
                                 LOGGING.log(Level.WARNING, "cannot create new file", e);
                             } catch (SecurityException e) {
@@ -1205,14 +1237,14 @@ public class TreeBlockDevice implements BlockDevice
                         }
                         //check if the new object created corresponds to data which was written to an unallocated cluster
                         for (int k = 0; k < SECTORS_PER_CLUSTER; k++) {
-                            byte[] array = bufferedWrites.remove(Long.valueOf(newStartSector + k));
+                            byte[] array = bufferedWrites.remove(newStartSector + k);
                             if (array != null)
                                 TreeBlockDevice.this.write(newStartSector + k, array, 1);
                             unmappedClusters.remove(Long.valueOf(newStartCluster));
                         }
                     } else {
                         //it has changed the properties of a file which is already allocated and we need to update, possibly rename it
-                        FatEntry changedFile = sectorToFatEntry.get(Long.valueOf(newStartSector));
+                        FatEntry changedFile = sectorToFatEntry.get(newStartSector);
                         File oldFile = changedFile.getFile();
                         File path = oldFile.getParentFile();
                         File newFile;
@@ -1227,7 +1259,7 @@ public class TreeBlockDevice implements BlockDevice
             }
         }
 
-        protected long buildTree(Map<Long, FatEntry> fat) throws IOException
+        protected long buildTree(@NonNull Map<Long, FatEntry> fat) throws IOException
         {
             File[] contents = getFile().listFiles();
 
@@ -1267,7 +1299,7 @@ public class TreeBlockDevice implements BlockDevice
             makeClusterList();
 
             //add entry to fatImage map
-            fat.put(Long.valueOf(getStartCluster()), this);
+            fat.put(getStartCluster(), this);
             
             return dirSubClusters + getSizeInClusters();
         }
@@ -1297,7 +1329,7 @@ public class TreeBlockDevice implements BlockDevice
                 
                 long newStartSector = getSectorNumber(newStartCluster);
                 boolean isDirectory = (dirEntry[32 * i + 11] & 0x10) == 0x10;
-                FatEntry myfile = sectorToFatEntry.get(Long.valueOf(newStartSector));
+                FatEntry myfile = sectorToFatEntry.get(newStartSector);
                 if (!isDirectory)
                     myfile.setFile(new File(path, name + "." + ext));
                 else
@@ -1315,10 +1347,10 @@ public class TreeBlockDevice implements BlockDevice
             files.add(f);
         }
 	
-        public void writeDirectoryEntry(byte[] buffer, long sectorOffset, long sectorNumber)
+        public void writeDirectoryEntry(@NonNull byte[] buffer, long sectorOffset, long sectorNumber)
         {
             //update clusterlist
-            clusterList.put(Long.valueOf(getClusterNumber(sectorNumber)), Long.valueOf(sectorOffset/SECTORS_PER_CLUSTER));
+            clusterList.put(getClusterNumber(sectorNumber), sectorOffset / SECTORS_PER_CLUSTER);
 
             if (dirEntry.length < SECTOR_SIZE + sectorOffset*SECTOR_SIZE)
             {
@@ -1403,6 +1435,7 @@ public class TreeBlockDevice implements BlockDevice
     
     private static class OpenFilesCache
     {
+        @NonNull
         private final LinkedList<RandomAccessFile> backing;
         private final int maxSize;
         
@@ -1412,6 +1445,7 @@ public class TreeBlockDevice implements BlockDevice
             backing = new LinkedList<>();
         }
 
+        @NonNull
         public RandomAccessFile getBackingFor(File f) throws FileNotFoundException
         {
             while (backing.size() >= maxSize)
@@ -1472,7 +1506,8 @@ public class TreeBlockDevice implements BlockDevice
         return (((cylinder * HEADS_PER_CYLINDER) + head) * SECTORS_PER_TRACK) + sector - 1;
     }
 
-    private static byte[] makeLongFileNameEntry(byte[] unicodeName, byte checksum, int index)
+    @Nullable
+    private static byte[] makeLongFileNameEntry(@NonNull byte[] unicodeName, byte checksum, int index)
     {
         int offset = index * 26;
         int remaining = unicodeName.length - offset;

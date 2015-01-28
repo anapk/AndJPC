@@ -33,13 +33,24 @@
 
 package org.jpc.emulator.peripheral;
 
-import java.io.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import org.jpc.emulator.motherboard.*;
-import org.jpc.emulator.memory.*;
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.Hibernatable;
+import org.jpc.emulator.memory.LinearAddressSpace;
+import org.jpc.emulator.memory.PhysicalAddressSpace;
+import org.jpc.emulator.motherboard.IOPortCapable;
+import org.jpc.emulator.motherboard.IOPortHandler;
+import org.jpc.emulator.motherboard.InterruptController;
 import org.jpc.emulator.processor.Processor;
-import org.jpc.emulator.*;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -71,7 +82,7 @@ public class Keyboard extends AbstractHardwareComponent implements IOPortCapable
     private static final byte KBD_CCMD_RESET = (byte)0xFE;
 
     /* Keyboard Commands */
-    private static final byte KBD_CMD_SET_LEDS = (byte)0xED;; /* Set keyboard leds */
+    private static final byte KBD_CMD_SET_LEDS = (byte)0xED; /* Set keyboard leds */
     private static final byte KBD_CMD_ECHO = (byte)0xEE;
     private static final byte KBD_CMD_GET_ID = (byte)0xF2; /* get keyboard ID */
     private static final byte KBD_CMD_SET_RATE = (byte)0xF3; /* Set typematic rate */
@@ -132,6 +143,7 @@ public class Keyboard extends AbstractHardwareComponent implements IOPortCapable
     private static final int KBD_QUEUE_SIZE = 256;
 
     //Instance Variables
+    @NonNull
     private final KeyboardQueue queue;
 
     private byte commandWrite;
@@ -154,9 +166,13 @@ public class Keyboard extends AbstractHardwareComponent implements IOPortCapable
 
     private boolean ioportRegistered;
 
+    @Nullable
     private InterruptController irqDevice;
+    @Nullable
     private Processor cpu;
+    @Nullable
     private PhysicalAddressSpace physicalAddressSpace;
+    @Nullable
     private LinearAddressSpace linearAddressSpace;
 
     public Keyboard()
@@ -169,7 +185,7 @@ public class Keyboard extends AbstractHardwareComponent implements IOPortCapable
 	reset();
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeByte(commandWrite);
         output.writeByte(status);
@@ -190,7 +206,7 @@ public class Keyboard extends AbstractHardwareComponent implements IOPortCapable
         queue.saveState(output);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         ioportRegistered = false;
         commandWrite = input.readByte();
@@ -213,6 +229,7 @@ public class Keyboard extends AbstractHardwareComponent implements IOPortCapable
     }
 
     //IOPortCapable Methods
+    @NonNull
     public int[] ioPortsRequested()
     {
 	return new int[]{0x60, 0x64};
@@ -666,7 +683,7 @@ public class Keyboard extends AbstractHardwareComponent implements IOPortCapable
 	    length = 0;
 	}
 
-        public void saveState(DataOutput output) throws IOException
+        public void saveState(@NonNull DataOutput output) throws IOException
         {
             output.writeInt(aux.length);
             output.write(aux);
@@ -677,7 +694,7 @@ public class Keyboard extends AbstractHardwareComponent implements IOPortCapable
             output.writeInt(length);
         }
 
-        public void loadState(DataInput input) throws IOException
+        public void loadState(@NonNull DataInput input) throws IOException
         {
             int len = input.readInt();
             aux = new byte[len];
@@ -766,8 +783,7 @@ public class Keyboard extends AbstractHardwareComponent implements IOPortCapable
                     putKeyboardEvent((byte) 0xe0);
                 putKeyboardEvent((byte) (scancode & 0x7f));
             }
-       	    return;
-	}
+        }
     }
     public void keyReleased(byte scancode)
     {

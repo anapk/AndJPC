@@ -33,12 +33,24 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler;
 
-import java.io.*;
-import java.util.*;
+import android.support.annotation.NonNull;
 
-import org.jpc.classfile.*;
+import org.jpc.classfile.ClassFile;
+import org.jpc.classfile.MethodOutputStream;
 
-import static org.jpc.classfile.JavaOpcode.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.jpc.classfile.JavaOpcode.ALOAD;
+import static org.jpc.classfile.JavaOpcode.ASTORE;
+import static org.jpc.classfile.JavaOpcode.DUP;
+import static org.jpc.classfile.JavaOpcode.ILOAD;
+import static org.jpc.classfile.JavaOpcode.ISTORE;
+import static org.jpc.classfile.JavaOpcode.LDC;
+import static org.jpc.classfile.JavaOpcode.LDC_W;
+import static org.jpc.classfile.JavaOpcode.getConstantPoolIndexSize;
 
 /**
  * 
@@ -49,10 +61,13 @@ public abstract class RPNNode
     private final int id;
     private int useCount;
     private int localVariableSlot;
+    @NonNull
     private final List<RPNNode> inputs;
     private int currentWriteCount = 0;
     private int writeCountMax = 0;
+    @NonNull
     private int[] instanceStartIndex = new int[100];
+    @NonNull
     private int[] instanceEndIndex = new int[100];
     private int currentLocation = -1;
     private final MicrocodeNode parent;
@@ -136,13 +151,13 @@ public abstract class RPNNode
         exceptionHandler = handler;
     }
 
-    static void writeBytecodes(OutputStream output, ClassFile cf, Object[] bytecodes) throws IOException
+    static void writeBytecodes(@NonNull OutputStream output, @NonNull ClassFile cf, @NonNull Object[] bytecodes) throws IOException
     {
         for (int i = 0; i < bytecodes.length; i++) {
             Object o = bytecodes[i];
 
             if (o instanceof Integer) {
-                int instruction = ((Integer) o).intValue();
+                int instruction = (Integer) o;
 
                 if (((i + 1) < bytecodes.length) && ((o = bytecodes[i + 1]) instanceof ConstantPoolSymbol)) {
                     int index = cf.addToConstantPool(((ConstantPoolSymbol) o).poolEntity());
@@ -170,7 +185,7 @@ public abstract class RPNNode
         }
     }
 
-    final void write(MethodOutputStream output, ClassFile cf, boolean leaveResultOnStack) throws IOException
+    final void write(@NonNull MethodOutputStream output, @NonNull ClassFile cf, boolean leaveResultOnStack) throws IOException
     {
         currentWriteCount++;
 
@@ -287,7 +302,7 @@ public abstract class RPNNode
         }
     }
 
-    final void writeExceptionCleanup(OutputStream output, ClassFile cf, boolean leaveResultOnStack) throws IOException
+    final void writeExceptionCleanup(@NonNull OutputStream output, @NonNull ClassFile cf, boolean leaveResultOnStack) throws IOException
     {
         currentWriteCount++;
 

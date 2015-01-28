@@ -33,11 +33,21 @@
 
 package org.jpc.emulator.memory.codeblock.optimised;
 
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import org.jpc.emulator.processor.*;
-import org.jpc.emulator.processor.fpu64.*;
-import org.jpc.emulator.memory.codeblock.*;
+import org.jpc.emulator.memory.codeblock.ArrayBackedInstructionSource;
+import org.jpc.emulator.memory.codeblock.InstructionSource;
+import org.jpc.emulator.memory.codeblock.Virtual8086ModeCodeBlock;
+import org.jpc.emulator.processor.Processor;
+import org.jpc.emulator.processor.ProcessorException;
+import org.jpc.emulator.processor.Segment;
+import org.jpc.emulator.processor.SegmentFactory;
+import org.jpc.emulator.processor.fpu64.FpuState;
+import org.jpc.emulator.processor.fpu64.FpuState64;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.*;
 
@@ -49,6 +59,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 {
     private static final Logger LOGGING = Logger.getLogger(Virtual8086ModeCodeBlock.class.getName());
     
+    @NonNull
     private static final boolean[] parityMap;
 
     static
@@ -73,6 +84,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
     private int[] microcodes;
     private int[] cumulativeX86Length;
     private int executeCount;
+    @Nullable
     private static final OpcodeLogger opcodeCounter = null;//new OpcodeLogger("VM86 Stats:");
 
     public Virtual8086ModeUBlock()
@@ -106,6 +118,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
         return x86Count;
     }
 
+    @NonNull
     public String getDisplayString()
     {
         StringBuilder buf = new StringBuilder();
@@ -120,11 +133,13 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
         return false;
     }
 
+    @NonNull
     public String toString()
     {
 	return "Virtual8086 Mode Interpreted Block: "+hashCode();
     }
 
+    @NonNull
     public InstructionSource getAsInstructionSource()
     {
         int[] codes = new int[microcodes.length];
@@ -135,6 +150,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	return new ArrayBackedInstructionSource(codes, positions);
     }
 
+    @NonNull
     int[] getMicrocodes()
     {
         int[] result = new int[microcodes.length];
@@ -142,6 +158,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
         return result;
     }
 
+    @Nullable
     private Segment transferSeg0 = null;
     private int transferAddr0 = 0;
     private int transferReg0 = 0, transferReg1 = 0, transferReg2 = 0;
@@ -153,7 +170,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
     private int uCodeXferReg0 = 0, uCodeXferReg1 = 0, uCodeXferReg2 = 0;
     private boolean uCodeXferLoaded = false;
 
-    private void fullExecute(Processor cpu)
+    private void fullExecute(@NonNull Processor cpu)
     {
         FpuState fpu = cpu.fpu;
 
@@ -626,7 +643,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 			
 	    case CLD: cpu.eflagsDirection = false; break;
 	    case STD: cpu.eflagsDirection = true; break;
-	    case CMC: cpu.setCarryFlag(cpu.getCarryFlag() ^ true); break;
+	    case CMC: cpu.setCarryFlag(!cpu.getCarryFlag()); break;
 
 	    case CALL_O16_A16: call_o16_a16((short)reg0); break;
 	    case CALL_O32_A16: call_o32_a16(reg0); break;
@@ -1370,7 +1387,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
         return ans;
     }
 
-    public int execute(Processor cpu)
+    public int execute(@NonNull Processor cpu)
     {
  	this.fpu = cpu.fpu;
  	this.cpu = cpu;        
@@ -2227,7 +2244,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
             throw ProcessorException.GENERAL_PROTECTION_0;
     }
 
-    private void cmpsb_a16(Segment seg0)
+    private void cmpsb_a16(@NonNull Segment seg0)
     {
 	int addrOne = cpu.esi & 0xffff;
 	int addrTwo = cpu.edi & 0xffff;
@@ -2252,7 +2269,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
         uCodeXferLoaded = true;
     }
 
-    private void cmpsw_a16(Segment seg0)
+    private void cmpsw_a16(@NonNull Segment seg0)
     {
 	int addrOne = cpu.esi & 0xffff;
 	int addrTwo = cpu.edi & 0xffff;
@@ -2277,7 +2294,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
         uCodeXferLoaded = true;
     }
 
-    private void cmpsd_a16(Segment seg0)
+    private void cmpsd_a16(@NonNull Segment seg0)
     {
 	int addrOne = cpu.esi & 0xffff;
 	int addrTwo = cpu.edi & 0xffff;
@@ -2302,7 +2319,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
         uCodeXferLoaded = true;
     }
 
-    private void repe_cmpsb_a16(Segment seg0)
+    private void repe_cmpsb_a16(@NonNull Segment seg0)
     {
 	int count = cpu.ecx & 0xffff;
 	int addrOne = cpu.esi & 0xffff;
@@ -2349,7 +2366,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void repe_cmpsw_a16(Segment seg0)
+    private void repe_cmpsw_a16(@NonNull Segment seg0)
     {
 	int count = cpu.ecx & 0xffff;
 	int addrOne = cpu.esi & 0xffff;
@@ -2396,7 +2413,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void repe_cmpsd_a16(Segment seg0)
+    private void repe_cmpsd_a16(@NonNull Segment seg0)
     {
 	int count = cpu.ecx & 0xffff;
 	int addrOne = cpu.esi & 0xffff;
@@ -2590,7 +2607,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void lodsb_a16(Segment dataSegment)
+    private void lodsb_a16(@NonNull Segment dataSegment)
     {
 	int addr = cpu.esi & 0xffff;
 	cpu.eax = (cpu.eax & ~0xff) | (0xff & dataSegment.getByte(addr));
@@ -2603,7 +2620,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (addr & 0xffff);
     }
 
-    private void lodsw_a16(Segment dataSegment)
+    private void lodsw_a16(@NonNull Segment dataSegment)
     {
 	int addr = cpu.esi & 0xffff;
 	cpu.eax = (cpu.eax & ~0xffff) | (0xffff & dataSegment.getWord(addr));
@@ -2616,7 +2633,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (addr & 0xffff);
     }
 
-    private void lodsd_a16(Segment dataSegment)
+    private void lodsd_a16(@NonNull Segment dataSegment)
     {
 	int addr = cpu.esi & 0xffff;
 	cpu.eax = dataSegment.getDoubleWord(addr);
@@ -2629,7 +2646,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (addr & 0xffff);
     }
 
-    private void rep_lodsb_a16(Segment dataSegment)
+    private void rep_lodsb_a16(@NonNull Segment dataSegment)
     {
 	int count = cpu.ecx & 0xffff;
 	int addr = cpu.esi & 0xffff;
@@ -2660,7 +2677,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void rep_lodsw_a16(Segment dataSegment)
+    private void rep_lodsw_a16(@NonNull Segment dataSegment)
     {
 	int count = cpu.ecx & 0xffff;
 	int addr = cpu.esi & 0xffff;
@@ -2691,7 +2708,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void rep_lodsd_a16(Segment dataSegment)
+    private void rep_lodsd_a16(@NonNull Segment dataSegment)
     {
 	int count = cpu.ecx & 0xffff;
 	int addr = cpu.esi & 0xffff;
@@ -2722,7 +2739,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void lodsb_a32(Segment dataSegment)
+    private void lodsb_a32(@NonNull Segment dataSegment)
     {
 	int addr = cpu.esi;
 	cpu.eax = (cpu.eax & ~0xff) | (0xff & dataSegment.getByte(addr));
@@ -2735,7 +2752,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = addr;
     }
 
-    private void lodsw_a32(Segment dataSegment)
+    private void lodsw_a32(@NonNull Segment dataSegment)
     {
 	int addr = cpu.esi;
 	cpu.eax = (cpu.eax & ~0xffff) | (0xffff & dataSegment.getWord(addr));
@@ -2748,7 +2765,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = addr;
     }
 
-    private void lodsd_a32(Segment dataSegment)
+    private void lodsd_a32(@NonNull Segment dataSegment)
     {
 	int addr = cpu.esi;
 	cpu.eax = dataSegment.getDoubleWord(addr);
@@ -2761,7 +2778,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = addr;
     }
 
-    private void rep_lodsb_a32(Segment dataSegment)
+    private void rep_lodsb_a32(@NonNull Segment dataSegment)
     {
 	int count = cpu.ecx;
 	int addr = cpu.esi;
@@ -2792,7 +2809,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void rep_lodsw_a32(Segment dataSegment)
+    private void rep_lodsw_a32(@NonNull Segment dataSegment)
     {
 	int count = cpu.ecx;
 	int addr = cpu.esi;
@@ -2823,7 +2840,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void rep_lodsd_a32(Segment dataSegment)
+    private void rep_lodsd_a32(@NonNull Segment dataSegment)
     {
 	int count = cpu.ecx;
 	int addr = cpu.esi;
@@ -2854,7 +2871,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void movsb_a16(Segment outSegment)
+    private void movsb_a16(@NonNull Segment outSegment)
     {
 	int inAddr = cpu.edi & 0xffff;
 	int outAddr = cpu.esi & 0xffff;
@@ -2872,7 +2889,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (outAddr & 0xffff);
     }
 
-    private void movsw_a16(Segment outSegment)
+    private void movsw_a16(@NonNull Segment outSegment)
     {
 	int inAddr = cpu.edi & 0xffff;
 	int outAddr = cpu.esi & 0xffff;
@@ -2890,7 +2907,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (outAddr & 0xffff);
     }
 
-    private void movsd_a16(Segment outSegment)
+    private void movsd_a16(@NonNull Segment outSegment)
     {
 	int inAddr = cpu.edi & 0xffff;
 	int outAddr = cpu.esi & 0xffff;
@@ -2908,7 +2925,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (outAddr & 0xffff);
     }
 
-    private void rep_movsb_a16(Segment outSegment)
+    private void rep_movsb_a16(@NonNull Segment outSegment)
     {
 	int count = cpu.ecx & 0xffff;
 	int inAddr = cpu.edi & 0xffff;
@@ -2941,7 +2958,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void rep_movsw_a16(Segment outSegment)
+    private void rep_movsw_a16(@NonNull Segment outSegment)
     {
 	int count = cpu.ecx & 0xffff;
 	int inAddr = cpu.edi & 0xffff;
@@ -2974,7 +2991,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void rep_movsd_a16(Segment outSegment)
+    private void rep_movsd_a16(@NonNull Segment outSegment)
     {
 	int count = cpu.ecx & 0xffff;
 	int inAddr = cpu.edi & 0xffff;
@@ -3007,7 +3024,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void movsb_a32(Segment outSegment)
+    private void movsb_a32(@NonNull Segment outSegment)
     {
 	int inAddr = cpu.edi;
 	int outAddr = cpu.esi;
@@ -3025,7 +3042,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = outAddr;
     }
 
-    private void movsw_a32(Segment outSegment)
+    private void movsw_a32(@NonNull Segment outSegment)
     {
 	int inAddr = cpu.edi;
 	int outAddr = cpu.esi;
@@ -3043,7 +3060,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = outAddr;
     }
 
-    private void movsd_a32(Segment outSegment)
+    private void movsd_a32(@NonNull Segment outSegment)
     {
 	int inAddr = cpu.edi;
 	int outAddr = cpu.esi;
@@ -3061,7 +3078,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = outAddr & 0xffff;
     }
 
-    private void rep_movsb_a32(Segment outSegment)
+    private void rep_movsb_a32(@NonNull Segment outSegment)
     {
 	int count = cpu.ecx;
 	int inAddr = cpu.edi;
@@ -3094,7 +3111,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void rep_movsw_a32(Segment outSegment)
+    private void rep_movsw_a32(@NonNull Segment outSegment)
     {
 	int count = cpu.ecx;
 	int inAddr = cpu.edi;
@@ -3127,7 +3144,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void rep_movsd_a32(Segment outSegment)
+    private void rep_movsd_a32(@NonNull Segment outSegment)
     {
 	int count = cpu.ecx;
 	int inAddr = cpu.edi;
@@ -3160,7 +3177,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void outsb_a16(int port, Segment storeSegment)
+    private void outsb_a16(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsByte(port))
 	    throw ProcessorException.GENERAL_PROTECTION_0;
@@ -3177,7 +3194,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (addr & 0xffff);
     }
 
-    private void outsw_a16(int port, Segment storeSegment)
+    private void outsw_a16(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsShort(port))
 	    throw ProcessorException.GENERAL_PROTECTION_0;
@@ -3194,7 +3211,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (addr & 0xffff);
     }
 
-    private void outsd_a16(int port, Segment storeSegment)
+    private void outsd_a16(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsInt(port))
 	    throw ProcessorException.GENERAL_PROTECTION_0;
@@ -3211,7 +3228,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (addr & 0xffff);
     }
 
-    private void rep_outsb_a16(int port, Segment storeSegment)
+    private void rep_outsb_a16(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsByte(port))
 	    throw ProcessorException.GENERAL_PROTECTION_0;
@@ -3243,7 +3260,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void rep_outsw_a16(int port, Segment storeSegment)
+    private void rep_outsw_a16(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsShort(port))
 	    throw ProcessorException.GENERAL_PROTECTION_0;
@@ -3275,7 +3292,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	}
     }
 
-    private void rep_outsd_a16(int port, Segment storeSegment)
+    private void rep_outsd_a16(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsInt(port))
 	    throw ProcessorException.GENERAL_PROTECTION_0;
@@ -4034,7 +4051,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.edx =  (int)remainder;    //EDX is remainder
     }
 
-    private void btc_mem(int offset, Segment segment, int address) throws ProcessorException
+    private void btc_mem(int offset, @NonNull Segment segment, int address) throws ProcessorException
     {
 	address += (offset >>> 3);
 	offset &= 0x7;
@@ -4044,7 +4061,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.setCarryFlag(data, offset, Processor.CY_NTH_BIT_SET);
     }
 
-    private void bts_mem(int offset, Segment segment, int address) throws ProcessorException
+    private void bts_mem(int offset, @NonNull Segment segment, int address) throws ProcessorException
     {
 	address += (offset >>> 3);
 	offset &= 0x7;
@@ -4054,7 +4071,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.setCarryFlag(data, offset, Processor.CY_NTH_BIT_SET);
     }
 
-    private void btr_mem(int offset, Segment segment, int address) throws ProcessorException
+    private void btr_mem(int offset, @NonNull Segment segment, int address) throws ProcessorException
     {
 	address += (offset >>> 3);
 	offset &= 0x7;
@@ -4064,7 +4081,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	cpu.setCarryFlag(data, offset, Processor.CY_NTH_BIT_SET);
     }
 
-    private void bt_mem(int offset, Segment segment, int address) throws ProcessorException
+    private void bt_mem(int offset, @NonNull Segment segment, int address) throws ProcessorException
     {
 	address += (offset >>> 3);
 	offset &= 0x7;
@@ -4272,8 +4289,7 @@ public class Virtual8086ModeUBlock implements Virtual8086ModeCodeBlock
 	    cpu.ebx = 0;
 	    cpu.ecx = 0;
 	    cpu.edx = 0;
-	    return;
-	}
+    }
     }
 
     private void bitwise_flags(byte result)

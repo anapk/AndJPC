@@ -33,6 +33,9 @@
 
 package org.jpc.emulator.motherboard;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.jpc.emulator.AbstractHardwareComponent;
 
 /**
@@ -88,6 +91,7 @@ public class IOPortHandler extends AbstractHardwareComponent implements IOPortCa
         ioPortDevice[address].ioPortWriteLong(address, data);
     }
 
+    @Nullable
     public int[] ioPortsRequested()
     {
         return null;
@@ -101,7 +105,7 @@ public class IOPortHandler extends AbstractHardwareComponent implements IOPortCa
      * currently unconnected.
      * @param device object to be mapped.
      */
-    public void registerIOPortCapable(IOPortCapable device)
+    public void registerIOPortCapable(@NonNull IOPortCapable device)
     {
         int[] portArray = device.ioPortsRequested();
         if (portArray == null) return;
@@ -119,7 +123,7 @@ public class IOPortHandler extends AbstractHardwareComponent implements IOPortCa
      * are not cleared.
      * @param device object to be unmapped.
      */
-    public void deregisterIOPortCapable(IOPortCapable device)
+    public void deregisterIOPortCapable(@NonNull IOPortCapable device)
     {
         int[] portArray = device.ioPortsRequested();
         for (int port : portArray) {
@@ -135,6 +139,7 @@ public class IOPortHandler extends AbstractHardwareComponent implements IOPortCa
             ioPortDevice[i] = defaultDevice;
     }
 
+    @NonNull
     public String toString()
     {
         return "IOPort Bus";
@@ -170,6 +175,7 @@ public class IOPortHandler extends AbstractHardwareComponent implements IOPortCa
         {
         }
 
+        @Nullable
         public int[] ioPortsRequested()
         {
             return null;

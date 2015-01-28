@@ -33,6 +33,8 @@
 
 package org.jpc.emulator.memory.codeblock;
 
+import android.support.annotation.Nullable;
+
 /**
  * 
  * @author Chris Dennis
@@ -50,17 +52,20 @@ class DefaultCodeBlockFactory implements CodeBlockFactory
         this.limit = limit;
     }
 
+    @Nullable
     public RealModeCodeBlock getRealModeCodeBlock(ByteSource source)
     {
 	return compiler.getRealModeCodeBlock(decoder.decodeReal(source, limit));
     }
 
 
+    @Nullable
     public ProtectedModeCodeBlock getProtectedModeCodeBlock(ByteSource source, boolean operandSize)
     {
 	return compiler.getProtectedModeCodeBlock(decoder.decodeProtected(source, operandSize, limit));
     }
 
+    @Nullable
     public Virtual8086ModeCodeBlock getVirtual8086ModeCodeBlock(ByteSource source)
     {
 	return compiler.getVirtual8086ModeCodeBlock(decoder.decodeVirtual8086(source, limit));

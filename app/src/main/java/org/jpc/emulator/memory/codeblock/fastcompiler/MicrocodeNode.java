@@ -33,13 +33,25 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler;
 
-import java.lang.reflect.Field;
-import java.util.*;
+import android.support.annotation.NonNull;
 
-import org.jpc.emulator.memory.codeblock.optimised.*;
 import org.jpc.emulator.memory.codeblock.InstructionSource;
+import org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet;
 
-import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.*;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.ADDR_IB;
+import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.ADDR_ID;
+import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.ADDR_IW;
+import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.LOAD0_IB;
+import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.LOAD0_ID;
+import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.LOAD0_IW;
+import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.LOAD1_IB;
+import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.LOAD1_ID;
+import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.LOAD1_IW;
+import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.LOAD2_IB;
 
 /**
  * 
@@ -110,6 +122,7 @@ public final class MicrocodeNode
 	}
     }
 
+    @NonNull
     private static final String[] microcodeNames;
     static 
     {
@@ -148,7 +161,8 @@ public final class MicrocodeNode
 	}
     }
 
-    public static MicrocodeNode[] getMicrocodes(InstructionSource source)
+    @NonNull
+    public static MicrocodeNode[] getMicrocodes(@NonNull InstructionSource source)
     {
       	int x86Length = 0, x86Count = 0;
         List<MicrocodeNode> buffer = new ArrayList<>();

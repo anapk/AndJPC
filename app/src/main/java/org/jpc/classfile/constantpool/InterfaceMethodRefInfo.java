@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.constantpool;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -42,7 +44,7 @@ import java.io.IOException;
  */
 public class InterfaceMethodRefInfo extends MethodRefInfo
 {
-    InterfaceMethodRefInfo(DataInputStream in) throws IOException
+    InterfaceMethodRefInfo(@NonNull DataInputStream in) throws IOException
     {
         super(in);
     }
@@ -63,6 +65,7 @@ public class InterfaceMethodRefInfo extends MethodRefInfo
         return INTERFACEMETHODREF;
     }
 
+    @NonNull
     public String toString()
     {
         return "CONSTANT_InterfaceMethodRef_info : class=" + getClassIndex() + " : nameandtype=" + getNameAndTypeIndex();

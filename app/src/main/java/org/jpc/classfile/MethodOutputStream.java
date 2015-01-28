@@ -32,8 +32,11 @@
 */
 
 package org.jpc.classfile;
-    
-import java.io.*;
+
+import android.support.annotation.NonNull;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * An <code>OutputStream</code> implementation that limits the total number of
@@ -71,7 +74,7 @@ public class MethodOutputStream extends OutputStream
     /**
      * @throws IllegalStateException if stream limit is exceeded
      */
-    public void write(byte[] b) throws IOException
+    public void write(@NonNull byte[] b) throws IOException
     {
 	backing.write(b);
         count += b.length;
@@ -82,7 +85,7 @@ public class MethodOutputStream extends OutputStream
     /**
      * @throws IllegalStateException if stream limit is exceeded
      */
-    public void write(byte[] b, int off, int len) throws IOException
+    public void write(@NonNull byte[] b, int off, int len) throws IOException
     {
 	backing.write(b, off, len);
         count += len;

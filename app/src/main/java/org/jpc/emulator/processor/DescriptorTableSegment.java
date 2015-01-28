@@ -33,9 +33,12 @@
 
 package org.jpc.emulator.processor;
 
-import java.io.*;
+import android.support.annotation.NonNull;
 
 import org.jpc.emulator.memory.AddressSpace;
+
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  *
@@ -53,7 +56,7 @@ class DescriptorTableSegment extends Segment
         this.limit = 0xffffffffL & limit;
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(2);
         output.writeInt(base);

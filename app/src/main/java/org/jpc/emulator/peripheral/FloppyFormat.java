@@ -33,6 +33,8 @@
 
 package org.jpc.emulator.peripheral;
 
+import android.support.annotation.Nullable;
+
 import static org.jpc.emulator.peripheral.FloppyController.DriveType;
 /**
  * 
@@ -85,8 +87,8 @@ enum FloppyFormat
     /* end */
     EMPTY(DriveType.DRIVE_NONE, DiskType.DISK_NONE, -1, -1, 0, "" );
     
-    private static enum DiskType {DISK_288, DISK_144, DISK_720, DISK_USER, DISK_NONE};
-    
+    private static enum DiskType {DISK_288, DISK_144, DISK_720, DISK_USER, DISK_NONE}
+
     private final DriveType drive;
     private final int lastSector;
     private final int maxTrack;
@@ -133,6 +135,7 @@ enum FloppyFormat
 	return description;
     }
 
+    @Nullable
     public static FloppyFormat findFormat(long size, DriveType drive)
     {
 	FloppyFormat firstMatch = null;

@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.attribute;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -42,7 +44,7 @@ import java.io.IOException;
  */
 class DeprecatedAttribute extends AttributeInfo
 {
-    DeprecatedAttribute(DataInputStream in, int index) throws IOException
+    DeprecatedAttribute(@NonNull DataInputStream in, int index) throws IOException
     {
         super(in, index);
     }

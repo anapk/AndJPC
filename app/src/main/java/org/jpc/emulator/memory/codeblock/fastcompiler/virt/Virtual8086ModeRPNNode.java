@@ -33,7 +33,8 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler.virt;
 
-import org.jpc.emulator.memory.codeblock.fastcompiler.*;
+import org.jpc.emulator.memory.codeblock.fastcompiler.MicrocodeNode;
+import org.jpc.emulator.memory.codeblock.fastcompiler.RPNNode;
 
 /**
  * 
@@ -59,17 +60,13 @@ public class Virtual8086ModeRPNNode extends RPNNode
 
     public boolean hasExternalEffect()
     {
-	if (getMicrocode() == -1)
-	    return false;
+        return getMicrocode() != -1 && Virtual8086ModeBytecodeFragments.hasExternalEffect(getID(), getMicrocode());
 
-	return Virtual8086ModeBytecodeFragments.hasExternalEffect(getID(), getMicrocode());
     }
 
     public boolean canThrowException()
     {
-	if (getMicrocode() == -1)
-	    return false;
+        return getMicrocode() != -1 && (Virtual8086ModeBytecodeFragments.hasExplicitThrow(getID(), getMicrocode()) || hasExternalEffect());
 
-	return Virtual8086ModeBytecodeFragments.hasExplicitThrow(getID(), getMicrocode()) || hasExternalEffect();
     }
 }

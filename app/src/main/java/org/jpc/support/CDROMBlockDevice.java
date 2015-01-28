@@ -33,6 +33,8 @@
 
 package org.jpc.support;
 
+import android.support.annotation.NonNull;
+
 /**
  * A <code>RawBlockDevice</code> instance representing a cdrom device.
  * Instances of this class will report cdrom-like geometries and behaviours.  In
@@ -123,6 +125,7 @@ public class CDROMBlockDevice extends RawBlockDevice
      * Hard coded to return the type constant for a cdrom device.
      * @return <code>TYPE_CDROM</code>
      */
+    @NonNull
     public Type getType()
     {
 	return Type.CDROM;
@@ -143,6 +146,7 @@ public class CDROMBlockDevice extends RawBlockDevice
         return 63;
     }
     
+    @NonNull
     public String toString()
     {
         return "CDROM: " + super.toString();

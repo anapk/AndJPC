@@ -1,11 +1,12 @@
 package uk.co.jads.android.jpc;
 
-import android.os.*;
-import android.view.View;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.widget.LinearLayout;
 
 public class JPCAndroidActivity extends JPCAndroidActivityHelper implements Runnable
 {
+    @NonNull
     private static final String[] DEFAULT_ARGS;
     
     static {

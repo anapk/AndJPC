@@ -33,11 +33,18 @@
 
 package org.jpc.emulator.pci;
 
-import org.jpc.emulator.motherboard.*;
-import org.jpc.emulator.HardwareComponent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
-import java.util.logging.*;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.motherboard.IOPortCapable;
+import org.jpc.emulator.motherboard.IOPortHandler;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Emulation of an Intel i440FX PCI Host Bridge.
@@ -50,6 +57,7 @@ public class PCIHostBridge extends AbstractPCIDevice implements IOPortCapable
 {
     private static final Logger LOGGING = Logger.getLogger(PCIHostBridge.class.getName());
     
+    @Nullable
     private PCIBus attachedBus;
 
     private int configRegister;    
@@ -70,13 +78,13 @@ public class PCIHostBridge extends AbstractPCIDevice implements IOPortCapable
 	putConfigByte(PCI_CONFIG_HEADER, (byte)0x00); // header_type
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         super.saveState(output);
         output.writeInt(configRegister);
     }
     
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         super.loadState(input);
         ioportRegistered = false;
@@ -96,15 +104,18 @@ public class PCIHostBridge extends AbstractPCIDevice implements IOPortCapable
 
     /* BEGIN PCIDevice Methods */
     //IOPort Registration Aids
+    @Nullable
     public IORegion[] getIORegions()
     {
 	return null;
     }
+    @Nullable
     public IORegion getIORegion(int index)
     {
 	return null;
     }
 
+    @NonNull
     public int[] ioPortsRequested()
     {
 	return new int[]{0xcf8, 0xcf9, 0xcfa, 0xcfb, 0xcfc, 0xcfd, 0xcfe, 0xcff};
@@ -271,6 +282,7 @@ public class PCIHostBridge extends AbstractPCIDevice implements IOPortCapable
 	}
     }
 
+    @NonNull
     public String toString()
     {
 	return "Intel i440FX PCI-Host Bridge";

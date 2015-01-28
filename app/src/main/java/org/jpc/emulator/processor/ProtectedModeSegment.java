@@ -33,11 +33,15 @@
 
 package org.jpc.emulator.processor;
 
-import java.io.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
 
 import org.jpc.emulator.memory.AddressSpace;
 import org.jpc.emulator.memory.LinearAddressSpace;
+
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -88,7 +92,7 @@ public abstract class ProtectedModeSegment extends Segment
         system = (descriptor & (1L << 44)) != 0;
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(3);
         output.writeInt(selector);
@@ -401,7 +405,7 @@ public abstract class ProtectedModeSegment extends Segment
             super(memory, selector, descriptor);
         }
 
-        public void saveCPUState(Processor cpu)
+        public void saveCPUState(@NonNull Processor cpu)
         {
             int initialAddress = translateAddressWrite(0);
             memory.setDoubleWord(initialAddress + 28, cpu.getCR3());
@@ -423,7 +427,7 @@ public abstract class ProtectedModeSegment extends Segment
             memory.setDoubleWord(initialAddress + 92, cpu.gs.getSelector());
         }
 
-        public void restoreCPUState(Processor cpu)
+        public void restoreCPUState(@NonNull Processor cpu)
         {
             int initialAddress = translateAddressRead(0);
             cpu.eip = memory.getDoubleWord(initialAddress + 32);

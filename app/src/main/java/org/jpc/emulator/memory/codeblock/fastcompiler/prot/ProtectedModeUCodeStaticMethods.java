@@ -33,8 +33,14 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler.prot;
 
-import org.jpc.emulator.processor.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.jpc.emulator.motherboard.IOPortHandler;
+import org.jpc.emulator.processor.Processor;
+import org.jpc.emulator.processor.ProcessorException;
+import org.jpc.emulator.processor.Segment;
+import org.jpc.emulator.processor.SegmentFactory;
 
 /**
  * 
@@ -42,6 +48,7 @@ import org.jpc.emulator.motherboard.IOPortHandler;
  */
 class ProtectedModeUCodeStaticMethods
 {
+    @NonNull
     private static final boolean[] parityMap;
     static
     {
@@ -175,32 +182,32 @@ class ProtectedModeUCodeStaticMethods
         return edi;
     }
 
-    public static int reg0_hef_LOAD0_ES_es(Segment es)
+    public static int reg0_hef_LOAD0_ES_es(@NonNull Segment es)
     {
         return 0xffff & es.getSelector(); 
     }
 
-    public static int reg0_hef_LOAD0_CS_cs(Segment cs)
+    public static int reg0_hef_LOAD0_CS_cs(@NonNull Segment cs)
     {
         return 0xffff & cs.getSelector(); 
     }
 
-    public static int reg0_hef_LOAD0_SS_ss(Segment ss)
+    public static int reg0_hef_LOAD0_SS_ss(@NonNull Segment ss)
     {
         return 0xffff & ss.getSelector(); 
     }
 
-    public static int reg0_hef_LOAD0_DS_ds(Segment ds)
+    public static int reg0_hef_LOAD0_DS_ds(@NonNull Segment ds)
     {
         return 0xffff & ds.getSelector(); 
     }
 
-    public static int reg0_hef_LOAD0_FS_fs(Segment fs)
+    public static int reg0_hef_LOAD0_FS_fs(@NonNull Segment fs)
     {
         return 0xffff & fs.getSelector(); 
     }
 
-    public static int reg0_hef_LOAD0_GS_gs(Segment gs)
+    public static int reg0_hef_LOAD0_GS_gs(@NonNull Segment gs)
     {
         return 0xffff & gs.getSelector(); 
     }
@@ -220,17 +227,17 @@ class ProtectedModeUCodeStaticMethods
         return immediate; 
     }
 
-    public static int reg0_hef_LOAD0_MEM_BYTE_seg0_addr0(Segment seg0, int addr0)
+    public static int reg0_hef_LOAD0_MEM_BYTE_seg0_addr0(@NonNull Segment seg0, int addr0)
     {
         return 0xff & seg0.getByte(addr0);
     }
 
-    public static int reg0_hef_LOAD0_MEM_WORD_seg0_addr0(Segment seg0, int addr0)
+    public static int reg0_hef_LOAD0_MEM_WORD_seg0_addr0(@NonNull Segment seg0, int addr0)
     {
         return 0xffff & seg0.getWord(addr0);
     }
 
-    public static int reg0_hef_LOAD0_MEM_DWORD_seg0_addr0(Segment seg0, int addr0)
+    public static int reg0_hef_LOAD0_MEM_DWORD_seg0_addr0(@NonNull Segment seg0, int addr0)
     {
         return seg0.getDoubleWord(addr0);
     }
@@ -418,17 +425,17 @@ class ProtectedModeUCodeStaticMethods
         return immediate; 
     }
 
-    public static int reg1_hef_LOAD1_MEM_BYTE_seg0_addr0(Segment seg0, int addr0)
+    public static int reg1_hef_LOAD1_MEM_BYTE_seg0_addr0(@NonNull Segment seg0, int addr0)
     {
         return 0xff & seg0.getByte(addr0);
     }
 
-    public static int reg1_hef_LOAD1_MEM_WORD_seg0_addr0(Segment seg0, int addr0)
+    public static int reg1_hef_LOAD1_MEM_WORD_seg0_addr0(@NonNull Segment seg0, int addr0)
     {
         return 0xffff & seg0.getWord(addr0);
     }
 
-    public static int reg1_hef_LOAD1_MEM_DWORD_seg0_addr0(Segment seg0, int addr0)
+    public static int reg1_hef_LOAD1_MEM_DWORD_seg0_addr0(@NonNull Segment seg0, int addr0)
     {
         return seg0.getDoubleWord(addr0);
     }
@@ -608,7 +615,7 @@ class ProtectedModeUCodeStaticMethods
         return reg0;
     }
 
-    public static Segment es_hef_STORE0_ES_cpu_ldtr_gdtr_reg0(Processor cpu, Segment ldtr, Segment gdtr, int reg0)
+    public static Segment es_hef_STORE0_ES_cpu_ldtr_gdtr_reg0(@NonNull Processor cpu, Segment ldtr, Segment gdtr, int reg0)
     {
         reg0 &= 0xffff;
         if (reg0 < 0x4)
@@ -627,7 +634,7 @@ class ProtectedModeUCodeStaticMethods
 //         return cs;
 //     }
 
-    public static Segment ss_hef_STORE0_SS_cpu_ldtr_gdtr_reg0(Processor cpu, Segment ldtr, Segment gdtr, int reg0)
+    public static Segment ss_hef_STORE0_SS_cpu_ldtr_gdtr_reg0(@NonNull Processor cpu, Segment ldtr, Segment gdtr, int reg0)
     {
         reg0 &= 0xffff;
         if (reg0 < 0x4)
@@ -640,7 +647,7 @@ class ProtectedModeUCodeStaticMethods
         }
     }
 
-    public static Segment ds_hef_STORE0_DS_cpu_ldtr_gdtr_reg0(Processor cpu, Segment ldtr, Segment gdtr, int reg0)
+    public static Segment ds_hef_STORE0_DS_cpu_ldtr_gdtr_reg0(@NonNull Processor cpu, Segment ldtr, Segment gdtr, int reg0)
     {
         reg0 &= 0xffff;
         if (reg0 < 0x4)
@@ -653,7 +660,7 @@ class ProtectedModeUCodeStaticMethods
         }
     }
 
-    public static Segment fs_hef_STORE0_FS_cpu_ldtr_gdtr_reg0(Processor cpu, Segment ldtr, Segment gdtr, int reg0)
+    public static Segment fs_hef_STORE0_FS_cpu_ldtr_gdtr_reg0(@NonNull Processor cpu, Segment ldtr, Segment gdtr, int reg0)
     {
         reg0 &= 0xffff;
         if (reg0 < 0x4)
@@ -666,7 +673,7 @@ class ProtectedModeUCodeStaticMethods
         }
     }
 
-    public static Segment gs_hef_STORE0_GS_cpu_ldtr_gdtr_reg0(Processor cpu, Segment ldtr, Segment gdtr, int reg0)
+    public static Segment gs_hef_STORE0_GS_cpu_ldtr_gdtr_reg0(@NonNull Processor cpu, Segment ldtr, Segment gdtr, int reg0)
     {
         reg0 &= 0xffff;
         if (reg0 < 0x4)
@@ -679,17 +686,17 @@ class ProtectedModeUCodeStaticMethods
         }
     }
 
-    public static void memorywrite_hef_STORE0_MEM_BYTE_seg0_addr0_reg0(Segment seg0, int addr0, int reg0)
+    public static void memorywrite_hef_STORE0_MEM_BYTE_seg0_addr0_reg0(@NonNull Segment seg0, int addr0, int reg0)
     {
         seg0.setByte(addr0, (byte)reg0);
     }
 
-    public static void memorywrite_hef_STORE0_MEM_WORD_seg0_addr0_reg0(Segment seg0, int addr0, int reg0)
+    public static void memorywrite_hef_STORE0_MEM_WORD_seg0_addr0_reg0(@NonNull Segment seg0, int addr0, int reg0)
     {
         seg0.setWord(addr0, (short)reg0);
     }
 
-    public static void memorywrite_hef_STORE0_MEM_DWORD_seg0_addr0_reg0(Segment seg0, int addr0, int reg0)
+    public static void memorywrite_hef_STORE0_MEM_DWORD_seg0_addr0_reg0(@NonNull Segment seg0, int addr0, int reg0)
     {
         seg0.setDoubleWord(addr0, reg0);
     }
@@ -956,7 +963,7 @@ class ProtectedModeUCodeStaticMethods
         return reg1;
     }
 
-    public static Segment es_hef_STORE1_ES_cpu_ldtr_gdtr_reg1(Processor cpu, Segment ldtr, Segment gdtr, int reg1)
+    public static Segment es_hef_STORE1_ES_cpu_ldtr_gdtr_reg1(@NonNull Processor cpu, Segment ldtr, Segment gdtr, int reg1)
     {
         reg1 &= 0xffff;
         if (reg1 < 0x4)
@@ -975,7 +982,7 @@ class ProtectedModeUCodeStaticMethods
 //         return cs;
 //     }
 
-    public static Segment ss_hef_STORE1_SS_cpu_ldtr_gdtr_reg1(Processor cpu, Segment ldtr, Segment gdtr, int reg1)
+    public static Segment ss_hef_STORE1_SS_cpu_ldtr_gdtr_reg1(@NonNull Processor cpu, Segment ldtr, Segment gdtr, int reg1)
     {
         reg1 &= 0xffff;
         if (reg1 < 0x4)
@@ -988,7 +995,7 @@ class ProtectedModeUCodeStaticMethods
         }
     }
 
-    public static Segment ds_hef_STORE1_DS_cpu_ldtr_gdtr_reg1(Processor cpu, Segment ldtr, Segment gdtr, int reg1)
+    public static Segment ds_hef_STORE1_DS_cpu_ldtr_gdtr_reg1(@NonNull Processor cpu, Segment ldtr, Segment gdtr, int reg1)
     {
         reg1 &= 0xffff;
         if (reg1 < 0x4)
@@ -1001,7 +1008,7 @@ class ProtectedModeUCodeStaticMethods
         }
     }
 
-    public static Segment fs_hef_STORE1_FS_cpu_ldtr_gdtr_reg1(Processor cpu, Segment ldtr, Segment gdtr, int reg1)
+    public static Segment fs_hef_STORE1_FS_cpu_ldtr_gdtr_reg1(@NonNull Processor cpu, Segment ldtr, Segment gdtr, int reg1)
     {
         reg1 &= 0xffff;
         if (reg1 < 0x4)
@@ -1014,7 +1021,7 @@ class ProtectedModeUCodeStaticMethods
         }
     }
 
-    public static Segment gs_hef_STORE1_GS_cpu_ldtr_gdtr_reg1(Processor cpu, Segment ldtr, Segment gdtr, int reg1)
+    public static Segment gs_hef_STORE1_GS_cpu_ldtr_gdtr_reg1(@NonNull Processor cpu, Segment ldtr, Segment gdtr, int reg1)
     {
         reg1 &= 0xffff;
         if (reg1 < 0x4)
@@ -1027,17 +1034,17 @@ class ProtectedModeUCodeStaticMethods
         }
     }
 
-    public static void memorywrite_hef_STORE1_MEM_BYTE_seg0_addr0_reg1(Segment seg0, int addr0, int reg1)
+    public static void memorywrite_hef_STORE1_MEM_BYTE_seg0_addr0_reg1(@NonNull Segment seg0, int addr0, int reg1)
     {
         seg0.setByte(addr0, (byte)reg1);
     }
 
-    public static void memorywrite_hef_STORE1_MEM_WORD_seg0_addr0_reg1(Segment seg0, int addr0, int reg1)
+    public static void memorywrite_hef_STORE1_MEM_WORD_seg0_addr0_reg1(@NonNull Segment seg0, int addr0, int reg1)
     {
         seg0.setWord(addr0, (short)reg1);
     }
 
-    public static void memorywrite_hef_STORE1_MEM_DWORD_seg0_addr0_reg1(Segment seg0, int addr0, int reg1)
+    public static void memorywrite_hef_STORE1_MEM_DWORD_seg0_addr0_reg1(@NonNull Segment seg0, int addr0, int reg1)
     {
         seg0.setDoubleWord(addr0, reg1);
     }
@@ -1277,6 +1284,7 @@ class ProtectedModeUCodeStaticMethods
         return 0;
     }
 
+    @Nullable
     public static Segment seg0_nef_MEM_RESET()
     {
         return null;
@@ -1297,7 +1305,7 @@ class ProtectedModeUCodeStaticMethods
         return (int)((short)reg0);
     }
 
-    public static Segment ldtr_hef_LLDT_cpu_reg0(Processor cpu, int reg0)
+    public static Segment ldtr_hef_LLDT_cpu_reg0(@NonNull Processor cpu, int reg0)
     {
 	reg0 &= 0xffff;
 
@@ -1314,7 +1322,7 @@ class ProtectedModeUCodeStaticMethods
 
 	return newSegment;
     }
-    private static int eip_nef_JUMP_O8_cs_eip_reg0(Segment cs, int eip, int reg0) throws ProcessorException
+    private static int eip_nef_JUMP_O8_cs_eip_reg0(@NonNull Segment cs, int eip, int reg0) throws ProcessorException
     {
 // 	if ((byte)reg0 == 0)
 // 	    return eip;
@@ -1324,28 +1332,28 @@ class ProtectedModeUCodeStaticMethods
 	return eip;
     }
 
-    private static int eip_nef_JUMP_O16_cs_eip_reg0(Segment cs, int eip, int reg0) throws ProcessorException
+    private static int eip_nef_JUMP_O16_cs_eip_reg0(@NonNull Segment cs, int eip, int reg0) throws ProcessorException
     {
 	eip = (eip + reg0) & 0xffff;
 	cs.checkAddress(eip);
 	return eip;
     }
 
-    private static int eip_nef_JUMP_O32_cs_eip_reg0(Segment cs, int eip, int reg0) throws ProcessorException
+    private static int eip_nef_JUMP_O32_cs_eip_reg0(@NonNull Segment cs, int eip, int reg0) throws ProcessorException
     {
 	eip += reg0;
 	cs.checkAddress(eip);
 	return eip;
     }
 
-    public static int eip_nef_JUMP_ABS_O16_cs_reg0(Segment cs, int reg0) throws ProcessorException
+    public static int eip_nef_JUMP_ABS_O16_cs_reg0(@NonNull Segment cs, int reg0) throws ProcessorException
     {
         reg0 &= 0xffff;
 	cs.checkAddress(reg0);
 	return reg0;
     }
     
-    public static int eip_nef_JUMP_ABS_O32_cs_reg0(Segment cs, int reg0) throws ProcessorException
+    public static int eip_nef_JUMP_ABS_O32_cs_reg0(@NonNull Segment cs, int reg0) throws ProcessorException
     {
 	cs.checkAddress(reg0);
 	return reg0;
@@ -1356,7 +1364,7 @@ class ProtectedModeUCodeStaticMethods
         return ecx_nef_LOOP_CX_ecx(ecx);
     }
 
-    public static int eip_nef_LOOPZ_CX_cs_eip_reg0_ecx_zflag(Segment cs, int eip, int reg0, int ecx, boolean zflag) throws ProcessorException
+    public static int eip_nef_LOOPZ_CX_cs_eip_reg0_ecx_zflag(@NonNull Segment cs, int eip, int reg0, int ecx, boolean zflag) throws ProcessorException
     {
         if (zflag && (0xffff & (ecx - 1)) != 0) 
 	    return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
@@ -1369,7 +1377,7 @@ class ProtectedModeUCodeStaticMethods
         return ecx_nef_LOOP_ECX_ecx(ecx);
     }
 
-    public static int eip_nef_LOOPZ_ECX_cs_eip_reg0_ecx_zflag(Segment cs, int eip, int reg0, int ecx, boolean zflag) throws ProcessorException
+    public static int eip_nef_LOOPZ_ECX_cs_eip_reg0_ecx_zflag(@NonNull Segment cs, int eip, int reg0, int ecx, boolean zflag) throws ProcessorException
     {
         if (zflag && (ecx - 1) != 0) 
 	    return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
@@ -1382,7 +1390,7 @@ class ProtectedModeUCodeStaticMethods
         return ecx_nef_LOOP_CX_ecx(ecx);
     }
 
-    public static int eip_nef_LOOPNZ_CX_cs_eip_reg0_ecx_zflag(Segment cs, int eip, int reg0, int ecx, boolean zflag) throws ProcessorException
+    public static int eip_nef_LOOPNZ_CX_cs_eip_reg0_ecx_zflag(@NonNull Segment cs, int eip, int reg0, int ecx, boolean zflag) throws ProcessorException
     {
         if (!zflag && (0xffff & (ecx - 1)) != 0) 
 	    return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
@@ -1395,7 +1403,7 @@ class ProtectedModeUCodeStaticMethods
         return ecx_nef_LOOP_ECX_ecx(ecx);
     }
 
-    public static int eip_nef_LOOPNZ_ECX_cs_eip_reg0_ecx_zflag(Segment cs, int eip, int reg0, int ecx, boolean zflag) throws ProcessorException
+    public static int eip_nef_LOOPNZ_ECX_cs_eip_reg0_ecx_zflag(@NonNull Segment cs, int eip, int reg0, int ecx, boolean zflag) throws ProcessorException
     {
         if (!zflag && (ecx - 1) != 0) 
 	    return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
@@ -1408,7 +1416,7 @@ class ProtectedModeUCodeStaticMethods
         return (ecx & ~0xffff) | ((ecx - 1) & 0xffff); 
     }
 
-    public static int eip_nef_LOOP_CX_cs_eip_reg0_ecx(Segment cs, int eip, int reg0, int ecx) throws ProcessorException
+    public static int eip_nef_LOOP_CX_cs_eip_reg0_ecx(@NonNull Segment cs, int eip, int reg0, int ecx) throws ProcessorException
     {
         if ((0xffff & (ecx - 1)) != 0) 
 	    return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
@@ -1421,7 +1429,7 @@ class ProtectedModeUCodeStaticMethods
         return ecx - 1; 
     }
 
-    public static int eip_nef_LOOP_ECX_cs_eip_reg0_ecx(Segment cs, int eip, int reg0, int ecx) throws ProcessorException
+    public static int eip_nef_LOOP_ECX_cs_eip_reg0_ecx(@NonNull Segment cs, int eip, int reg0, int ecx) throws ProcessorException
     {
         if ((ecx - 1) != 0) 
 	    return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
@@ -1429,350 +1437,350 @@ class ProtectedModeUCodeStaticMethods
 	    return eip;
     }
 
-    public static int eip_nef_JO_O8_cs_eip_reg0_oflag(Segment cs, int eip, int reg0, boolean oflag) throws ProcessorException
+    public static int eip_nef_JO_O8_cs_eip_reg0_oflag(@NonNull Segment cs, int eip, int reg0, boolean oflag) throws ProcessorException
     {
 	if (oflag)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JO_O16_cs_eip_reg0_oflag(Segment cs, int eip, int reg0, boolean oflag) throws ProcessorException
+    public static int eip_nef_JO_O16_cs_eip_reg0_oflag(@NonNull Segment cs, int eip, int reg0, boolean oflag) throws ProcessorException
     {
  	if (oflag)
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JO_O32_cs_eip_reg0_oflag(Segment cs, int eip, int reg0, boolean oflag) throws ProcessorException
+    public static int eip_nef_JO_O32_cs_eip_reg0_oflag(@NonNull Segment cs, int eip, int reg0, boolean oflag) throws ProcessorException
     {
  	if (oflag)
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNO_O8_cs_eip_reg0_oflag(Segment cs, int eip, int reg0, boolean oflag) throws ProcessorException
+    public static int eip_nef_JNO_O8_cs_eip_reg0_oflag(@NonNull Segment cs, int eip, int reg0, boolean oflag) throws ProcessorException
     {
  	if (!oflag)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNO_O16_cs_eip_reg0_oflag(Segment cs, int eip, int reg0, boolean oflag) throws ProcessorException
+    public static int eip_nef_JNO_O16_cs_eip_reg0_oflag(@NonNull Segment cs, int eip, int reg0, boolean oflag) throws ProcessorException
     {
 	if (!oflag)
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNO_O32_cs_eip_reg0_oflag(Segment cs, int eip, int reg0, boolean oflag) throws ProcessorException
+    public static int eip_nef_JNO_O32_cs_eip_reg0_oflag(@NonNull Segment cs, int eip, int reg0, boolean oflag) throws ProcessorException
     {
 	if (!oflag)
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JC_O8_cs_eip_reg0_cflag(Segment cs, int eip, int reg0, boolean cflag) throws ProcessorException
+    public static int eip_nef_JC_O8_cs_eip_reg0_cflag(@NonNull Segment cs, int eip, int reg0, boolean cflag) throws ProcessorException
     {
 	if (cflag)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JC_O16_cs_eip_reg0_cflag(Segment cs, int eip, int reg0, boolean cflag) throws ProcessorException
+    public static int eip_nef_JC_O16_cs_eip_reg0_cflag(@NonNull Segment cs, int eip, int reg0, boolean cflag) throws ProcessorException
     {
 	if (cflag)
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JC_O32_cs_eip_reg0_cflag(Segment cs, int eip, int reg0, boolean cflag) throws ProcessorException
+    public static int eip_nef_JC_O32_cs_eip_reg0_cflag(@NonNull Segment cs, int eip, int reg0, boolean cflag) throws ProcessorException
     {
 	if (cflag)
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNC_O8_cs_eip_reg0_cflag(Segment cs, int eip, int reg0, boolean cflag) throws ProcessorException
+    public static int eip_nef_JNC_O8_cs_eip_reg0_cflag(@NonNull Segment cs, int eip, int reg0, boolean cflag) throws ProcessorException
     {
  	if (!cflag)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNC_O16_cs_eip_reg0_cflag(Segment cs, int eip, int reg0, boolean cflag) throws ProcessorException
+    public static int eip_nef_JNC_O16_cs_eip_reg0_cflag(@NonNull Segment cs, int eip, int reg0, boolean cflag) throws ProcessorException
     {
  	if (!cflag)
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNC_O32_cs_eip_reg0_cflag(Segment cs, int eip, int reg0, boolean cflag) throws ProcessorException
+    public static int eip_nef_JNC_O32_cs_eip_reg0_cflag(@NonNull Segment cs, int eip, int reg0, boolean cflag) throws ProcessorException
     {
  	if (!cflag)
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JZ_O8_cs_eip_reg0_zflag(Segment cs, int eip, int reg0, boolean zflag) throws ProcessorException
+    public static int eip_nef_JZ_O8_cs_eip_reg0_zflag(@NonNull Segment cs, int eip, int reg0, boolean zflag) throws ProcessorException
     {
 	if (zflag)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JZ_O16_cs_eip_reg0_zflag(Segment cs, int eip, int reg0, boolean zflag) throws ProcessorException
+    public static int eip_nef_JZ_O16_cs_eip_reg0_zflag(@NonNull Segment cs, int eip, int reg0, boolean zflag) throws ProcessorException
     {
 	if (zflag)
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JZ_O32_cs_eip_reg0_zflag(Segment cs, int eip, int reg0, boolean zflag) throws ProcessorException
+    public static int eip_nef_JZ_O32_cs_eip_reg0_zflag(@NonNull Segment cs, int eip, int reg0, boolean zflag) throws ProcessorException
     {
 	if (zflag)
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNZ_O8_cs_eip_reg0_zflag(Segment cs, int eip, int reg0, boolean zflag) throws ProcessorException
+    public static int eip_nef_JNZ_O8_cs_eip_reg0_zflag(@NonNull Segment cs, int eip, int reg0, boolean zflag) throws ProcessorException
     {
  	if (!zflag)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNZ_O16_cs_eip_reg0_zflag(Segment cs, int eip, int reg0, boolean zflag) throws ProcessorException
+    public static int eip_nef_JNZ_O16_cs_eip_reg0_zflag(@NonNull Segment cs, int eip, int reg0, boolean zflag) throws ProcessorException
     {
  	if (!zflag)
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNZ_O32_cs_eip_reg0_zflag(Segment cs, int eip, int reg0, boolean zflag) throws ProcessorException
+    public static int eip_nef_JNZ_O32_cs_eip_reg0_zflag(@NonNull Segment cs, int eip, int reg0, boolean zflag) throws ProcessorException
     {
  	if (!zflag)
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNA_O8_cs_eip_reg0_cflag_zflag(Segment cs, int eip, int reg0, boolean cflag, boolean zflag) throws ProcessorException
+    public static int eip_nef_JNA_O8_cs_eip_reg0_cflag_zflag(@NonNull Segment cs, int eip, int reg0, boolean cflag, boolean zflag) throws ProcessorException
     {
 	if (cflag || zflag)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNA_O16_cs_eip_reg0_cflag_zflag(Segment cs, int eip, int reg0, boolean cflag, boolean zflag) throws ProcessorException
+    public static int eip_nef_JNA_O16_cs_eip_reg0_cflag_zflag(@NonNull Segment cs, int eip, int reg0, boolean cflag, boolean zflag) throws ProcessorException
     {
 	if (cflag || zflag)
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNA_O32_cs_eip_reg0_cflag_zflag(Segment cs, int eip, int reg0, boolean cflag, boolean zflag) throws ProcessorException
+    public static int eip_nef_JNA_O32_cs_eip_reg0_cflag_zflag(@NonNull Segment cs, int eip, int reg0, boolean cflag, boolean zflag) throws ProcessorException
     {
 	if (cflag || zflag)
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JA_O8_cs_eip_reg0_cflag_zflag(Segment cs, int eip, int reg0, boolean cflag, boolean zflag) throws ProcessorException
+    public static int eip_nef_JA_O8_cs_eip_reg0_cflag_zflag(@NonNull Segment cs, int eip, int reg0, boolean cflag, boolean zflag) throws ProcessorException
     {
 	if ((!cflag) && (!zflag)) 
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JA_O16_cs_eip_reg0_cflag_zflag(Segment cs, int eip, int reg0, boolean cflag, boolean zflag) throws ProcessorException
+    public static int eip_nef_JA_O16_cs_eip_reg0_cflag_zflag(@NonNull Segment cs, int eip, int reg0, boolean cflag, boolean zflag) throws ProcessorException
     {
 	if ((!cflag) && (!zflag)) 
 	    return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JA_O32_cs_eip_reg0_cflag_zflag(Segment cs, int eip, int reg0, boolean cflag, boolean zflag) throws ProcessorException
+    public static int eip_nef_JA_O32_cs_eip_reg0_cflag_zflag(@NonNull Segment cs, int eip, int reg0, boolean cflag, boolean zflag) throws ProcessorException
     {
 	if ((!cflag) && (!zflag)) 
 	    return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JS_O8_cs_eip_reg0_sflag(Segment cs, int eip, int reg0, boolean sflag) throws ProcessorException
+    public static int eip_nef_JS_O8_cs_eip_reg0_sflag(@NonNull Segment cs, int eip, int reg0, boolean sflag) throws ProcessorException
     {
 	if (sflag)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JS_O16_cs_eip_reg0_sflag(Segment cs, int eip, int reg0, boolean sflag) throws ProcessorException
+    public static int eip_nef_JS_O16_cs_eip_reg0_sflag(@NonNull Segment cs, int eip, int reg0, boolean sflag) throws ProcessorException
     {
 	if (sflag)
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JS_O32_cs_eip_reg0_sflag(Segment cs, int eip, int reg0, boolean sflag) throws ProcessorException
+    public static int eip_nef_JS_O32_cs_eip_reg0_sflag(@NonNull Segment cs, int eip, int reg0, boolean sflag) throws ProcessorException
     {
 	if (sflag)
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNS_O8_cs_eip_reg0_sflag(Segment cs, int eip, int reg0, boolean sflag) throws ProcessorException
+    public static int eip_nef_JNS_O8_cs_eip_reg0_sflag(@NonNull Segment cs, int eip, int reg0, boolean sflag) throws ProcessorException
     {
  	if (!sflag)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNS_O16_cs_eip_reg0_sflag(Segment cs, int eip, int reg0, boolean sflag) throws ProcessorException
+    public static int eip_nef_JNS_O16_cs_eip_reg0_sflag(@NonNull Segment cs, int eip, int reg0, boolean sflag) throws ProcessorException
     {
  	if (!sflag)
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNS_O32_cs_eip_reg0_sflag(Segment cs, int eip, int reg0, boolean sflag) throws ProcessorException
+    public static int eip_nef_JNS_O32_cs_eip_reg0_sflag(@NonNull Segment cs, int eip, int reg0, boolean sflag) throws ProcessorException
     {
  	if (!sflag)
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JP_O8_cs_eip_reg0_pflag(Segment cs, int eip, int reg0, boolean pflag) throws ProcessorException
+    public static int eip_nef_JP_O8_cs_eip_reg0_pflag(@NonNull Segment cs, int eip, int reg0, boolean pflag) throws ProcessorException
     {
  	if (pflag)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JP_O16_cs_eip_reg0_pflag(Segment cs, int eip, int reg0, boolean pflag) throws ProcessorException
+    public static int eip_nef_JP_O16_cs_eip_reg0_pflag(@NonNull Segment cs, int eip, int reg0, boolean pflag) throws ProcessorException
     {
  	if (pflag)
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JP_O32_cs_eip_reg0_pflag(Segment cs, int eip, int reg0, boolean pflag) throws ProcessorException
+    public static int eip_nef_JP_O32_cs_eip_reg0_pflag(@NonNull Segment cs, int eip, int reg0, boolean pflag) throws ProcessorException
     {
  	if (pflag)
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNP_O8_cs_eip_reg0_pflag(Segment cs, int eip, int reg0, boolean pflag) throws ProcessorException
+    public static int eip_nef_JNP_O8_cs_eip_reg0_pflag(@NonNull Segment cs, int eip, int reg0, boolean pflag) throws ProcessorException
     {
  	if (!pflag)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNP_O16_cs_eip_reg0_pflag(Segment cs, int eip, int reg0, boolean pflag) throws ProcessorException
+    public static int eip_nef_JNP_O16_cs_eip_reg0_pflag(@NonNull Segment cs, int eip, int reg0, boolean pflag) throws ProcessorException
     {
 	if (!pflag)
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNP_O32_cs_eip_reg0_pflag(Segment cs, int eip, int reg0, boolean pflag) throws ProcessorException
+    public static int eip_nef_JNP_O32_cs_eip_reg0_pflag(@NonNull Segment cs, int eip, int reg0, boolean pflag) throws ProcessorException
     {
 	if (!pflag)
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JL_O8_cs_eip_reg0_oflag_sflag(Segment cs, int eip, int reg0, boolean oflag, boolean sflag) throws ProcessorException
+    public static int eip_nef_JL_O8_cs_eip_reg0_oflag_sflag(@NonNull Segment cs, int eip, int reg0, boolean oflag, boolean sflag) throws ProcessorException
     {
  	if (sflag != oflag) 
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JL_O16_cs_eip_reg0_oflag_sflag(Segment cs, int eip, int reg0, boolean oflag, boolean sflag) throws ProcessorException
+    public static int eip_nef_JL_O16_cs_eip_reg0_oflag_sflag(@NonNull Segment cs, int eip, int reg0, boolean oflag, boolean sflag) throws ProcessorException
     {
  	if (sflag != oflag) 
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JL_O32_cs_eip_reg0_oflag_sflag(Segment cs, int eip, int reg0, boolean oflag, boolean sflag) throws ProcessorException
+    public static int eip_nef_JL_O32_cs_eip_reg0_oflag_sflag(@NonNull Segment cs, int eip, int reg0, boolean oflag, boolean sflag) throws ProcessorException
     {
  	if (sflag != oflag) 
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNL_O8_cs_eip_reg0_oflag_sflag(Segment cs, int eip, int reg0, boolean oflag, boolean sflag) throws ProcessorException
+    public static int eip_nef_JNL_O8_cs_eip_reg0_oflag_sflag(@NonNull Segment cs, int eip, int reg0, boolean oflag, boolean sflag) throws ProcessorException
     {
 	if (sflag == oflag) 
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNL_O16_cs_eip_reg0_oflag_sflag(Segment cs, int eip, int reg0, boolean oflag, boolean sflag) throws ProcessorException
+    public static int eip_nef_JNL_O16_cs_eip_reg0_oflag_sflag(@NonNull Segment cs, int eip, int reg0, boolean oflag, boolean sflag) throws ProcessorException
     {
 	if (sflag == oflag) 
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNL_O32_cs_eip_reg0_oflag_sflag(Segment cs, int eip, int reg0, boolean oflag, boolean sflag) throws ProcessorException
+    public static int eip_nef_JNL_O32_cs_eip_reg0_oflag_sflag(@NonNull Segment cs, int eip, int reg0, boolean oflag, boolean sflag) throws ProcessorException
     {
 	if (sflag == oflag) 
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNG_O8_cs_eip_reg0_zflag_sflag_oflag(Segment cs, int eip, int reg0, boolean zflag, boolean sflag, boolean oflag) throws ProcessorException
+    public static int eip_nef_JNG_O8_cs_eip_reg0_zflag_sflag_oflag(@NonNull Segment cs, int eip, int reg0, boolean zflag, boolean sflag, boolean oflag) throws ProcessorException
     {
 	if (zflag || (sflag != oflag)) 
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNG_O16_cs_eip_reg0_zflag_sflag_oflag(Segment cs, int eip, int reg0, boolean zflag, boolean sflag, boolean oflag) throws ProcessorException
+    public static int eip_nef_JNG_O16_cs_eip_reg0_zflag_sflag_oflag(@NonNull Segment cs, int eip, int reg0, boolean zflag, boolean sflag, boolean oflag) throws ProcessorException
     {
 	if (zflag || (sflag != oflag)) 
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JNG_O32_cs_eip_reg0_zflag_sflag_oflag(Segment cs, int eip, int reg0, boolean zflag, boolean sflag, boolean oflag) throws ProcessorException
+    public static int eip_nef_JNG_O32_cs_eip_reg0_zflag_sflag_oflag(@NonNull Segment cs, int eip, int reg0, boolean zflag, boolean sflag, boolean oflag) throws ProcessorException
     {
 	if (zflag || (sflag != oflag)) 
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JG_O8_cs_eip_reg0_zflag_sflag_oflag(Segment cs, int eip, int reg0, boolean zflag, boolean sflag, boolean oflag) throws ProcessorException
+    public static int eip_nef_JG_O8_cs_eip_reg0_zflag_sflag_oflag(@NonNull Segment cs, int eip, int reg0, boolean zflag, boolean sflag, boolean oflag) throws ProcessorException
     {
  	if ((!zflag) && (sflag == oflag)) 
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JG_O16_cs_eip_reg0_zflag_sflag_oflag(Segment cs, int eip, int reg0, boolean zflag, boolean sflag, boolean oflag) throws ProcessorException
+    public static int eip_nef_JG_O16_cs_eip_reg0_zflag_sflag_oflag(@NonNull Segment cs, int eip, int reg0, boolean zflag, boolean sflag, boolean oflag) throws ProcessorException
     {
  	if ((!zflag) && (sflag == oflag)) 
             return eip_nef_JUMP_O16_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JG_O32_cs_eip_reg0_zflag_sflag_oflag(Segment cs, int eip, int reg0, boolean zflag, boolean sflag, boolean oflag) throws ProcessorException
+    public static int eip_nef_JG_O32_cs_eip_reg0_zflag_sflag_oflag(@NonNull Segment cs, int eip, int reg0, boolean zflag, boolean sflag, boolean oflag) throws ProcessorException
     {
  	if ((!zflag) && (sflag == oflag)) 
             return eip_nef_JUMP_O32_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JCXZ_cs_eip_reg0_ecx(Segment cs, int eip, int reg0, int ecx) throws ProcessorException
+    public static int eip_nef_JCXZ_cs_eip_reg0_ecx(@NonNull Segment cs, int eip, int reg0, int ecx) throws ProcessorException
     {
 	if ((ecx & 0xffff) == 0)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
         return eip;
     }
 
-    public static int eip_nef_JECXZ_cs_eip_reg0_ecx(Segment cs, int eip, int reg0, int ecx) throws ProcessorException
+    public static int eip_nef_JECXZ_cs_eip_reg0_ecx(@NonNull Segment cs, int eip, int reg0, int ecx) throws ProcessorException
     {
 	if (ecx == 0)
             return eip_nef_JUMP_O8_cs_eip_reg0(cs, eip, reg0);
@@ -2169,10 +2177,8 @@ class ProtectedModeUCodeStaticMethods
 
     public static boolean oflag_nef_SAR_O8_FLAGS_oflag_reg1(boolean oflag, int reg1)
     {
-        if (reg1 == 1) 
-            return false;
+        return reg1 != 1 && oflag;
 
-        return oflag;
     }
 
     public static boolean pflag_nef_SAR_O8_FLAGS_pflag_reg0_reg1(boolean pflag, int reg0, int reg1)
@@ -2209,10 +2215,8 @@ class ProtectedModeUCodeStaticMethods
 
     public static boolean oflag_nef_SAR_O16_FLAGS_oflag_reg1(boolean oflag, int reg1)
     {
-        if (reg1 == 1) 
-            return false;
+        return reg1 != 1 && oflag;
 
-        return oflag;
     }
 
     public static boolean pflag_nef_SAR_O16_FLAGS_pflag_reg0_reg1(boolean pflag, int reg0, int reg1)
@@ -2249,10 +2253,8 @@ class ProtectedModeUCodeStaticMethods
 
     public static boolean oflag_nef_SAR_O32_FLAGS_oflag_reg1(boolean oflag, int reg1)
     {
-        if (reg1 == 1) 
-            return false;
+        return reg1 != 1 && oflag;
 
-        return oflag;
     }
 
     public static boolean pflag_nef_SAR_O32_FLAGS_pflag_reg0_reg1(boolean pflag, int reg0, int reg1)
@@ -3101,10 +3103,7 @@ class ProtectedModeUCodeStaticMethods
 
     public static boolean cflag_nef_ADC_O8_FLAGS_cflag_reg1_reg0(boolean cflag, int reg1, int reg0)
     {
-        if (cflag && (reg1 == 0xff)) 
-            return true;
-        else
-            return ((reg0 & (~0xff)) != 0);
+        return cflag && (reg1 == 0xff) || ((reg0 & (~0xff)) != 0);
     }
         
     public static boolean oflag_nef_ADC_O8_FLAGS_reg0_reg1_reg2(int reg0, int reg1, int reg2)
@@ -3139,10 +3138,7 @@ class ProtectedModeUCodeStaticMethods
 
     public static boolean cflag_nef_ADC_O16_FLAGS_cflag_reg1_reg0(boolean cflag, int reg1, int reg0)
     {
-	if (cflag && (reg1 == 0xffff))
-            return true;
-        else
-            return ((reg0 & (~0xffff)) != 0);
+        return cflag && (reg1 == 0xffff) || ((reg0 & (~0xffff)) != 0);
     }
 
     public static boolean oflag_nef_ADC_O16_FLAGS_reg0_reg1_reg2(int reg0, int reg1, int reg2)
@@ -3754,7 +3750,7 @@ class ProtectedModeUCodeStaticMethods
         return (eax | result);
     }
 
-    public static int eax_hef_LODSB_A16_eax_seg0_esi(int eax, Segment seg0, int esi)
+    public static int eax_hef_LODSB_A16_eax_seg0_esi(int eax, @NonNull Segment seg0, int esi)
     {
 	return (eax & ~0xff) | (0xff & seg0.getByte(esi & 0xffff));
     }
@@ -3771,7 +3767,7 @@ class ProtectedModeUCodeStaticMethods
 	return (esi & ~0xffff) | (addr & 0xffff);
     }
 
-    public static int eax_hef_LODSB_A32_eax_seg0_esi(int eax, Segment seg0, int esi)
+    public static int eax_hef_LODSB_A32_eax_seg0_esi(int eax, @NonNull Segment seg0, int esi)
     {
 	return (eax & ~0xff) | (0xff & seg0.getByte(esi));
     }
@@ -3784,7 +3780,7 @@ class ProtectedModeUCodeStaticMethods
 	    return esi + 1;
     }
 
-    public static int eax_hef_LODSW_A16_eax_seg0_esi(int eax, Segment seg0, int esi)
+    public static int eax_hef_LODSW_A16_eax_seg0_esi(int eax, @NonNull Segment seg0, int esi)
     {
         return (eax & ~0xffff) | (0xffff & seg0.getWord(esi & 0xffff));
     }
@@ -3801,7 +3797,7 @@ class ProtectedModeUCodeStaticMethods
         return (esi & ~0xffff) | (addr & 0xffff);
     }
 
-    public static int eax_hef_LODSW_A32_eax_seg0_esi(int eax, Segment seg0, int esi)
+    public static int eax_hef_LODSW_A32_eax_seg0_esi(int eax, @NonNull Segment seg0, int esi)
     {
         return (eax & ~0xffff) | (0xffff & seg0.getWord(esi));
     }
@@ -3814,7 +3810,7 @@ class ProtectedModeUCodeStaticMethods
 	    return esi + 2;
     }
 
-    public static int eax_hef_LODSD_A16_seg0_esi(Segment seg0, int esi)
+    public static int eax_hef_LODSD_A16_seg0_esi(@NonNull Segment seg0, int esi)
     {
 	return seg0.getDoubleWord(esi & 0xffff);
     }
@@ -3831,7 +3827,7 @@ class ProtectedModeUCodeStaticMethods
         return (esi & ~0xffff) | (addr & 0xffff);
     }
 
-    public static int eax_hef_LODSD_A32_seg0_esi(Segment seg0, int esi)
+    public static int eax_hef_LODSD_A32_seg0_esi(@NonNull Segment seg0, int esi)
     {
 	return seg0.getDoubleWord(esi);
     }
@@ -3868,7 +3864,7 @@ class ProtectedModeUCodeStaticMethods
         return (esi & ~0xffff) | (outAddr & 0xffff);
     }
 
-    public static void memorywrite_hef_MOVSB_A16_es_edi_seg0_esi(Segment es, int edi, Segment seg0, int esi)
+    public static void memorywrite_hef_MOVSB_A16_es_edi_seg0_esi(@NonNull Segment es, int edi, @NonNull Segment seg0, int esi)
     {
         es.setByte(edi & 0xffff, seg0.getByte(esi & 0xffff));
     }
@@ -3889,7 +3885,7 @@ class ProtectedModeUCodeStaticMethods
 	    return esi + 1;
     }
 
-    public static void memorywrite_hef_MOVSB_A32_es_edi_seg0_esi(Segment es, int edi, Segment seg0, int esi)
+    public static void memorywrite_hef_MOVSB_A32_es_edi_seg0_esi(@NonNull Segment es, int edi, @NonNull Segment seg0, int esi)
     {
         es.setByte(edi, seg0.getByte(esi));
     }
@@ -3918,7 +3914,7 @@ class ProtectedModeUCodeStaticMethods
         return (esi & ~0xffff) | (outAddr & 0xffff);
     }
 
-    public static void memorywrite_hef_MOVSW_A16_es_edi_seg0_esi(Segment es, int edi, Segment seg0, int esi)
+    public static void memorywrite_hef_MOVSW_A16_es_edi_seg0_esi(@NonNull Segment es, int edi, @NonNull Segment seg0, int esi)
     {
         es.setWord(edi & 0xffff, seg0.getWord(esi & 0xffff));
     }
@@ -3939,7 +3935,7 @@ class ProtectedModeUCodeStaticMethods
             return esi + 2;
     }
 
-    public static void memorywrite_hef_MOVSW_A32_es_edi_seg0_esi(Segment es, int edi, Segment seg0, int esi)
+    public static void memorywrite_hef_MOVSW_A32_es_edi_seg0_esi(@NonNull Segment es, int edi, @NonNull Segment seg0, int esi)
     {
         es.setWord(edi, seg0.getWord(esi));
     }
@@ -3968,7 +3964,7 @@ class ProtectedModeUCodeStaticMethods
         return (esi & ~0xffff) | (outAddr & 0xffff);
     }
 
-    public static void memorywrite_hef_MOVSD_A16_es_edi_seg0_esi(Segment es, int edi, Segment seg0, int esi)
+    public static void memorywrite_hef_MOVSD_A16_es_edi_seg0_esi(@NonNull Segment es, int edi, @NonNull Segment seg0, int esi)
     {
         es.setDoubleWord(edi & 0xffff, seg0.getDoubleWord(esi & 0xffff));
     }
@@ -3989,12 +3985,12 @@ class ProtectedModeUCodeStaticMethods
             return esi + 4;
     }
 
-    public static void memorywrite_hef_MOVSD_A32_es_edi_seg0_esi(Segment es, int edi, Segment seg0, int esi)
+    public static void memorywrite_hef_MOVSD_A32_es_edi_seg0_esi(@NonNull Segment es, int edi, @NonNull Segment seg0, int esi)
     {
         es.setDoubleWord(edi, seg0.getDoubleWord(esi));
     }
 
-    public static int reg0_hef_IN_O8_cpl_iopl_tss_reg0_ioports(int cpl, int iopl, Segment tss, int reg0, IOPortHandler ioports)
+    public static int reg0_hef_IN_O8_cpl_iopl_tss_reg0_ioports(int cpl, int iopl, @NonNull Segment tss, int reg0, @NonNull IOPortHandler ioports)
     {
 	if (checkIOPermissionsByte(cpl, iopl, tss, reg0))
 	    return 0xff & ioports.ioPortReadByte(reg0);
@@ -4002,7 +3998,7 @@ class ProtectedModeUCodeStaticMethods
 	    throw ProcessorException.GENERAL_PROTECTION_0;
     }
 
-    public static int reg0_hef_IN_O16_cpl_iopl_tss_reg0_ioports(int cpl, int iopl, Segment tss, int reg0, IOPortHandler ioports)
+    public static int reg0_hef_IN_O16_cpl_iopl_tss_reg0_ioports(int cpl, int iopl, @NonNull Segment tss, int reg0, @NonNull IOPortHandler ioports)
     {
 	if (checkIOPermissionsShort(cpl, iopl, tss, reg0))
 	    return 0xffff & ioports.ioPortReadWord(reg0);
@@ -4010,7 +4006,7 @@ class ProtectedModeUCodeStaticMethods
 	    throw ProcessorException.GENERAL_PROTECTION_0;
     }
 
-    public static int reg0_hef_IN_O32_cpl_iopl_tss_reg0_ioports(int cpl, int iopl, Segment tss, int reg0, IOPortHandler ioports)
+    public static int reg0_hef_IN_O32_cpl_iopl_tss_reg0_ioports(int cpl, int iopl, @NonNull Segment tss, int reg0, @NonNull IOPortHandler ioports)
     {
 	if (checkIOPermissionsInt(cpl, iopl, tss, reg0))
 	    return ioports.ioPortReadLong(reg0);
@@ -4018,7 +4014,7 @@ class ProtectedModeUCodeStaticMethods
 	    throw ProcessorException.GENERAL_PROTECTION_0;
     }
 
-    public static void ioportwrite_hef_OUT_O8_cpl_iopl_tss_reg0_reg1_ioports(int cpl, int iopl, Segment tss, int reg0, int reg1, IOPortHandler ioports)
+    public static void ioportwrite_hef_OUT_O8_cpl_iopl_tss_reg0_reg1_ioports(int cpl, int iopl, @NonNull Segment tss, int reg0, int reg1, @NonNull IOPortHandler ioports)
     {
 	if (checkIOPermissionsByte(cpl, iopl, tss, reg0))
 	    ioports.ioPortWriteByte(reg0, reg1);
@@ -4026,7 +4022,7 @@ class ProtectedModeUCodeStaticMethods
 	    throw ProcessorException.GENERAL_PROTECTION_0;
     }
 
-    public static void ioportwrite_hef_OUT_O16_cpl_iopl_tss_reg0_reg1_ioports(int cpl, int iopl, Segment tss, int reg0, int reg1, IOPortHandler ioports)
+    public static void ioportwrite_hef_OUT_O16_cpl_iopl_tss_reg0_reg1_ioports(int cpl, int iopl, @NonNull Segment tss, int reg0, int reg1, @NonNull IOPortHandler ioports)
     {
 	if (checkIOPermissionsShort(cpl, iopl, tss, reg0))
 	    ioports.ioPortWriteWord(reg0, reg1);
@@ -4034,7 +4030,7 @@ class ProtectedModeUCodeStaticMethods
 	    throw ProcessorException.GENERAL_PROTECTION_0;
     }
     
-    public static void ioportwrite_hef_OUT_O32_cpl_iopl_tss_reg0_reg1_ioports(int cpl, int iopl, Segment tss, int reg0, int reg1, IOPortHandler ioports)
+    public static void ioportwrite_hef_OUT_O32_cpl_iopl_tss_reg0_reg1_ioports(int cpl, int iopl, @NonNull Segment tss, int reg0, int reg1, @NonNull IOPortHandler ioports)
     {
 	if (checkIOPermissionsInt(cpl, iopl, tss, reg0))
 	    ioports.ioPortWriteLong(reg0, reg1);
@@ -4042,14 +4038,14 @@ class ProtectedModeUCodeStaticMethods
 	    throw ProcessorException.GENERAL_PROTECTION_0;
     }
 
-    public static int cflag_hef_BT_MEM_reg1_seg0_addr0(int reg1, Segment seg0, int addr0)
+    public static int cflag_hef_BT_MEM_reg1_seg0_addr0(int reg1, @NonNull Segment seg0, int addr0)
     {
 	addr0 += (reg1 >>> 3);
 	reg1 &= 0x7;
 	return (seg0.getByte(addr0) >>> reg1) & 0x1;
     }
 
-    public static int cflag_hef_BTS_MEM_reg1_seg0_addr0(int reg1, Segment seg0, int addr0)
+    public static int cflag_hef_BTS_MEM_reg1_seg0_addr0(int reg1, @NonNull Segment seg0, int addr0)
     {
 	addr0 += (reg1 >>> 3);
 	reg1 &= 0x7;
@@ -4061,7 +4057,7 @@ class ProtectedModeUCodeStaticMethods
 	return bit;
     }
 
-    public static int cflag_hef_BTR_MEM_reg1_seg0_addr0(int reg1, Segment seg0, int addr0)
+    public static int cflag_hef_BTR_MEM_reg1_seg0_addr0(int reg1, @NonNull Segment seg0, int addr0)
     {
 	addr0 += (reg1 >>> 3);
 	reg1 &= 0x7;
@@ -4073,7 +4069,7 @@ class ProtectedModeUCodeStaticMethods
 	return bit;
     }
 
-    public static int cflag_hef_BTC_MEM_reg1_seg0_addr0(int reg1, Segment seg0, int addr0)
+    public static int cflag_hef_BTC_MEM_reg1_seg0_addr0(int reg1, @NonNull Segment seg0, int addr0)
     {
 	addr0 += (reg1 >>> 3);
 	reg1 &= 0x7;
@@ -4083,17 +4079,17 @@ class ProtectedModeUCodeStaticMethods
 	return bit;
     }
 
-    public static int esp_nef_PUSH_O16_A16_ss_esp(Segment ss, int esp)
+    public static int esp_nef_PUSH_O16_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return esp_nef_PUSH_O16_A32_ss_esp(ss, esp);
     }
 
-    public static void memorywrite_hef_PUSH_O16_A16_ss_reg0_esp(Segment ss, int reg0, int esp)
+    public static void memorywrite_hef_PUSH_O16_A16_ss_reg0_esp(@NonNull Segment ss, int reg0, int esp)
     {
         memorywrite_hef_PUSH_O16_A32_ss_reg0_esp(ss, reg0, esp);
     }
 
-    private static int esp_nef_PUSH_O16_A32_ss_esp(Segment ss, int esp)
+    private static int esp_nef_PUSH_O16_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return esp - 2;
@@ -4101,7 +4097,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp - 2) & 0xffff);
     }
 
-    private static void memorywrite_hef_PUSH_O16_A32_ss_reg0_esp(Segment ss, int reg0, int esp)
+    private static void memorywrite_hef_PUSH_O16_A32_ss_reg0_esp(@NonNull Segment ss, int reg0, int esp)
     {
 	if (ss.getDefaultSizeFlag()) {
 	    if ((esp < 2) && (esp > 0))
@@ -4114,17 +4110,17 @@ class ProtectedModeUCodeStaticMethods
 	}
     }
 
-    public static int esp_nef_PUSH_O32_A16_ss_esp(Segment ss, int esp)
+    public static int esp_nef_PUSH_O32_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return esp_nef_PUSH_O32_A32_ss_esp(ss, esp);
     }
 
-    public static void memorywrite_hef_PUSH_O32_A16_ss_reg0_esp(Segment ss, int reg0, int esp)
+    public static void memorywrite_hef_PUSH_O32_A16_ss_reg0_esp(@NonNull Segment ss, int reg0, int esp)
     {
         memorywrite_hef_PUSH_O32_A32_ss_reg0_esp(ss, reg0, esp);
     }
 
-    private static int esp_nef_PUSH_O32_A32_ss_esp(Segment ss, int esp)
+    private static int esp_nef_PUSH_O32_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return esp - 4;
@@ -4132,7 +4128,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp - 4) & 0xffff);
     }
 
-    private static void memorywrite_hef_PUSH_O32_A32_ss_reg0_esp(Segment ss, int reg0, int esp)
+    private static void memorywrite_hef_PUSH_O32_A32_ss_reg0_esp(@NonNull Segment ss, int reg0, int esp)
     {
 	if (ss.getDefaultSizeFlag()) {
 	    if ((esp < 4) && (esp > 0))
@@ -4145,17 +4141,17 @@ class ProtectedModeUCodeStaticMethods
 	}
     }
 
-    public static int reg0_hef_POP_O16_A16_ss_esp(Segment ss, int esp)
+    public static int reg0_hef_POP_O16_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return reg0_hef_POP_O16_A32_ss_esp(ss, esp);
     }
 
-    public static int reg1_nef_POP_O16_A16_ss_esp(Segment ss, int esp)
+    public static int reg1_nef_POP_O16_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return reg1_nef_POP_O16_A32_ss_esp(ss, esp);
     }
     
-    private static int reg0_hef_POP_O16_A32_ss_esp(Segment ss, int esp)
+    private static int reg0_hef_POP_O16_A32_ss_esp(@NonNull Segment ss, int esp)
     {
         if (ss.getDefaultSizeFlag())
             return 0xffff & ss.getWord(esp);
@@ -4163,7 +4159,7 @@ class ProtectedModeUCodeStaticMethods
             return 0xffff & ss.getWord(0xffff & esp);
     }
 
-    private static int reg1_nef_POP_O16_A32_ss_esp(Segment ss, int esp)
+    private static int reg1_nef_POP_O16_A32_ss_esp(@NonNull Segment ss, int esp)
     {
         if (ss.getDefaultSizeFlag())
             return esp + 2;
@@ -4171,17 +4167,17 @@ class ProtectedModeUCodeStaticMethods
             return (esp & ~0xffff) | ((esp + 2) & 0xffff);
     }
 
-    public static int reg0_hef_POP_O32_A16_ss_esp(Segment ss, int esp)
+    public static int reg0_hef_POP_O32_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return reg0_hef_POP_O32_A32_ss_esp(ss, esp);
     }
 
-    public static int reg1_nef_POP_O32_A16_ss_esp(Segment ss, int esp)
+    public static int reg1_nef_POP_O32_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return reg1_nef_POP_O32_A32_ss_esp(ss, esp);
     }
     
-    private static int reg0_hef_POP_O32_A32_ss_esp(Segment ss, int esp)
+    private static int reg0_hef_POP_O32_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return ss.getDoubleWord(esp); 
@@ -4189,7 +4185,7 @@ class ProtectedModeUCodeStaticMethods
 	    return ss.getDoubleWord(0xffff & esp);
     }
 
-    private static int reg1_nef_POP_O32_A32_ss_esp(Segment ss, int esp)
+    private static int reg1_nef_POP_O32_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return esp + 4;		
@@ -4218,17 +4214,17 @@ class ProtectedModeUCodeStaticMethods
 // 	}
 //     }
 
-    public static int esp_nef_PUSHF_O32_A16_ss_esp(Segment ss, int esp)
+    public static int esp_nef_PUSHF_O32_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return esp_nef_PUSHF_O32_A32_ss_esp(ss, esp);
     }
 
-    public static void memorywrite_hef_PUSHF_O32_A16_ss_reg0_esp(Segment ss, int reg0, int esp)
+    public static void memorywrite_hef_PUSHF_O32_A16_ss_reg0_esp(@NonNull Segment ss, int reg0, int esp)
     {
         memorywrite_hef_PUSHF_O32_A32_ss_reg0_esp(ss, reg0, esp);
     }
     
-    private static int esp_nef_PUSHF_O32_A32_ss_esp(Segment ss, int esp)
+    private static int esp_nef_PUSHF_O32_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return esp - 4;
@@ -4236,7 +4232,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp - 4) & 0xffff);
     }
 
-    private static void memorywrite_hef_PUSHF_O32_A32_ss_reg0_esp(Segment ss, int reg0, int esp)
+    private static void memorywrite_hef_PUSHF_O32_A32_ss_reg0_esp(@NonNull Segment ss, int reg0, int esp)
     {
 	if (ss.getDefaultSizeFlag()) {
 	    if ((esp < 4) && (esp > 0))
@@ -4274,7 +4270,7 @@ class ProtectedModeUCodeStaticMethods
 // 	    return (esp & ~0xffff) | ((esp + 2) & 0xffff);		
 //     }
 
-    public static int reg0_hef_POPF_O32_A32_ss_esp_cpl_iopl_vmflag_iflag(Segment ss, int esp, int cpl, int iopl, boolean vmflag, boolean iflag)
+    public static int reg0_hef_POPF_O32_A32_ss_esp_cpl_iopl_vmflag_iflag(@NonNull Segment ss, int esp, int cpl, int iopl, boolean vmflag, boolean iflag)
     {
 	int flags;
 	if (ss.getDefaultSizeFlag())
@@ -4294,7 +4290,7 @@ class ProtectedModeUCodeStaticMethods
 	return flags;
     }
 
-    public static int esp_nef_POPF_O32_A32_ss_esp(Segment ss, int esp)
+    public static int esp_nef_POPF_O32_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return esp + 4;		
@@ -4369,7 +4365,7 @@ class ProtectedModeUCodeStaticMethods
         return esp_nef_POPA_A32_ss_esp(ss, esp);
         }*/
     
-    public static int eax_hef_POPA_A32_eax_ss_esp(int eax, Segment ss, int esp)
+    public static int eax_hef_POPA_A32_eax_ss_esp(int eax, @NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return (eax & ~0xffff) | (0xffff & ss.getWord(esp + 14));
@@ -4377,7 +4373,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (eax & ~0xffff) | (0xffff & ss.getWord((esp + 14) & 0xffff));
     }
 
-    public static int ebp_hef_POPA_A32_ebp_ss_esp(int ebp, Segment ss, int esp)
+    public static int ebp_hef_POPA_A32_ebp_ss_esp(int ebp, @NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return (ebp & ~0xffff) | (0xffff & ss.getWord(esp + 4));
@@ -4385,7 +4381,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (ebp & ~0xffff) | (0xffff & ss.getWord((esp + 4) & 0xffff));
     }
 
-    public static int ebx_hef_POPA_A32_ebx_ss_esp(int ebx, Segment ss, int esp)
+    public static int ebx_hef_POPA_A32_ebx_ss_esp(int ebx, @NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return (ebx & ~0xffff) | (0xffff & ss.getWord(esp + 8));
@@ -4393,7 +4389,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (ebx & ~0xffff) | (0xffff & ss.getWord((esp + 8) & 0xffff));
     }
 
-    public static int ecx_hef_POPA_A32_ecx_ss_esp(int ecx, Segment ss, int esp)
+    public static int ecx_hef_POPA_A32_ecx_ss_esp(int ecx, @NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return (ecx & ~0xffff) | (0xffff & ss.getWord(esp + 12));
@@ -4401,7 +4397,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (ecx & ~0xffff) | (0xffff & ss.getWord((esp + 12) & 0xffff));
     }
 
-    public static int edi_hef_POPA_A32_edi_ss_esp(int edi, Segment ss, int esp)
+    public static int edi_hef_POPA_A32_edi_ss_esp(int edi, @NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return (edi & ~0xffff) | (0xffff & ss.getWord(esp));
@@ -4409,7 +4405,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (edi & ~0xffff) | (0xffff & ss.getWord(esp & 0xffff));
     }
 
-    public static int edx_hef_POPA_A32_edx_ss_esp(int edx, Segment ss, int esp)
+    public static int edx_hef_POPA_A32_edx_ss_esp(int edx, @NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return (edx & ~0xffff) | (0xffff & ss.getWord(esp + 10));
@@ -4417,7 +4413,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (edx & ~0xffff) | (0xffff & ss.getWord((esp + 10) & 0xffff));
     }
 
-    public static int esi_hef_POPA_A32_esi_ss_esp(int esi, Segment ss, int esp)
+    public static int esi_hef_POPA_A32_esi_ss_esp(int esi, @NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return (esi & ~0xffff) | (0xffff & ss.getWord(esp + 2));
@@ -4425,7 +4421,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (esi & ~0xffff) | (0xffff & ss.getWord((esp + 2) & 0xffff));
     }
 
-    public static int esp_nef_POPA_A32_ss_esp(Segment ss, int esp)
+    public static int esp_nef_POPA_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return esp + 16;
@@ -4433,17 +4429,17 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp + 16) & 0xffff);
     }
     
-    public static int esp_nef_PUSHAD_A16_ss_esp(Segment ss, int esp)
+    public static int esp_nef_PUSHAD_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return esp_nef_PUSHAD_A32_ss_esp(ss, esp);
     }
 
-    public static void memorywrite_hef_PUSHAD_A16_edi_esi_ebp_ebx_edx_ecx_eax_ss_esp(int edi, int esi, int ebp, int ebx, int edx, int ecx, int eax, Segment ss, int esp)
+    public static void memorywrite_hef_PUSHAD_A16_edi_esi_ebp_ebx_edx_ecx_eax_ss_esp(int edi, int esi, int ebp, int ebx, int edx, int ecx, int eax, @NonNull Segment ss, int esp)
     {
         memorywrite_hef_PUSHAD_A32_edi_esi_ebp_ebx_edx_ecx_eax_ss_esp(edi, esi, ebp, ebx, edx, ecx, eax, ss, esp);        
     }   
     
-    private static int esp_nef_PUSHAD_A32_ss_esp(Segment ss, int esp)
+    private static int esp_nef_PUSHAD_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return esp - 32;
@@ -4451,7 +4447,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp - 32) & 0xffff);
     }
 
-    private static void memorywrite_hef_PUSHAD_A32_edi_esi_ebp_ebx_edx_ecx_eax_ss_esp(int edi, int esi, int ebp, int ebx, int edx, int ecx, int eax, Segment ss, int esp)
+    private static void memorywrite_hef_PUSHAD_A32_edi_esi_ebp_ebx_edx_ecx_eax_ss_esp(int edi, int esi, int ebp, int ebx, int edx, int ecx, int eax, @NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag()) {
 	    if ((esp < 32) && (esp > 0))
@@ -4498,47 +4494,47 @@ class ProtectedModeUCodeStaticMethods
 	}
     }
 
-    public static int eax_hef_POPAD_A16_ss_esp(Segment ss, int esp)
+    public static int eax_hef_POPAD_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return eax_hef_POPAD_A32_ss_esp(ss, esp);
     }
 
-    public static int ebp_hef_POPAD_A16_ss_esp(Segment ss, int esp)
+    public static int ebp_hef_POPAD_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return ebp_hef_POPAD_A32_ss_esp(ss, esp);
     }
 
-    public static int ebx_hef_POPAD_A16_ss_esp(Segment ss, int esp)
+    public static int ebx_hef_POPAD_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return ebx_hef_POPAD_A32_ss_esp(ss, esp);
     }
     
-    public static int ecx_hef_POPAD_A16_ss_esp(Segment ss, int esp)
+    public static int ecx_hef_POPAD_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return ecx_hef_POPAD_A32_ss_esp(ss, esp);
     }
 
-    public static int edi_hef_POPAD_A16_ss_esp(Segment ss, int esp)
+    public static int edi_hef_POPAD_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return edi_hef_POPAD_A32_ss_esp(ss, esp);
     }
 
-    public static int edx_hef_POPAD_A16_ss_esp(Segment ss, int esp)
+    public static int edx_hef_POPAD_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return edx_hef_POPAD_A32_ss_esp(ss, esp);
     }
 
-    public static int esi_hef_POPAD_A16_ss_esp(Segment ss, int esp)
+    public static int esi_hef_POPAD_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return esi_hef_POPAD_A32_ss_esp(ss, esp);
     }
 
-    public static int esp_nef_POPAD_A16_ss_esp(Segment ss, int esp)
+    public static int esp_nef_POPAD_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return esp_nef_POPAD_A32_ss_esp(ss, esp);
     }
     
-    private static int eax_hef_POPAD_A32_ss_esp(Segment ss, int esp)
+    private static int eax_hef_POPAD_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return ss.getDoubleWord(esp + 28);
@@ -4546,7 +4542,7 @@ class ProtectedModeUCodeStaticMethods
 	    return ss.getDoubleWord((esp + 28) & 0xffff);
     }
 
-    private static int ebp_hef_POPAD_A32_ss_esp(Segment ss, int esp)
+    private static int ebp_hef_POPAD_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return ss.getDoubleWord(esp + 8);
@@ -4554,7 +4550,7 @@ class ProtectedModeUCodeStaticMethods
 	    return ss.getDoubleWord((esp + 8) & 0xffff);
     }
 
-    private static int ebx_hef_POPAD_A32_ss_esp(Segment ss, int esp)
+    private static int ebx_hef_POPAD_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return ss.getDoubleWord(esp + 16);
@@ -4562,7 +4558,7 @@ class ProtectedModeUCodeStaticMethods
 	    return ss.getDoubleWord((esp + 16) & 0xffff);
     }
 
-    private static int ecx_hef_POPAD_A32_ss_esp(Segment ss, int esp)
+    private static int ecx_hef_POPAD_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return ss.getDoubleWord(esp + 24);
@@ -4570,7 +4566,7 @@ class ProtectedModeUCodeStaticMethods
 	    return ss.getDoubleWord((esp + 24) & 0xffff);
     }
 
-    private static int edi_hef_POPAD_A32_ss_esp(Segment ss, int esp)
+    private static int edi_hef_POPAD_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return ss.getDoubleWord(esp);
@@ -4578,7 +4574,7 @@ class ProtectedModeUCodeStaticMethods
 	    return ss.getDoubleWord(esp & 0xffff);
     }
 
-    private static int edx_hef_POPAD_A32_ss_esp(Segment ss, int esp)
+    private static int edx_hef_POPAD_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return ss.getDoubleWord(esp + 20);
@@ -4586,7 +4582,7 @@ class ProtectedModeUCodeStaticMethods
 	    return ss.getDoubleWord((esp + 20) & 0xffff);
     }
 
-    private static int esi_hef_POPAD_A32_ss_esp(Segment ss, int esp)
+    private static int esi_hef_POPAD_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return ss.getDoubleWord(esp + 4);
@@ -4594,7 +4590,7 @@ class ProtectedModeUCodeStaticMethods
 	    return ss.getDoubleWord((esp + 4) & 0xffff);
     }
 
-    private static int esp_nef_POPAD_A32_ss_esp(Segment ss, int esp)
+    private static int esp_nef_POPAD_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return esp + 32;
@@ -5465,7 +5461,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (edi & ~0xffff) | ((edi + 1) & 0xffff);
     }
 
-    public static void memorywrite_hef_STOSB_A16_es_reg0_edi(Segment es, int reg0, int edi)
+    public static void memorywrite_hef_STOSB_A16_es_reg0_edi(@NonNull Segment es, int reg0, int edi)
     {
 	es.setByte(edi & 0xffff, (byte) reg0);
     }
@@ -5478,7 +5474,7 @@ class ProtectedModeUCodeStaticMethods
 	    return edi + 1;
     }
 
-    public static void memorywrite_hef_STOSB_A32_es_reg0_edi(Segment es, int reg0, int edi)
+    public static void memorywrite_hef_STOSB_A32_es_reg0_edi(@NonNull Segment es, int reg0, int edi)
     {
 	es.setByte(edi, (byte) reg0);
     }
@@ -5491,7 +5487,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (edi & ~0xffff) | ((edi + 2) & 0xffff);
     }
 
-    public static void memorywrite_hef_STOSW_A16_es_reg0_edi(Segment es, int reg0, int edi)
+    public static void memorywrite_hef_STOSW_A16_es_reg0_edi(@NonNull Segment es, int reg0, int edi)
     {
 	es.setWord(edi & 0xffff, (short) reg0);		
     }
@@ -5504,7 +5500,7 @@ class ProtectedModeUCodeStaticMethods
 	    return edi + 2;
     }
 
-    public static void memorywrite_hef_STOSW_A32_es_reg0_edi(Segment es, int reg0, int edi)
+    public static void memorywrite_hef_STOSW_A32_es_reg0_edi(@NonNull Segment es, int reg0, int edi)
     {
 	es.setWord(edi, (short) reg0);		
     }
@@ -5517,7 +5513,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (edi & ~0xffff) | ((edi + 4) & 0xffff);
     }
 
-    public static void memorywrite_hef_STOSD_A16_es_reg0_edi(Segment es, int reg0, int edi)
+    public static void memorywrite_hef_STOSD_A16_es_reg0_edi(@NonNull Segment es, int reg0, int edi)
     {
 	es.setDoubleWord(edi & 0xffff, reg0);
     }
@@ -5530,7 +5526,7 @@ class ProtectedModeUCodeStaticMethods
 	    return edi + 4;
     }
 
-    public static void memorywrite_hef_STOSD_A32_es_reg0_edi(Segment es, int reg0, int edi)
+    public static void memorywrite_hef_STOSD_A32_es_reg0_edi(@NonNull Segment es, int reg0, int edi)
     {
 	es.setDoubleWord(edi, reg0);
     }
@@ -5567,10 +5563,10 @@ class ProtectedModeUCodeStaticMethods
 
     public static boolean cflag_nef_CMC_cflag(boolean cflag)
     {
-        return cflag ^ true;
+        return !cflag;
     }
 
-    public static int eip_nef_CALL_O16_A16_cs_eip_reg0(Segment cs, int eip, int reg0) throws ProcessorException
+    public static int eip_nef_CALL_O16_A16_cs_eip_reg0(@NonNull Segment cs, int eip, int reg0) throws ProcessorException
     {
 	eip += reg0;
         eip &= 0xffff;        
@@ -5578,7 +5574,7 @@ class ProtectedModeUCodeStaticMethods
 	return eip;
     }
 
-    public static int esp_nef_CALL_O16_A16_ss_esp(Segment ss, int esp)
+    public static int esp_nef_CALL_O16_A16_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return esp - 2;
@@ -5586,7 +5582,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp - 2) & 0xffff);
     }
 
-    public static void memorywrite_hef_CALL_O16_A16_ss_esp_eip(Segment ss, int esp, int eip)
+    public static void memorywrite_hef_CALL_O16_A16_ss_esp_eip(@NonNull Segment ss, int esp, int eip)
     {
 	if (ss.getDefaultSizeFlag()) {
 	    if ((esp < 2) && (esp > 0))
@@ -5599,14 +5595,14 @@ class ProtectedModeUCodeStaticMethods
 	}
     }
 
-    public static int eip_nef_CALL_O32_A32_cs_eip_reg0(Segment cs, int eip, int reg0) throws ProcessorException
+    public static int eip_nef_CALL_O32_A32_cs_eip_reg0(@NonNull Segment cs, int eip, int reg0) throws ProcessorException
     {
 	eip += reg0;
 	cs.checkAddress(eip);
 	return eip;
     }
 
-    public static int esp_nef_CALL_O32_A32_ss_esp(Segment ss, int esp)
+    public static int esp_nef_CALL_O32_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return esp - 4;
@@ -5614,7 +5610,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp - 4) & 0xffff);
     }
 
-    public static void memorywrite_hef_CALL_O32_A32_ss_esp_eip(Segment ss, int esp, int eip)
+    public static void memorywrite_hef_CALL_O32_A32_ss_esp_eip(@NonNull Segment ss, int esp, int eip)
     {
 	if (ss.getDefaultSizeFlag()) {
 	    if ((esp < 4) && (esp > 0))
@@ -5627,12 +5623,12 @@ class ProtectedModeUCodeStaticMethods
 	}
     }
 
-    public static int eip_nef_CALL_ABS_O16_A16_cs_reg0(Segment cs, int reg0) throws ProcessorException
+    public static int eip_nef_CALL_ABS_O16_A16_cs_reg0(@NonNull Segment cs, int reg0) throws ProcessorException
     {
         return eip_nef_CALL_ABS_O32_A32_cs_reg0(cs, reg0 & 0xffff);
     }
 
-    public static int esp_nef_CALL_ABS_O16_A16_ss_esp(Segment ss, int esp)
+    public static int esp_nef_CALL_ABS_O16_A16_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return esp - 2;
@@ -5640,7 +5636,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp - 2) & 0xffff);
     }
 
-    public static void memorywrite_hef_CALL_ABS_O16_A16_ss_esp_eip(Segment ss, int esp, int eip)
+    public static void memorywrite_hef_CALL_ABS_O16_A16_ss_esp_eip(@NonNull Segment ss, int esp, int eip)
     {
 	if (ss.getDefaultSizeFlag()) {
 	    if ((esp < 2) && (esp > 0))
@@ -5653,13 +5649,13 @@ class ProtectedModeUCodeStaticMethods
 	}
     }
 
-    private static int eip_nef_CALL_ABS_O32_A32_cs_reg0(Segment cs, int reg0) throws ProcessorException
+    private static int eip_nef_CALL_ABS_O32_A32_cs_reg0(@NonNull Segment cs, int reg0) throws ProcessorException
     {
 	cs.checkAddress(reg0);
 	return reg0;
     }
 
-    public static int esp_nef_CALL_ABS_O32_A32_ss_esp(Segment ss, int esp)
+    public static int esp_nef_CALL_ABS_O32_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return esp - 4;
@@ -5667,7 +5663,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp - 4) & 0xffff);
     }
 
-    public static void memorywrite_hef_CALL_ABS_O32_A32_ss_esp_eip(Segment ss, int esp, int eip)
+    public static void memorywrite_hef_CALL_ABS_O32_A32_ss_esp_eip(@NonNull Segment ss, int esp, int eip)
     {
 	if (ss.getDefaultSizeFlag()) {
 	    if ((esp < 4) && (esp > 0))
@@ -5680,7 +5676,7 @@ class ProtectedModeUCodeStaticMethods
 	}
     }
 
-    private static int eip_hef_RET_O16_A16_ss_esp(Segment ss, int esp)
+    private static int eip_hef_RET_O16_A16_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return 0xffff & ss.getWord(esp);
@@ -5688,7 +5684,7 @@ class ProtectedModeUCodeStaticMethods
 	    return 0xffff & ss.getWord(esp & 0xffff);
     }
     
-    public static int esp_nef_RET_O16_A16_ss_esp(Segment ss, int esp)
+    public static int esp_nef_RET_O16_A16_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())	    
 	    return esp + 2;
@@ -5696,7 +5692,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp + 2) & 0xffff);
     }
 
-    private static int eip_hef_RET_O32_A32_ss_esp(Segment ss, int esp)
+    private static int eip_hef_RET_O32_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return ss.getDoubleWord(esp);
@@ -5704,7 +5700,7 @@ class ProtectedModeUCodeStaticMethods
 	    return ss.getDoubleWord(esp & 0xffff);
     }
     
-    public static int esp_nef_RET_O32_A32_ss_esp(Segment ss, int esp)
+    public static int esp_nef_RET_O32_A32_ss_esp(@NonNull Segment ss, int esp)
     {
 	if (ss.getDefaultSizeFlag())	    
 	    return esp + 4;
@@ -5712,12 +5708,12 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp + 4) & 0xffff);
     }
 
-    public static int eip_hef_RET_IW_O16_A16_ss_esp(Segment ss, int esp)
+    public static int eip_hef_RET_IW_O16_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return eip_hef_RET_O16_A16_ss_esp(ss, esp);
     }
     
-    public static int esp_nef_RET_IW_O16_A16_ss_esp_reg0(Segment ss, int esp, int reg0)
+    public static int esp_nef_RET_IW_O16_A16_ss_esp_reg0(@NonNull Segment ss, int esp, int reg0)
     {
 	if (ss.getDefaultSizeFlag())	    
 	    return esp + 2 + (short)reg0;
@@ -5725,12 +5721,12 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp + 2 + reg0) & 0xffff);
     }
 
-    public static int eip_hef_RET_IW_O32_A32_ss_esp(Segment ss, int esp)
+    public static int eip_hef_RET_IW_O32_A32_ss_esp(@NonNull Segment ss, int esp)
     {
         return eip_hef_RET_O32_A32_ss_esp(ss, esp);
     }
 
-    public static int esp_nef_RET_IW_O32_A32_ss_esp_reg0(Segment ss, int esp, int reg0)
+    public static int esp_nef_RET_IW_O32_A32_ss_esp_reg0(@NonNull Segment ss, int esp, int reg0)
     {
 	if (ss.getDefaultSizeFlag())	    
 	    return esp + 4 + (short)reg0;
@@ -5738,7 +5734,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (esp & ~0xffff) | ((esp + 4 + reg0) & 0xffff);
     }
 
-    public static int esp_nef_LEAVE_O16_A16_ss_ebp_esp(Segment ss, int ebp, int esp) throws ProcessorException
+    public static int esp_nef_LEAVE_O16_A16_ss_ebp_esp(@NonNull Segment ss, int ebp, int esp) throws ProcessorException
     {
 	if (ss.getDefaultSizeFlag()) {
 	    ss.checkAddress(ebp);
@@ -5749,7 +5745,7 @@ class ProtectedModeUCodeStaticMethods
 	}
     }
 
-    public static int ebp_hef_LEAVE_O16_A16_ss_ebp(Segment ss, int ebp)
+    public static int ebp_hef_LEAVE_O16_A16_ss_ebp(@NonNull Segment ss, int ebp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return (ebp & ~0xffff) | (0xffff & ss.getWord(ebp));
@@ -5757,7 +5753,7 @@ class ProtectedModeUCodeStaticMethods
 	    return (ebp & ~0xffff) | (0xffff & ss.getWord(ebp & 0xffff));
     }
 
-    public static int esp_nef_LEAVE_O32_A32_ss_ebp_esp(Segment ss, int ebp, int esp) throws ProcessorException
+    public static int esp_nef_LEAVE_O32_A32_ss_ebp_esp(@NonNull Segment ss, int ebp, int esp) throws ProcessorException
     {
 	if (ss.getDefaultSizeFlag()) {
 	    ss.checkAddress(ebp);
@@ -5768,7 +5764,7 @@ class ProtectedModeUCodeStaticMethods
 	}
     }
 
-    public static int ebp_hef_LEAVE_O32_A32_ss_ebp(Segment ss, int ebp)
+    public static int ebp_hef_LEAVE_O32_A32_ss_ebp(@NonNull Segment ss, int ebp)
     {
 	if (ss.getDefaultSizeFlag())
 	    return ss.getDoubleWord(ebp);
@@ -5776,7 +5772,7 @@ class ProtectedModeUCodeStaticMethods
 	    return ss.getDoubleWord(ebp & 0xffff);
     }
 
-    private static boolean checkIOPermissionsByte(int cpl, int iopl, Segment tss, int ioportAddress)
+    private static boolean checkIOPermissionsByte(int cpl, int iopl, @NonNull Segment tss, int ioportAddress)
     {
 	if (cpl <= iopl)
 	    return true;
@@ -5793,7 +5789,7 @@ class ProtectedModeUCodeStaticMethods
 	}
     }
 
-    private static boolean checkIOPermissionsShort(int cpl, int iopl, Segment tss, int ioportAddress)
+    private static boolean checkIOPermissionsShort(int cpl, int iopl, @NonNull Segment tss, int ioportAddress)
     {
 	if (cpl <= iopl)
 	    return true;
@@ -5810,7 +5806,7 @@ class ProtectedModeUCodeStaticMethods
 	}
     }
 
-    private static boolean checkIOPermissionsInt(int cpl, int iopl, Segment tss, int ioportAddress)
+    private static boolean checkIOPermissionsInt(int cpl, int iopl, @NonNull Segment tss, int ioportAddress)
     {
 	if (cpl <= iopl)
 	    return true;

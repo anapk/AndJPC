@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.attribute;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -46,14 +48,14 @@ public class LocalVariableTableAttribute extends AttributeInfo
 {
     private LocalVariableEntry[] localVariableTable;
 
-    LocalVariableTableAttribute(DataInputStream in, int index) throws IOException
+    LocalVariableTableAttribute(@NonNull DataInputStream in, int index) throws IOException
     {
         super(in, index);
         localVariableTable = new LocalVariableEntry[in.readUnsignedShort()];
         for (int i = 0; i < localVariableTable.length; i++) localVariableTable[i] = new LocalVariableEntry(in);
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         super.write(out);
         out.writeShort(localVariableTable.length);
@@ -69,7 +71,7 @@ public class LocalVariableTableAttribute extends AttributeInfo
         private int descriptorIndex;
         private int index;
 
-        LocalVariableEntry(DataInputStream in) throws IOException
+        LocalVariableEntry(@NonNull DataInputStream in) throws IOException
         {
             super();
             startPC = in.readUnsignedShort();
@@ -79,7 +81,7 @@ public class LocalVariableTableAttribute extends AttributeInfo
             index = in.readUnsignedShort();
         }
 
-        void write(DataOutputStream out) throws IOException
+        void write(@NonNull DataOutputStream out) throws IOException
         {
             out.writeShort(startPC);
             out.writeShort(length);

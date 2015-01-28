@@ -33,11 +33,21 @@
 
 package org.jpc.emulator.motherboard;
 
-import java.io.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
 
-import org.jpc.emulator.*;
-import org.jpc.emulator.memory.*;
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.memory.AddressSpace;
+import org.jpc.emulator.memory.EPROMMemory;
+import org.jpc.emulator.memory.PhysicalAddressSpace;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Abstract class for loading bios images into a <code>PhysicalAddressSpace</code>.
@@ -57,7 +67,7 @@ public abstract class Bios extends AbstractHardwareComponent {
      * Constructs a new bios which will load the given byte array into memory.
      * @param image bios data
      */
-    private Bios(byte[] image) {
+    private Bios(@NonNull byte[] image) {
         this(image, "byte_array");
     }
 
@@ -68,11 +78,11 @@ public abstract class Bios extends AbstractHardwareComponent {
      * @throws java.io.IOException potentially caused by reading the resource.
      * @throws java.util.MissingResourceException if the named resource cannot be found
      */
-    Bios(String image) throws IOException {
+    Bios(@NonNull String image) throws IOException {
         this(getBiosData(image), image.replace('/', '.'));
     }
 
-    private Bios(byte[] image, String identity) {
+    private Bios(@NonNull byte[] image, String identity) {
         imageData = new byte[image.length];
         System.arraycopy(image, 0, imageData, 0, image.length);
         loaded = false;
@@ -80,18 +90,18 @@ public abstract class Bios extends AbstractHardwareComponent {
         biosOutput = Logger.getLogger(Bios.class.getName() + ".output" + identity);
     }
 
-    public void saveState(DataOutput output) throws IOException {
+    public void saveState(@NonNull DataOutput output) throws IOException {
         output.writeInt(imageData.length);
         output.write(imageData);
     }
 
-    public void loadState(DataInput input) throws IOException {
+    public void loadState(@NonNull DataInput input) throws IOException {
         loaded = false;
         imageData = new byte[input.readInt()];
         input.readFully(imageData);
     }
 
-    private void load(PhysicalAddressSpace addressSpace) {
+    private void load(@NonNull PhysicalAddressSpace addressSpace) {
         int loadAddress = loadAddress();
         int nextBlockStart = (loadAddress & AddressSpace.INDEX_MASK) + AddressSpace.BLOCK_SIZE;
 
@@ -155,7 +165,7 @@ public abstract class Bios extends AbstractHardwareComponent {
         return imageData.length;
     }
 
-    void print(String data) {
+    void print(@NonNull String data) {
         synchronized (biosOutputBuffer) {
             int newline;
             while ((newline = data.indexOf('\n')) >= 0) {

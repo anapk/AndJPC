@@ -33,12 +33,33 @@
 
 package org.jpc.classfile;
 
-import org.jpc.classfile.constantpool.*;
-import org.jpc.classfile.attribute.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import org.jpc.classfile.attribute.AttributeInfo;
+import org.jpc.classfile.attribute.CodeAttribute;
+import org.jpc.classfile.constantpool.ClassInfo;
+import org.jpc.classfile.constantpool.ConstantPoolInfo;
+import org.jpc.classfile.constantpool.DoubleInfo;
+import org.jpc.classfile.constantpool.FieldRefInfo;
+import org.jpc.classfile.constantpool.FloatInfo;
+import org.jpc.classfile.constantpool.IntegerInfo;
+import org.jpc.classfile.constantpool.InterfaceMethodRefInfo;
+import org.jpc.classfile.constantpool.LongInfo;
+import org.jpc.classfile.constantpool.MethodRefInfo;
+import org.jpc.classfile.constantpool.NameAndTypeInfo;
+import org.jpc.classfile.constantpool.StringInfo;
+import org.jpc.classfile.constantpool.Utf8Info;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Java classfile manipulation
@@ -80,7 +101,7 @@ public class ClassFile
      * @param in stream to read from
      * @throws java.io.IOException if the class bytes are detected as malformed
      */
-    public void read(InputStream in) throws IOException
+    public void read(@NonNull InputStream in) throws IOException
     {
         DataInputStream din = new DataInputStream(in);
         readMagic(din);
@@ -151,6 +172,7 @@ public class ClassFile
      * Returns the name of this class as recorded in the constant pool.
      * @return this classes class name
      */
+    @NonNull
     public String getClassName()
     {
         if (!(constantPool[thisClass] instanceof ClassInfo))
@@ -168,7 +190,7 @@ public class ClassFile
      * Sets this classes name in the constant pool.
      * @param name new class name
      */
-    public void setClassName(String name)
+    public void setClassName(@NonNull String name)
     {
         if (!(constantPool[thisClass] instanceof ClassInfo))
             throw new ClassFormatError("thisClass points to a non-class constant pool entry");
@@ -218,6 +240,7 @@ public class ClassFile
         }
     }
 
+    @NonNull
     private ConstantPoolInfo createConstantPoolInfo(Object o)
     {
         if (o instanceof Field) {
@@ -302,7 +325,7 @@ public class ClassFile
      * @param fieldDescriptor field descriptor
      * @return stack size of the type (0,1,2)
      */
-    static int getFieldLength(String fieldDescriptor)
+    static int getFieldLength(@NonNull String fieldDescriptor)
     {
         return  getFieldLength(fieldDescriptor.charAt(0));
     }
@@ -363,7 +386,7 @@ public class ClassFile
      * @param methodDescriptor
      * @return method's stack delta
      */
-    static int getMethodStackDelta(String methodDescriptor)
+    static int getMethodStackDelta(@NonNull String methodDescriptor)
     {
         int argLength = getMethodArgLength(methodDescriptor);
         
@@ -383,7 +406,7 @@ public class ClassFile
      * @param methodDescriptor method descriptor
      * @return argument size in stack elements
      */
-    static int getMethodArgLength(String methodDescriptor)
+    static int getMethodArgLength(@NonNull String methodDescriptor)
     {
         int count = 0;
 
@@ -423,7 +446,8 @@ public class ClassFile
     }
 
 
-    private static String getDescriptor(Class cls)
+    @NonNull
+    private static String getDescriptor(@NonNull Class cls)
     {
         if (cls.isArray())
             return cls.getName().replace('.','/');
@@ -465,6 +489,7 @@ public class ClassFile
 	    return value;
     }
 
+    @Nullable
     private MethodInfo getMethodInfo(String methodName)
     {
         for (MethodInfo m : methods) {
@@ -476,29 +501,29 @@ public class ClassFile
         return null;
     }
 
-    private void readMagic(DataInputStream in) throws IOException
+    private void readMagic(@NonNull DataInputStream in) throws IOException
     {
         magic = in.readInt();
     }
 
-    private void writeMagic(DataOutputStream out) throws IOException
+    private void writeMagic(@NonNull DataOutputStream out) throws IOException
     {
         out.writeInt(magic);
     }
 
-    private void readVersion(DataInputStream in) throws IOException
+    private void readVersion(@NonNull DataInputStream in) throws IOException
     {
         minorVersion = in.readUnsignedShort();
         majorVersion = in.readUnsignedShort();
     }
 
-    private void writeVersion(DataOutputStream out) throws IOException
+    private void writeVersion(@NonNull DataOutputStream out) throws IOException
     {
         out.writeShort(minorVersion);
         out.writeShort(majorVersion);
     }
 
-    private void readConstantPool(DataInputStream in) throws IOException
+    private void readConstantPool(@NonNull DataInputStream in) throws IOException
     {
         constantPoolCount = in.readUnsignedShort();
         // be aware that constant pool indices start at 1!! (not 0)
@@ -515,7 +540,7 @@ public class ClassFile
         }
     }
 
-    private void writeConstantPool(DataOutputStream out) throws IOException
+    private void writeConstantPool(@NonNull DataOutputStream out) throws IOException
     {
         out.writeShort(constantPoolCount);
         // be aware that constant pool indices start at 1!! (not 0)
@@ -526,86 +551,86 @@ public class ClassFile
         }
     }
 
-    private void readAccessFlags(DataInputStream in) throws IOException
+    private void readAccessFlags(@NonNull DataInputStream in) throws IOException
     {
         accessFlags = in.readUnsignedShort();
     }
 
-    private void writeAccessFlags(DataOutputStream out) throws IOException
+    private void writeAccessFlags(@NonNull DataOutputStream out) throws IOException
     {
         out.writeShort(accessFlags);
     }
 
-    private void readThisClass(DataInputStream in) throws IOException
+    private void readThisClass(@NonNull DataInputStream in) throws IOException
     {
         thisClass = in.readUnsignedShort();
     }
 
-    private void writeThisClass(DataOutputStream out) throws IOException
+    private void writeThisClass(@NonNull DataOutputStream out) throws IOException
     {
         out.writeShort(thisClass);
     }
 
-    private void readSuperClass(DataInputStream in) throws IOException
+    private void readSuperClass(@NonNull DataInputStream in) throws IOException
     {
         superClass = in.readUnsignedShort();
     }
 
-    private void writeSuperClass(DataOutputStream out) throws IOException
+    private void writeSuperClass(@NonNull DataOutputStream out) throws IOException
     {
         out.writeShort(superClass);
     }
 
-    private void readInterfaces(DataInputStream in) throws IOException
+    private void readInterfaces(@NonNull DataInputStream in) throws IOException
     {
         interfaces = new int[in.readUnsignedShort()];
         for (int i = 0; i < interfaces.length; i++)
             interfaces[i] = in.readUnsignedShort();
     }
 
-    private void writeInterfaces(DataOutputStream out) throws IOException
+    private void writeInterfaces(@NonNull DataOutputStream out) throws IOException
     {
         out.writeShort(interfaces.length);
         for (int i : interfaces)
             out.writeShort(i);
     }
 
-    private void readFields(DataInputStream in) throws IOException
+    private void readFields(@NonNull DataInputStream in) throws IOException
     {
         fields = new FieldInfo[in.readUnsignedShort()];
         for (int i = 0; (i < fields.length); i++)
             fields[i] = new FieldInfo(in, constantPool);
     }
 
-    private void writeFields(DataOutputStream out) throws IOException
+    private void writeFields(@NonNull DataOutputStream out) throws IOException
     {
         out.writeShort(fields.length);
         for (FieldInfo f : fields)
             f.write(out);
     }
 
-    private void readMethods(DataInputStream in) throws IOException
+    private void readMethods(@NonNull DataInputStream in) throws IOException
     {
         methods = new MethodInfo[in.readUnsignedShort()];
         for(int i = 0; (i < methods.length); i++)
             methods[i] = new MethodInfo(in, constantPool);
     }
 
-    private void writeMethods(DataOutputStream out) throws IOException
+    private void writeMethods(@NonNull DataOutputStream out) throws IOException
     {
         out.writeShort(methods.length);
         for (MethodInfo m : methods)
             m.write(out);
     }
 
-    private void readAttributes(DataInputStream in) throws IOException
+    private void readAttributes(@NonNull DataInputStream in) throws IOException
     {
         attributes = new AttributeInfo[in.readUnsignedShort()];
         for(int i = 0; (i < attributes.length); i++)
             attributes[i] = AttributeInfo.construct(in, constantPool);
     }
 
-    private void writeAttributes(DataOutputStream out) throws IOException
+    private void writeAttributes(@NonNull DataOutputStream out) throws IOException
     {
         out.writeShort(attributes.length);
         for (AttributeInfo a : attributes)

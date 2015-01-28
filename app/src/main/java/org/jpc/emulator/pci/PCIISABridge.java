@@ -33,10 +33,15 @@
 
 package org.jpc.emulator.pci;
 
-import org.jpc.emulator.motherboard.InterruptController;
-import org.jpc.emulator.HardwareComponent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.motherboard.InterruptController;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 /** 
  * Emulates the PCI-ISA bridge functionality of the Intel 82371SB PIIX3
@@ -49,6 +54,7 @@ import java.io.*;
 public class PCIISABridge extends AbstractPCIDevice
 {
     private int irqLevels[][];
+    @Nullable
     private InterruptController irqDevice;
 
     /**
@@ -67,7 +73,7 @@ public class PCIISABridge extends AbstractPCIDevice
         this.internalReset();
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         super.saveState(output);
         output.writeInt(irqLevels.length);
@@ -77,7 +83,7 @@ public class PCIISABridge extends AbstractPCIDevice
                 output.writeInt(level);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         super.reset();
         super.loadState(input);
@@ -119,7 +125,7 @@ public class PCIISABridge extends AbstractPCIDevice
 	putConfigByte(0xae, (byte)0x00);
     }
     
-    private void setIRQ(PCIDevice device, int irqNumber, int level)
+    private void setIRQ(@NonNull PCIDevice device, int irqNumber, int level)
     {
 	irqNumber = this.slotGetPIRQ(device, irqNumber);
 	int irqIndex = device.getIRQIndex();
@@ -151,12 +157,13 @@ public class PCIISABridge extends AbstractPCIDevice
 	return 0;	
     }
 
+    @NonNull
     IRQBouncer makeBouncer(PCIDevice device)
     {
 	return new DefaultIRQBouncer();
     }
 
-    int slotGetPIRQ(PCIDevice device, int irqNumber)
+    int slotGetPIRQ(@NonNull PCIDevice device, int irqNumber)
     {
 	int slotAddEnd;
 	slotAddEnd = (device.getDeviceFunctionNumber() >> 3);
@@ -169,17 +176,19 @@ public class PCIISABridge extends AbstractPCIDevice
 	{
 	}
 
-	public void setIRQ(PCIDevice device, int irqNumber, int level)
+	public void setIRQ(@NonNull PCIDevice device, int irqNumber, int level)
 	{
             PCIISABridge.this.setIRQ(device, irqNumber, level);
 	}
     }
 
+    @Nullable
     public IORegion getIORegion(int index)
     {
 	return null;
     }
 
+    @Nullable
     public IORegion[] getIORegions()
     {
 	return null;
@@ -225,6 +234,7 @@ public class PCIISABridge extends AbstractPCIDevice
 	super.acceptComponent(component);
     }
 
+    @NonNull
     public String toString()
     {
 	return "Intel 82371SB PIIX3 PCI ISA Bridge";

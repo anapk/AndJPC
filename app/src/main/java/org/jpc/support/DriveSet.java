@@ -34,12 +34,17 @@
 package org.jpc.support;
 
 //Do not even think about adding an import line to this class - especially not import java.net.*!
-import java.io.IOException;
-import java.io.DataOutput;
-import java.io.DataInput;
-import java.util.logging.*;
+
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.jpc.emulator.AbstractHardwareComponent;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Represents the set of disk drive devices associated with this emulator
@@ -50,7 +55,7 @@ public class DriveSet extends AbstractHardwareComponent
 {
     private static final Logger LOGGING = Logger.getLogger(DriveSet.class.getName());
     
-    public static enum BootType {FLOPPY, HARD_DRIVE, CDROM;}
+    public static enum BootType {FLOPPY, HARD_DRIVE, CDROM}
 
     private static enum Devices {
         DEFAULT("org.jpc.support.FileBackedSeekableIODevice"),
@@ -66,6 +71,7 @@ public class DriveSet extends AbstractHardwareComponent
             clazzname = clazz;
         }
         
+        @Nullable
         public Object getInstance()
         {
             try {
@@ -85,7 +91,9 @@ public class DriveSet extends AbstractHardwareComponent
     }
     
     private final BootType bootType;
+    @NonNull
     private final BlockDevice[] floppies;
+    @NonNull
     private final BlockDevice[] ides;
     private String[] initialArgs;
 
@@ -114,7 +122,7 @@ public class DriveSet extends AbstractHardwareComponent
      * @param hardDriveC secondary master hard disk
      * @param hardDriveD secondary slave hard disk
      */
-    private DriveSet(BootType boot, BlockDevice floppyDriveA, BlockDevice floppyDriveB, BlockDevice hardDriveA, BlockDevice hardDriveB, BlockDevice hardDriveC, BlockDevice hardDriveD)
+    private DriveSet(BootType boot, BlockDevice floppyDriveA, BlockDevice floppyDriveB, BlockDevice hardDriveA, BlockDevice hardDriveB, @Nullable BlockDevice hardDriveC, BlockDevice hardDriveD)
     {
         this.bootType = boot;
 
@@ -168,6 +176,7 @@ public class DriveSet extends AbstractHardwareComponent
      * Returns the current boot device as determined by the boot type parameter.
      * @return boot block device
      */
+    @Nullable
     public BlockDevice getBootDevice()
     {
         switch (bootType) {
@@ -191,7 +200,8 @@ public class DriveSet extends AbstractHardwareComponent
         return bootType;
     }
 
-    private static Object createDevice(String spec)
+    @Nullable
+    private static Object createDevice(@Nullable String spec)
     {
         if (spec == null) {
             return null;
@@ -242,6 +252,7 @@ public class DriveSet extends AbstractHardwareComponent
         }
     }
 
+    @Nullable
     private static BlockDevice createFloppyBlockDevice(String spec)
     {
         Object device = createDevice(spec);
@@ -252,6 +263,7 @@ public class DriveSet extends AbstractHardwareComponent
             return (BlockDevice) device;
     }
 
+    @Nullable
     private static BlockDevice createHardDiskBlockDevice(String spec)
     {
         Object device = createDevice(spec);
@@ -262,6 +274,7 @@ public class DriveSet extends AbstractHardwareComponent
             return (BlockDevice) device;
     }
 
+    @Nullable
     private static BlockDevice createCdRomBlockDevice(String spec)
     {
         Object device = createDevice(spec);
@@ -272,13 +285,13 @@ public class DriveSet extends AbstractHardwareComponent
             return (BlockDevice) device;
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(initialArgs.length);
         for (String initialArg : initialArgs) output.writeUTF(initialArg);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         int len = input.readInt();
         String[] newArgs = new String[len];
@@ -303,7 +316,8 @@ public class DriveSet extends AbstractHardwareComponent
      * @param args command line argument array
      * @return resultant <code>DriveSet</code>
      */
-    public static DriveSet buildFromArgs(String[] args)
+    @Nullable
+    public static DriveSet buildFromArgs(@NonNull String[] args)
     {
         String[] initialArgs = args.clone();
 

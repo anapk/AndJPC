@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.attribute;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -45,13 +47,13 @@ public class SourceFileAttribute extends AttributeInfo
 {
     private int sourceFileIndex;
 
-    SourceFileAttribute(DataInputStream in, int index) throws IOException
+    SourceFileAttribute(@NonNull DataInputStream in, int index) throws IOException
     {
         super(in, index);
         sourceFileIndex = in.readUnsignedShort();
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         super.write(out);
         out.writeShort(sourceFileIndex);

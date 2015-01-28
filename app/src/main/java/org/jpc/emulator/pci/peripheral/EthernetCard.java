@@ -33,14 +33,26 @@
 
 package org.jpc.emulator.pci.peripheral;
 
-import org.jpc.emulator.pci.*;
-import org.jpc.emulator.motherboard.IOPortHandler;
-import org.jpc.emulator.AbstractHardwareComponent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.motherboard.IOPortHandler;
+import org.jpc.emulator.pci.AbstractPCIDevice;
+import org.jpc.emulator.pci.IOPortIORegion;
+import org.jpc.emulator.pci.IORegion;
+import org.jpc.support.EthernetOutput;
+import org.jpc.support.EthernetProxy;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Random;
-import java.util.logging.*;
-import org.jpc.support.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Realtek 8029 (AS) Emulation
  * 
@@ -190,7 +202,7 @@ public class EthernetCard extends AbstractPCIDevice
         internalReset();
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeByte(command);
         output.writeInt(start);
@@ -217,7 +229,7 @@ public class EthernetCard extends AbstractPCIDevice
     //let's ignore it for now
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         command = input.readByte();
         start = input.readInt();
@@ -255,7 +267,7 @@ public class EthernetCard extends AbstractPCIDevice
         this.outputDevice = out;
     }
 
-    public void loadIOPorts(IOPortHandler ioportHandler, DataInput input) throws IOException
+    public void loadIOPorts(@NonNull IOPortHandler ioportHandler, @NonNull DataInput input) throws IOException
     {
         loadState(input);
         ioportHandler.registerIOPortCapable(ioRegion);
@@ -311,6 +323,7 @@ public class EthernetCard extends AbstractPCIDevice
 
     //PCIDevice Methods
     //IOPort Registration Aids
+    @NonNull
     public IORegion[] getIORegions()
     {
         return new IORegion[]
@@ -319,6 +332,7 @@ public class EthernetCard extends AbstractPCIDevice
                 };
     }
 
+    @Nullable
     public IORegion getIORegion(int index)
     {
         if (index == 0)
@@ -337,12 +351,12 @@ public class EthernetCard extends AbstractPCIDevice
             address = -1;
         }
 
-        public void saveState(DataOutput output) throws IOException
+        public void saveState(@NonNull DataOutput output) throws IOException
         {
             output.writeInt(address);
         }
 
-        public void loadState(DataInput input) throws IOException
+        public void loadState(@NonNull DataInput input) throws IOException
         {
             address = input.readInt();
         }
@@ -494,6 +508,7 @@ public class EthernetCard extends AbstractPCIDevice
             }
         }
 
+        @NonNull
         public int[] ioPortsRequested()
         {
             int addr = this.getAddress();
@@ -971,7 +986,7 @@ public class EthernetCard extends AbstractPCIDevice
         return crc >>> 26;
     }
 
-    private static void printPacket(byte[] oldpacket, int offset, int length) {
+    private static void printPacket(@NonNull byte[] oldpacket, int offset, int length) {
         byte[] packet =new byte[length];
         System.arraycopy(oldpacket, offset, packet, 0, length);
         for (int j = 0; j< packet.length / 16; j++) {
@@ -987,7 +1002,7 @@ public class EthernetCard extends AbstractPCIDevice
         }
     }
 
-    void receivePacket(byte[] packet)
+    void receivePacket(@Nullable byte[] packet)
     {
         if (packet == null)
             return;
@@ -1098,6 +1113,7 @@ public class EthernetCard extends AbstractPCIDevice
             }
         }
 
+        @Nullable
         public byte[] getPacket() {
             return null;
         }

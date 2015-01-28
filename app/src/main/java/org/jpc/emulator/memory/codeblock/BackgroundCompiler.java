@@ -33,10 +33,15 @@
 
 package org.jpc.emulator.memory.codeblock;
 
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import org.jpc.emulator.memory.codeblock.optimised.*;
-import org.jpc.emulator.processor.*;
+import org.jpc.emulator.memory.codeblock.optimised.ProtectedModeUBlock;
+import org.jpc.emulator.memory.codeblock.optimised.RealModeUBlock;
+import org.jpc.emulator.processor.Processor;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -52,6 +57,7 @@ class BackgroundCompiler implements CodeBlockCompiler {
 //    private static final int MAX_COMPILER_THREADS = 10;
     private final CodeBlockCompiler immediate;
     private final CodeBlockCompiler delayed;
+    @NonNull
     private final CompilerQueue compilerQueue;
 
     public BackgroundCompiler(CodeBlockCompiler immediate, CodeBlockCompiler delayed) {
@@ -112,16 +118,19 @@ class BackgroundCompiler implements CodeBlockCompiler {
         }
     }
 
+    @Nullable
     public RealModeCodeBlock getRealModeCodeBlock(InstructionSource source) {
         RealModeCodeBlock imm = immediate.getRealModeCodeBlock(source);
         return new RealModeCodeBlockWrapper(imm);
     }
 
+    @Nullable
     public ProtectedModeCodeBlock getProtectedModeCodeBlock(InstructionSource source) {
         ProtectedModeCodeBlock imm = immediate.getProtectedModeCodeBlock(source);
         return new ProtectedModeCodeBlockWrapper(imm);
     }
 
+    @Nullable
     public Virtual8086ModeCodeBlock getVirtual8086ModeCodeBlock(InstructionSource source) {
         Virtual8086ModeCodeBlock imm = immediate.getVirtual8086ModeCodeBlock(source);
         return new Virtual8086ModeCodeBlockWrapper(imm);
@@ -170,13 +179,14 @@ class BackgroundCompiler implements CodeBlockCompiler {
 
     private static class CompilerQueue {
 
+        @NonNull
         private final ExecuteCountingCodeBlockWrapper[] queue;
 
         CompilerQueue(int size) {
             queue = new ExecuteCountingCodeBlockWrapper[size];
         }
 
-        boolean addBlock(ExecuteCountingCodeBlockWrapper block) {
+        boolean addBlock(@NonNull ExecuteCountingCodeBlockWrapper block) {
             for (int i = 0; i < queue.length; i++) {
                 if (queue[i] == null) {
                     queue[i] = block;

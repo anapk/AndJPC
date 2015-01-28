@@ -1,20 +1,29 @@
 package uk.co.jads.android.jpc;
 
-import android.content.res.*;
-import org.jpc.emulator.pci.peripheral.*;
-import org.jpc.emulator.*;
-
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.res.AssetManager;
+import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.util.*;
-import java.io.*;
-import java.util.zip.*;
-import android.app.*;
-import android.content.*;
-import org.jpc.j2se.*;
-import org.jpc.emulator.peripheral.*;
-import org.jpc.support.*;
-import android.os.*;
-import android.view.*;
+import android.support.annotation.Nullable;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import org.jpc.emulator.PC;
+import org.jpc.emulator.pci.peripheral.VGACard;
+import org.jpc.emulator.peripheral.Keyboard;
+import org.jpc.j2se.VirtualClock;
+import org.jpc.support.ArgProcessor;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public abstract class JPCAndroidActivityHelper extends Activity implements Runnable
 {
@@ -24,6 +33,7 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
     private static AssetManager assets;
     private static KeyboardEmulator keyboard;
     private static PCMonitor monitor;
+    @Nullable
     private static PC pc;
     private static boolean running;
     private Handler msgHandler;
@@ -48,6 +58,7 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
         zipInputStream.close();
     }
     
+    @NonNull
     private static InputStream openStream(final String s) throws IOException {
         Log.i("JPC", "Loading resource: " + s);
         return JPCAndroidActivityHelper.assets.open(s);
@@ -76,14 +87,14 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
                         final AlertDialog.Builder alertDialog$Builder = new AlertDialog.Builder(JPCAndroidActivityHelper.this);
                         alertDialog$Builder.setTitle(s);
                         alertDialog$Builder.setMessage(s2).setCancelable(false).setNegativeButton("Exit", new DialogInterface.OnClickListener() {
-                            public void onClick(final DialogInterface dialogInterface, final int n) {
+                            public void onClick(@NonNull final DialogInterface dialogInterface, final int n) {
                                 dialogInterface.cancel();
                                 JPCAndroidActivityHelper.this.forcefulExit();
                             }
                         });
                         if (JPCAndroidActivityHelper.pc != null) {
                             alertDialog$Builder.setPositiveButton("Try to continue", new DialogInterface.OnClickListener() {
-                                public void onClick(final DialogInterface dialogInterface, final int n) {
+                                public void onClick(@NonNull final DialogInterface dialogInterface, final int n) {
                                     dialogInterface.cancel();
                                 }
                             });
@@ -152,7 +163,7 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
         super.onCreate(bundle);
     }
     
-    public boolean onCreateOptionsMenu(final Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull final Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, 4, 0, "Save state").setIcon(17301582);
         menu.add(0, 3, 0, "Load state").setIcon(17301580);
@@ -165,15 +176,15 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
         super.onDestroy();
     }
     
-    public boolean onKeyDown(final int n, final KeyEvent keyEvent) {
+    public boolean onKeyDown(final int n, @NonNull final KeyEvent keyEvent) {
         return JPCAndroidActivityHelper.keyboard.onKeyDown(n, keyEvent);
     }
     
-    public boolean onKeyUp(final int n, final KeyEvent keyEvent) {
+    public boolean onKeyUp(final int n, @NonNull final KeyEvent keyEvent) {
         return JPCAndroidActivityHelper.keyboard.onKeyUp(n, keyEvent);
     }
     
-    public boolean onOptionsItemSelected(final MenuItem menuItem) {
+    public boolean onOptionsItemSelected(@NonNull final MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             default: {
                 return false;

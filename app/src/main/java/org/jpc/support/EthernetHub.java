@@ -33,6 +33,9 @@
 
 package org.jpc.support;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
@@ -47,15 +50,17 @@ public class EthernetHub extends EthernetOutput
 {
     private int errorDelay, port;
     private String serverHost;
+    @Nullable
     private volatile DataOutputStream out;
+    @Nullable
     private volatile DataInputStream in;
-    private int packetSize;
-    private Queue<byte[]> inQueue = new ConcurrentLinkedQueue<byte[]>();
-    private final Queue<byte[]> outQueue = new ConcurrentLinkedQueue<byte[]>();
+    @NonNull
+    private Queue<byte[]> inQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<byte[]> outQueue = new ConcurrentLinkedQueue<>();
 
     public EthernetHub(String host, int port)
     {
-        packetSize = -1;
+        int packetSize = -1;
         serverHost = host;
         this.port = port;
         errorDelay = 10000;
@@ -94,7 +99,7 @@ public class EthernetHub extends EthernetOutput
                 {
                     wait(errorDelay);
                 }
-                catch (Exception ee) {}
+                catch (Exception ignored) {}
             }
         }
     }
@@ -164,7 +169,7 @@ public class EthernetHub extends EthernetOutput
         return packet;
     }
 
-    public void sendPacket(byte[] data, int offset, int length)
+    public void sendPacket(@NonNull byte[] data, int offset, int length)
     {
         byte[] p = new byte[length];
         System.arraycopy(data, offset, p, 0, length);

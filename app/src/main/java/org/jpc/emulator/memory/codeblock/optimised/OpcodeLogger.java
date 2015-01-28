@@ -33,6 +33,8 @@
 
 package org.jpc.emulator.memory.codeblock.optimised;
 
+import android.support.annotation.NonNull;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Hashtable;
@@ -45,7 +47,6 @@ public class OpcodeLogger {
 
     private final int[] opcodeCounts = new int[MicrocodeSet.MICROCODE_LIMIT];
     private int count = 0;
-    private final int MAX = 5000000;
     private final String name;
 
     OpcodeLogger(String name) {
@@ -54,15 +55,12 @@ public class OpcodeLogger {
 
     boolean hasImmediate(int opcode)
     {
-        if ((opcode == 3) | (opcode == 8) | (opcode == 13)
+        return (opcode == 3) | (opcode == 8) | (opcode == 13)
                 | (opcode == 26) | (opcode == 27) | (opcode == 49)
-                | (opcode == 168) | (opcode == 229) | (opcode == 255))
-           return true;
-        else
-           return false;
+                | (opcode == 168) | (opcode == 229) | (opcode == 255);
     }
 
-    public void addBlock(int[] microcodes)
+    public void addBlock(@NonNull int[] microcodes)
     {
         boolean IM  = false;
         for (int microcode : microcodes) {
@@ -78,6 +76,7 @@ public class OpcodeLogger {
     void addOpcode(int opcode) {
         opcodeCounts[opcode]++;
         count++;
+        int MAX = 5000000;
         if (count >= MAX)
         {
             printStats();
@@ -98,6 +97,7 @@ public class OpcodeLogger {
         }
     }
 
+    @NonNull
     private static Hashtable reflectedNameCache = new Hashtable();
     static
     {

@@ -33,7 +33,8 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler.real;
 
-import org.jpc.emulator.memory.codeblock.fastcompiler.*;
+import org.jpc.emulator.memory.codeblock.fastcompiler.MicrocodeNode;
+import org.jpc.emulator.memory.codeblock.fastcompiler.RPNNode;
 
 /**
  * 
@@ -59,17 +60,13 @@ public class RealModeRPNNode extends RPNNode
 
     public boolean hasExternalEffect()
     {
-	if (getMicrocode() == -1)
-	    return false;
+        return getMicrocode() != -1 && RealModeBytecodeFragments.hasExternalEffect(getID(), getMicrocode());
 
-	return RealModeBytecodeFragments.hasExternalEffect(getID(), getMicrocode());
     }
 
     public boolean canThrowException()
     {
-	if (getMicrocode() == -1)
-	    return false;
+        return getMicrocode() != -1 && (RealModeBytecodeFragments.hasExplicitThrow(getID(), getMicrocode()) || hasExternalEffect());
 
-	return RealModeBytecodeFragments.hasExplicitThrow(getID(), getMicrocode()) || hasExternalEffect();
     }
 }

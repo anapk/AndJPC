@@ -33,6 +33,9 @@
 
 package org.jpc.support;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.jpc.emulator.pci.peripheral.EthernetCard;
 
 /**
@@ -42,12 +45,12 @@ import org.jpc.emulator.pci.peripheral.EthernetCard;
 public class EthernetProxy extends EthernetOutput {
     EthernetCard card;
 
-    public void sendPacket(byte[] input, int offset, int length) {
+    public void sendPacket(@NonNull byte[] input, int offset, int length) {
         byte[] packet = new byte[length];
         System.arraycopy(input, offset, packet, 0, length);
         
-        long targetMACaddr = (packet[0] << 40) | (packet[1] << 32) | (packet[2] << 24) | (packet[3] << 16) | (packet[4] << 8) | packet[5];
-        long sourceMACaddr = (packet[6] << 40) | (packet[7] << 32) | (packet[8] << 24) | (packet[9] << 16) | (packet[10] << 8) | packet[11];
+        long targetMACaddr = (packet[0] << 8) | (packet[1]) | (packet[2] << 24) | (packet[3] << 16) | (packet[4] << 8) | packet[5];
+        long sourceMACaddr = (packet[6] << 8) | (packet[7]) | (packet[8] << 24) | (packet[9] << 16) | (packet[10] << 8) | packet[11];
 
         //check it is an IP packet
         if ((packet[12] != (byte)0x8) || (packet[13] != (byte) 0)) {
@@ -108,8 +111,8 @@ public class EthernetProxy extends EthernetOutput {
 
     private static void printPacket(byte[] packet) {
         System.out.println("**********************Begin eth0 packet dump");
-        long targetMACaddr = 0L | (packet[0] << 40) | (packet [1] << 32) | (packet [2] << 24) | (packet[3] << 16) | (packet[4] << 8) | packet[5];
-        long sourceMACaddr = 0L | (packet[6] << 40) | (packet [7] << 32) | (packet [8] << 24) | (packet[9] << 16) | (packet[10] << 8) | packet[11];
+        long targetMACaddr = (packet[0] << 40) | (packet[1] << 32) | (packet[2] << 24) | (packet[3] << 16) | (packet[4] << 8) | packet[5];
+        long sourceMACaddr = (packet[6] << 40) | (packet[7] << 32) | (packet[8] << 24) | (packet[9] << 16) | (packet[10] << 8) | packet[11];
         System.out.println("Target MAC: " + Long.toHexString(targetMACaddr));
         System.out.println("Source MAC: " + toHex(packet, 6, 6));
 
@@ -145,6 +148,7 @@ public class EthernetProxy extends EthernetOutput {
         System.out.println("Target IP address: " + Integer.toHexString(targetIPaddr));
     }
 
+    @Nullable
     public byte[] getPacket() {
         return null;
     }

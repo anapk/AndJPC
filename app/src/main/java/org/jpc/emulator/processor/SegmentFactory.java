@@ -33,9 +33,13 @@
 
 package org.jpc.emulator.processor;
 
-import org.jpc.emulator.memory.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
+import org.jpc.emulator.memory.AddressSpace;
+
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * 
@@ -52,7 +56,8 @@ public class SegmentFactory
     {
     }
 
-    public static Segment createRealModeSegment(AddressSpace memory, int selector)
+    @Nullable
+    public static Segment createRealModeSegment(@Nullable AddressSpace memory, int selector)
     {
         if (memory == null)
             throw new NullPointerException("Null reference to memory");
@@ -60,7 +65,8 @@ public class SegmentFactory
         return new RealModeSegment(memory, selector);
     }
 
-    public static Segment createRealModeSegment(AddressSpace memory, Segment ancestor)
+    @Nullable
+    public static Segment createRealModeSegment(@Nullable AddressSpace memory, Segment ancestor)
     {
         if (memory == null)
             throw new NullPointerException("Null reference to memory");
@@ -68,7 +74,8 @@ public class SegmentFactory
         return new RealModeSegment(memory, ancestor);
     }
 
-    public static Segment createVirtual8086ModeSegment(AddressSpace memory, int selector, boolean isCode)
+    @Nullable
+    public static Segment createVirtual8086ModeSegment(@Nullable AddressSpace memory, int selector, boolean isCode)
     {
         if (memory == null)
             throw new NullPointerException("Null reference to memory");
@@ -76,7 +83,8 @@ public class SegmentFactory
         return new Virtual8086ModeSegment(memory, selector, isCode);
     }
     
-    public static Segment createDescriptorTableSegment(AddressSpace memory, int base, int limit)
+    @Nullable
+    public static Segment createDescriptorTableSegment(@Nullable AddressSpace memory, int base, int limit)
     {
         if (memory == null)
             throw new NullPointerException("Null reference to memory");
@@ -84,6 +92,7 @@ public class SegmentFactory
         return new DescriptorTableSegment(memory, base, limit);
     }
 
+    @NonNull
     public static Segment createProtectedModeSegment(AddressSpace memory, int selector, long descriptor)
     {
         switch ((int) ((descriptor & (DESCRIPTOR_TYPE | SEGMENT_TYPE)) >>> 40)) {
@@ -170,7 +179,7 @@ public class SegmentFactory
             System.out.println("Null Segment");
         }
 
-        public void saveState(DataOutput output) throws IOException
+        public void saveState(@NonNull DataOutput output) throws IOException
         {
             output.writeInt(4);
         }

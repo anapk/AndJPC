@@ -1,8 +1,11 @@
 package uk.co.jads.android.jpc;
 
-import org.jpc.emulator.peripheral.*;
-import android.view.*;
-import android.util.*;
+import android.support.annotation.NonNull;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+
+import org.jpc.emulator.peripheral.Keyboard;
 
 class MouseEmulator implements View.OnTouchListener
 {
@@ -18,7 +21,7 @@ class MouseEmulator implements View.OnTouchListener
         this.buttons = buttons;
     }
     
-    public boolean onTouch(final View view, final MotionEvent motionEvent) {
+    public boolean onTouch(final View view, @NonNull final MotionEvent motionEvent) {
         this.buttons.onTouch(view, motionEvent);
         final int lastMouseX = (int)motionEvent.getX();
         final int lastMouseY = (int)motionEvent.getY();

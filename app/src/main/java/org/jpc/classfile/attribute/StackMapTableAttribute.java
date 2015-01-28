@@ -33,6 +33,9 @@
 
 package org.jpc.classfile.attribute;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -47,14 +50,14 @@ public class StackMapTableAttribute extends AttributeInfo
 {
     private StackMapFrame[] entries;
 
-    StackMapTableAttribute(DataInputStream in, int index) throws IOException
+    StackMapTableAttribute(@NonNull DataInputStream in, int index) throws IOException
     {
         super(in, index);
         entries = new StackMapFrame[in.readUnsignedShort()];
         for (int i = 0; i < entries.length; i++) entries[i] = StackMapFrame.construct(in);
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         super.write(out);
         out.writeInt(entries.length);
@@ -79,7 +82,8 @@ public class StackMapTableAttribute extends AttributeInfo
 
         abstract void write(DataOutputStream out) throws IOException;
 
-        static StackMapFrame construct(DataInputStream in) throws IOException
+        @Nullable
+        static StackMapFrame construct(@NonNull DataInputStream in) throws IOException
         {
             int tag = in.readUnsignedByte();
             if ((tag >= SAME_L) && (tag <= SAME_H)) return new SameFrame(in, tag);
@@ -99,13 +103,12 @@ public class StackMapTableAttribute extends AttributeInfo
 
         static class SameFrame extends StackMapFrame
         {
-            SameFrame(DataInputStream in, int tag) throws IOException
-            {
+            SameFrame(DataInputStream in, int tag) {
                 super();
                 frameType = tag;
             }
 
-            void write(DataOutputStream out) throws IOException
+            void write(@NonNull DataOutputStream out) throws IOException
             {
                 out.writeByte(frameType);
             }
@@ -113,9 +116,10 @@ public class StackMapTableAttribute extends AttributeInfo
 
         static class SameLocals1StackItemFrame extends StackMapFrame
         {
+            @NonNull
             private final VerificationTypeInfo[] stack;
 
-            SameLocals1StackItemFrame(DataInputStream in, int tag) throws IOException
+            SameLocals1StackItemFrame(@NonNull DataInputStream in, int tag) throws IOException
             {
                 super();
                 frameType = tag;
@@ -123,7 +127,7 @@ public class StackMapTableAttribute extends AttributeInfo
                 stack[0] = VerificationTypeInfo.construct(in);
             }
 
-            void write(DataOutputStream out) throws IOException
+            void write(@NonNull DataOutputStream out) throws IOException
             {
                 out.writeByte(frameType);
                 stack[0].write(out);
@@ -135,7 +139,7 @@ public class StackMapTableAttribute extends AttributeInfo
             private int offsetDelta;
             private VerificationTypeInfo[] stack;
 
-            SameLocals1StackItemFrameExtended(DataInputStream in, int tag) throws IOException
+            SameLocals1StackItemFrameExtended(@NonNull DataInputStream in, int tag) throws IOException
             {
                 super();
                 frameType = tag;
@@ -144,7 +148,7 @@ public class StackMapTableAttribute extends AttributeInfo
                 stack[0] = VerificationTypeInfo.construct(in);
             }
 
-            void write(DataOutputStream out) throws IOException
+            void write(@NonNull DataOutputStream out) throws IOException
             {
                 out.writeByte(frameType);
                 out.writeShort(offsetDelta);
@@ -156,14 +160,14 @@ public class StackMapTableAttribute extends AttributeInfo
         {
             private int offsetDelta;
 
-            ChopFrame(DataInputStream in, int tag) throws IOException
+            ChopFrame(@NonNull DataInputStream in, int tag) throws IOException
             {
                 super();
                 frameType = tag;
                 offsetDelta = in.readUnsignedShort();
             }
 
-            void write(DataOutputStream out) throws IOException
+            void write(@NonNull DataOutputStream out) throws IOException
             {
                 out.writeByte(frameType);
                 out.writeShort(offsetDelta);
@@ -172,7 +176,7 @@ public class StackMapTableAttribute extends AttributeInfo
 
         static class SameFrameExtended extends ChopFrame
         {
-            SameFrameExtended(DataInputStream in, int tag) throws IOException
+            SameFrameExtended(@NonNull DataInputStream in, int tag) throws IOException
             {
                 super(in, tag);
             }
@@ -183,7 +187,7 @@ public class StackMapTableAttribute extends AttributeInfo
             private int offsetDelta;
             private VerificationTypeInfo[] locals;
 
-            AppendFrame(DataInputStream in, int tag) throws IOException
+            AppendFrame(@NonNull DataInputStream in, int tag) throws IOException
             {
                 super();
                 frameType = tag;
@@ -192,7 +196,7 @@ public class StackMapTableAttribute extends AttributeInfo
                 for (int i = 0; i < locals.length; i++) locals[i] = VerificationTypeInfo.construct(in);
             }
 
-            void write(DataOutputStream out) throws IOException
+            void write(@NonNull DataOutputStream out) throws IOException
             {
                 out.writeByte(frameType);
                 out.writeShort(offsetDelta);
@@ -206,7 +210,7 @@ public class StackMapTableAttribute extends AttributeInfo
             private VerificationTypeInfo[] locals;
             private VerificationTypeInfo[] stack;
 
-            FullFrame(DataInputStream in, int tag) throws IOException
+            FullFrame(@NonNull DataInputStream in, int tag) throws IOException
             {
                 super();
                 frameType = tag;
@@ -217,7 +221,7 @@ public class StackMapTableAttribute extends AttributeInfo
                 for (int i = 0; i < stack.length; i++) stack[i] = VerificationTypeInfo.construct(in);
             }
 
-            void write(DataOutputStream out) throws IOException
+            void write(@NonNull DataOutputStream out) throws IOException
             {
                 out.writeByte(frameType);
                 out.writeShort(offsetDelta);
@@ -243,7 +247,8 @@ public class StackMapTableAttribute extends AttributeInfo
             static final int OBJECT = 7;
             static final int UNINITIALIZED = 8;
 
-            static VerificationTypeInfo construct(DataInputStream in) throws IOException
+            @Nullable
+            static VerificationTypeInfo construct(@NonNull DataInputStream in) throws IOException
             {
                 int tag = in.readUnsignedByte();
                 switch (tag) {
@@ -274,7 +279,7 @@ public class StackMapTableAttribute extends AttributeInfo
                 return tag;
             }
 
-            void write(DataOutputStream out) throws IOException
+            void write(@NonNull DataOutputStream out) throws IOException
             {
                 out.writeByte(tag);
             }
@@ -340,14 +345,14 @@ public class StackMapTableAttribute extends AttributeInfo
             {
                 private int cpoolIndex;
 
-                ObjectVariableInfo(DataInputStream in, int tag) throws IOException
+                ObjectVariableInfo(@NonNull DataInputStream in, int tag) throws IOException
                 {
                     super();
                     this.tag = tag;
                     cpoolIndex = in.readUnsignedShort();
                 }
 
-                void write(DataOutputStream out) throws IOException
+                void write(@NonNull DataOutputStream out) throws IOException
                 {
                     out.writeByte(tag);
                     out.writeShort(cpoolIndex);
@@ -358,14 +363,14 @@ public class StackMapTableAttribute extends AttributeInfo
             {
                 private int offset;
 
-                UninitializedVariableInfo(DataInputStream in, int tag) throws IOException
+                UninitializedVariableInfo(@NonNull DataInputStream in, int tag) throws IOException
                 {
                     super();
                     this.tag = tag;
                     offset = in.readUnsignedShort();
                 }
 
-                void write(DataOutputStream out) throws IOException
+                void write(@NonNull DataOutputStream out) throws IOException
                 {
                     out.writeByte(tag);
                     out.writeShort(offset);

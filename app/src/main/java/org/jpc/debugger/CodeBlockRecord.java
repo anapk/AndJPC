@@ -33,17 +33,35 @@
 
 package org.jpc.debugger;
 
-import java.lang.reflect.*;
-import java.util.Arrays;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.jpc.emulator.PC;
-import org.jpc.emulator.processor.*;
-import org.jpc.emulator.memory.*;
-import org.jpc.emulator.memory.codeblock.*;
+import org.jpc.emulator.memory.AddressSpace;
+import org.jpc.emulator.memory.LazyCodeBlockMemory;
+import org.jpc.emulator.memory.LinearAddressSpace;
+import org.jpc.emulator.memory.Memory;
+import org.jpc.emulator.memory.PhysicalAddressSpace;
+import org.jpc.emulator.memory.codeblock.CodeBlock;
+import org.jpc.emulator.memory.codeblock.CodeBlockManager;
+import org.jpc.emulator.memory.codeblock.CodeBlockReplacementException;
+import org.jpc.emulator.memory.codeblock.ProtectedModeCodeBlock;
+import org.jpc.emulator.memory.codeblock.RealModeCodeBlock;
+import org.jpc.emulator.memory.codeblock.Virtual8086ModeCodeBlock;
+import org.jpc.emulator.processor.ModeSwitchException;
+import org.jpc.emulator.processor.Processor;
+import org.jpc.emulator.processor.ProcessorException;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 
 class CodeBlockRecord {
 
-    private static Method getMemory,  convertMemory,  validateBlock;
+    @Nullable
+    private static Method getMemory;
+    @Nullable
+    private static Method validateBlock;
 
     static {
         try {
@@ -56,6 +74,7 @@ class CodeBlockRecord {
     
 
     static {
+        Method convertMemory;
         try {
             convertMemory = LazyCodeBlockMemory.class.getDeclaredMethod("convertMemory", new Class[]{Processor.class});
             convertMemory.setAccessible(true);
@@ -76,13 +95,18 @@ class CodeBlockRecord {
     private long blockCount,  instructionCount,  decodedCount;
     private int maxBlockSize;
     private final Processor processor;
+    @NonNull
     private final AddressSpace linear;
+    @NonNull
     private final AddressSpace physical;
+    @NonNull
     private final CodeBlock[] trace;
+    @NonNull
     private final int[] addresses;
+    @Nullable
     private CodeBlockListener listener;
 
-    public CodeBlockRecord(PC pc) {
+    public CodeBlockRecord(@NonNull PC pc) {
         PC pc1 = pc;
         this.linear = (AddressSpace) pc.getComponent(LinearAddressSpace.class);
         this.physical = (AddressSpace) pc.getComponent(PhysicalAddressSpace.class);
@@ -120,6 +144,7 @@ class CodeBlockRecord {
         return true;
     }
 
+    @Nullable
     public Memory getMemory(int address)
     {
         AddressSpace addressSpace = physical;
@@ -128,7 +153,7 @@ class CodeBlockRecord {
         }
         Memory memory = null;
         try {
-            memory = (Memory) getMemory.invoke(addressSpace, Integer.valueOf(address));
+            memory = (Memory) getMemory.invoke(addressSpace, address);
         } catch (IllegalAccessException ex) {
             ex.printStackTrace();
         } catch (InvocationTargetException ex) {
@@ -137,7 +162,7 @@ class CodeBlockRecord {
 
         if ((memory == null) && (addressSpace == linear)) {
             try {
-                memory = (Memory) validateBlock.invoke(addressSpace, Integer.valueOf(address));
+                memory = (Memory) validateBlock.invoke(addressSpace, address);
             } catch (IllegalAccessException ex) {
                 ex.printStackTrace();
             } catch (InvocationTargetException ex) {
@@ -148,6 +173,7 @@ class CodeBlockRecord {
         return memory;
     }
 
+    @Nullable
     CodeBlock decodeBlockAt(int address) {
         AddressSpace addressSpace = physical;
         if (processor.isProtectedMode()) {
@@ -155,7 +181,7 @@ class CodeBlockRecord {
         }
         Memory memory = null;
         try {
-            memory = (Memory) getMemory.invoke(addressSpace, Integer.valueOf(address));
+            memory = (Memory) getMemory.invoke(addressSpace, address);
         } catch (IllegalAccessException ex) {
             ex.printStackTrace();
         } catch (InvocationTargetException ex) {
@@ -164,7 +190,7 @@ class CodeBlockRecord {
 
         if ((memory == null) && (addressSpace == linear)) {
             try {
-                memory = (Memory) validateBlock.invoke(addressSpace, Integer.valueOf(address));
+                memory = (Memory) validateBlock.invoke(addressSpace, address);
             } catch (IllegalAccessException ex) {
                 ex.printStackTrace();
             } catch (InvocationTargetException ex) {
@@ -212,6 +238,7 @@ class CodeBlockRecord {
         return block;
     }
 
+    @Nullable
     public CodeBlock executeBlock() {
         int ip = processor.getInstructionPointer();
         CodeBlock block = decodeBlockAt(ip);
@@ -242,7 +269,7 @@ class CodeBlockRecord {
                     processor.handleVirtual8086ModeException(p);
                 }
             }
-        } catch (ModeSwitchException e) {
+        } catch (ModeSwitchException ignored) {
         } catch (CodeBlockReplacementException f) {
             try {
                 block = f.getReplacement();
@@ -268,7 +295,7 @@ class CodeBlockRecord {
                         processor.handleVirtual8086ModeException(p);
                     }
                 }
-            } catch (ModeSwitchException e) {}
+            } catch (ModeSwitchException ignored) {}
         }
 
         if (listener != null) {
@@ -285,10 +312,12 @@ class CodeBlockRecord {
         return block;
     }
 
+    @Nullable
     CodeBlock advanceDecode() {
         return advanceDecode(false);
     }
 
+    @Nullable
     CodeBlock advanceDecode(boolean force) {
         int ip = processor.getInstructionPointer();
         try {

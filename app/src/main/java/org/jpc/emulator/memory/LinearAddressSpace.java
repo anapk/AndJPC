@@ -33,12 +33,20 @@
 
 package org.jpc.emulator.memory;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.jpc.emulator.HardwareComponent;
-import org.jpc.emulator.processor.*;
+import org.jpc.emulator.processor.Processor;
+import org.jpc.emulator.processor.ProcessorException;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class that implements the paging system used by an x86 MMU when in protected
@@ -67,7 +75,9 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
     private PhysicalAddressSpace target;
 
     private byte[] pageSize;
+    @NonNull
     private final Set<Integer> nonGlobalPages;
+    @Nullable
     private Memory[] readUserIndex, readSupervisorIndex, writeUserIndex, writeSupervisorIndex, readIndex, writeIndex;
 
     /**
@@ -91,7 +101,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
             pageSize[i] = FOUR_K;
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeBoolean(isSupervisor);
         output.writeBoolean(globalPagesEnabled);
@@ -108,7 +118,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
             output.writeInt(value);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         reset();
         isSupervisor  = input.readBoolean();
@@ -129,6 +139,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
         setSupervisor(isSupervisor);
     }
 
+    @NonNull
     private Memory[] createReadIndex()
     {
 	if (isSupervisor)
@@ -137,6 +148,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
 	    return (readIndex = readUserIndex = new Memory[INDEX_SIZE]);
     }
 
+    @NonNull
     private Memory[] createWriteIndex()
     {
 	if (isSupervisor)
@@ -154,6 +166,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
 	}
     }
 
+    @Nullable
     private Memory getReadIndexValue(int index)
     {
 	try {
@@ -172,6 +185,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
 	}
     }
 
+    @Nullable
     private Memory getWriteIndexValue(int index)
     {
 	try {
@@ -396,6 +410,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
         }
     } 
 
+    @Nullable
     private Memory validateTLBEntryRead(int offset)
     {
         int idx = offset >>> INDEX_SHIFT;
@@ -503,6 +518,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
 	}
     }
 
+    @Nullable
     private Memory validateTLBEntryWrite(int offset)
     {
         int idx = offset >>> INDEX_SHIFT;
@@ -666,11 +682,13 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
 	}
     }
 
+    @Nullable
     protected Memory getReadMemoryBlockAt(int offset)
     {
 	return getReadIndexValue(offset >>> INDEX_SHIFT);
     }
 
+    @Nullable
     protected Memory getWriteMemoryBlockAt(int offset)
     {
 	return getWriteIndexValue(offset >>> INDEX_SHIFT);
@@ -715,7 +733,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
         {
             return super.getByte(offset);
         } 
-        catch (NullPointerException | ProcessorException ignored) {}
+        catch (@NonNull NullPointerException | ProcessorException ignored) {}
 
         return validateTLBEntryRead(offset).getByte(offset & BLOCK_MASK);
     }
@@ -726,7 +744,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
         {
             return super.getWord(offset);
         } 
-        catch (NullPointerException | ProcessorException ignored) {}
+        catch (@NonNull NullPointerException | ProcessorException ignored) {}
 
         Memory m = validateTLBEntryRead(offset);
         try
@@ -745,7 +763,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
         {
             return super.getDoubleWord(offset);
         } 
-        catch (NullPointerException | ProcessorException ignored) {}
+        catch (@NonNull NullPointerException | ProcessorException ignored) {}
 
         Memory m = validateTLBEntryRead(offset);
         try
@@ -765,7 +783,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
             super.setByte(offset, data);
             return;
         } 
-        catch (NullPointerException | ProcessorException ignored) {}
+        catch (@NonNull NullPointerException | ProcessorException ignored) {}
 
         validateTLBEntryWrite(offset).setByte(offset & BLOCK_MASK, data);
     }
@@ -777,7 +795,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
             super.setWord(offset, data);
             return;
         } 
-        catch (NullPointerException | ProcessorException ignored) {}
+        catch (@NonNull NullPointerException | ProcessorException ignored) {}
 
         Memory m = validateTLBEntryWrite(offset);
         try
@@ -797,7 +815,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
             super.setDoubleWord(offset, data);
             return;
         } 
-        catch (NullPointerException | ProcessorException ignored) {}
+        catch (@NonNull NullPointerException | ProcessorException ignored) {}
 
         Memory m = validateTLBEntryWrite(offset);
         try
@@ -823,7 +841,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
         throw new IllegalStateException("Cannot execute a Real Mode block in linear memory");
     }
 
-    public int executeProtected(Processor cpu, int offset)
+    public int executeProtected(@NonNull Processor cpu, int offset)
     {
 	Memory memory = getReadMemoryBlockAt(offset);
 
@@ -846,7 +864,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
         }
     }
 
-    public int executeVirtual8086(Processor cpu, int offset)
+    public int executeVirtual8086(@NonNull Processor cpu, int offset)
     {
 	Memory memory = getReadMemoryBlockAt(offset);
 
@@ -868,6 +886,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
 
     public static final class PageFaultWrapper implements Memory
     {
+        @NonNull
         private final ProcessorException pageFault;
 
         private PageFaultWrapper(int errorCode)
@@ -875,7 +894,8 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
             pageFault = new ProcessorException(ProcessorException.Type.PAGE_FAULT, errorCode, true);
         }
 
-        public ProcessorException getException() 
+        @NonNull
+        public ProcessorException getException()
         {
             return pageFault;
         }
@@ -1000,6 +1020,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
 	    throw pageFault;
 	}
         
+        @NonNull
         public String toString()
         {
             return "PF " + pageFault;
@@ -1046,6 +1067,7 @@ public final class LinearAddressSpace extends AddressSpace implements HardwareCo
 	    target = (PhysicalAddressSpace) component;
     }
 
+    @NonNull
     public String toString()
     {
         return "Linear Address Space";

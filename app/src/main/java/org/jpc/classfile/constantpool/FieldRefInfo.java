@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.constantpool;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -42,7 +44,7 @@ import java.io.IOException;
  */
 public class FieldRefInfo extends RefInfo
 {
-    FieldRefInfo(DataInputStream in) throws IOException
+    FieldRefInfo(@NonNull DataInputStream in) throws IOException
     {
         super(in);
     }
@@ -62,6 +64,7 @@ public class FieldRefInfo extends RefInfo
         return FIELDREF;
     }
 
+    @NonNull
     public String toString()
     {
         return "CONSTANT_FieldRef_info : class=" + getClassIndex() + " : nameandtype=" + getNameAndTypeIndex();

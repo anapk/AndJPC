@@ -33,12 +33,20 @@
 
 package org.jpc.emulator.pci.peripheral;
 
-import org.jpc.emulator.motherboard.*;
-import org.jpc.support.BlockDevice;
-import org.jpc.emulator.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
-import java.util.logging.*;
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.Hibernatable;
+import org.jpc.emulator.motherboard.IOPortCapable;
+import org.jpc.emulator.motherboard.InterruptController;
+import org.jpc.support.BlockDevice;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -47,13 +55,14 @@ import java.util.logging.*;
 class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
 
     private static final Logger LOGGING = Logger.getLogger(IDEChannel.class.getName());
+    @NonNull
     private final IDEState[] devices;
     private IDEState currentDevice;
     private int ioBase,  ioBaseTwo,  irq;
     private final InterruptController irqDevice;
     private int nextDriveSerial;
 
-    public void saveState(DataOutput output) throws IOException {
+    public void saveState(@NonNull DataOutput output) throws IOException {
         output.writeInt(ioBase);
         output.writeInt(ioBaseTwo);
         output.writeInt(irq);
@@ -70,7 +79,7 @@ class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
         output.writeInt(currentDeviceIndex);
     }
 
-    public void loadState(DataInput input) throws IOException {
+    public void loadState(@NonNull DataInput input) throws IOException {
         ioBase = input.readInt();
         ioBaseTwo = input.readInt();
         irq = input.readInt();
@@ -99,14 +108,14 @@ class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
         val |= ((buffer[offset] << 24) & 0xff000000);
         val |= ((buffer[offset + 1] << 16) & 0x00ff0000);
         val |= ((buffer[offset + 2] << 8) & 0x0000ff00);
-        val |= ((buffer[offset + 3] << 0) & 0x000000ff);
+        val |= ((buffer[offset + 3]) & 0x000000ff);
         return val;
     }
 
     private static short bigEndianBytesToShort(byte[] buffer, int offset) {
         short val = 0;
         val |= ((buffer[offset] << 8) & 0xff00);
-        val |= ((buffer[offset + 1] << 0) & 0x00ff);
+        val |= ((buffer[offset + 1]) & 0x00ff);
         return val;
     }
 
@@ -122,7 +131,7 @@ class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
         dest[offset + 1] = (byte) (data >>> 8);
     }
 
-    private static void stringToBytes(String text, byte[] dest, int start, int length) {
+    private static void stringToBytes(@NonNull String text, byte[] dest, int start, int length) {
         byte[] temp = text.getBytes();
         int i = 0;
         for (; i < Math.min(temp.length, length); i++) {
@@ -158,10 +167,8 @@ class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
     public void ioPortWriteByte(int address, int data) {
         if (address == ioBaseTwo) {
             writeCommand(data);
-            return;
         } else {
             writeIDE(address, data);
-            return;
         }
     }
 
@@ -225,6 +232,7 @@ class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
         }
     }
 
+    @NonNull
     public int[] ioPortsRequested() {
         if (ioBaseTwo == 0) {
             return new int[]{ioBase, ioBase + 1,
@@ -1061,10 +1069,11 @@ class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
         public int lba;
         public int cdSectorSize;
         //public long numberOfSectors; //forwarded through to blockdevice, prevents need for cdrom callback
+        @Nullable
         public BlockDevice drive;
         public BMDMAIORegion bmdma;
 
-        public IDEState(BlockDevice drive) {
+        public IDEState(@Nullable BlockDevice drive) {
             this.drive = drive;
             if (drive != null) {
                 //this.numberOfSectors = drive.getTotalSectors();
@@ -1087,7 +1096,7 @@ class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
             this.drive = drive;
         }
 
-        public void saveState(DataOutput output) throws IOException {
+        public void saveState(@NonNull DataOutput output) throws IOException {
             output.writeInt(cylinders);
             output.writeInt(heads);
             output.writeInt(sectors);
@@ -1134,7 +1143,7 @@ class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
             output.writeInt(cdSectorSize);
         }
 
-        public void loadState(DataInput input) throws IOException {
+        public void loadState(@NonNull DataInput input) throws IOException {
             cylinders = input.readInt();
             heads = input.readInt();
             sectors = input.readInt();
@@ -1234,7 +1243,7 @@ class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
             for (int i = 0; i < 512; i++) {
                 ioBuffer[i] = (byte) 0;
             }
-            putLE16InByte(ioBuffer, 0, (2 << 14) | (5 << 8) | (1 << 7) | (2 << 5) | (0 << 0));
+            putLE16InByte(ioBuffer, 0, (2 << 14) | (5 << 8) | (1 << 7) | (2 << 5));
             stringToBytes("JPC" + driveSerial, ioBuffer, 20, 20);
             putLE16InByte(ioBuffer, 40, 3); /* XXX: retired, remove ? */
             putLE16InByte(ioBuffer, 42, 512); /* cache size in sectors */
@@ -1556,7 +1565,7 @@ class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
 
                                         ioBuffer[12] = 0x70;
                                         ioBuffer[13] = 3 << 5;
-                                        ioBuffer[14] = (1 << 0) | (1 << 3) | (1 << 5);
+                                        ioBuffer[14] = (1) | (1 << 3) | (1 << 5);
                                         if (drive.isLocked()) {
                                             ioBuffer[6] |= 1 << 1;
                                         }
@@ -2107,7 +2116,7 @@ class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
             System.out.println("DMA reading sector: " + sector);
         }
 
-        private void cdReadSector(int lba, byte[] buffer, int sectorSize) {
+        private void cdReadSector(int lba, @NonNull byte[] buffer, int sectorSize) {
             switch (sectorSize) {
                 case 2048:
                     drive.read((0xffffffffl & lba) << 2, buffer, 4);
@@ -2135,6 +2144,7 @@ class IDEChannel extends AbstractHardwareComponent implements IOPortCapable {
         }
     }
 
+    @NonNull
     public String toString() {
         if (ioBaseTwo == 0) {
             return "IDE Channel @ 0x" + Integer.toHexString(ioBase) + "-0x" + Integer.toHexString(ioBase + 7) + " on irq " + irq;

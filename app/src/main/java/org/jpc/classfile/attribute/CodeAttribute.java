@@ -33,11 +33,16 @@
 
 package org.jpc.classfile.attribute;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import org.jpc.classfile.ClassFile;
+import org.jpc.classfile.JavaCodeAnalyser;
 import org.jpc.classfile.constantpool.ConstantPoolInfo;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import org.jpc.classfile.*;
 
 /**
  * Method attribute that holds the code related data and attributes.
@@ -49,10 +54,11 @@ public class CodeAttribute extends AttributeInfo
     private int maxStack;
     private int maxLocals;
     private byte[] code;
+    @Nullable
     private ExceptionEntry[] exceptionTable;
     private AttributeInfo[] attributes;
 
-    CodeAttribute(DataInputStream in, int index, ConstantPoolInfo[] pool) throws IOException
+    CodeAttribute(@NonNull DataInputStream in, int index, ConstantPoolInfo[] pool) throws IOException
     {
         super(in, index);
         maxStack = in.readUnsignedShort();
@@ -77,7 +83,7 @@ public class CodeAttribute extends AttributeInfo
      * @param cf associated classfile
      * @param argLength number of method arguments
      */
-    public void setCode(byte[] newCode, ExceptionEntry[] newTable, ClassFile cf, int argLength)
+    public void setCode(@NonNull byte[] newCode, @Nullable ExceptionEntry[] newTable, ClassFile cf, int argLength)
     {
         attributeLength += newCode.length - code.length;
         code = newCode;
@@ -97,7 +103,7 @@ public class CodeAttribute extends AttributeInfo
         }
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         super.write(out);
         out.writeShort(maxStack);
@@ -140,7 +146,7 @@ public class CodeAttribute extends AttributeInfo
             catchType = type;
         }
 
-        ExceptionEntry(DataInputStream in) throws IOException
+        ExceptionEntry(@NonNull DataInputStream in) throws IOException
         {
             startPC = in.readUnsignedShort();
             endPC = in.readUnsignedShort();
@@ -148,7 +154,7 @@ public class CodeAttribute extends AttributeInfo
             catchType = in.readUnsignedShort();
         }
 
-        void write(DataOutputStream out) throws IOException
+        void write(@NonNull DataOutputStream out) throws IOException
         {
             out.writeShort(startPC);
             out.writeShort(endPC);

@@ -33,7 +33,13 @@
 
 package org.jpc.emulator.memory.codeblock.optimised;
 
-import org.jpc.emulator.memory.codeblock.*;
+import android.support.annotation.NonNull;
+
+import org.jpc.emulator.memory.codeblock.CodeBlockCompiler;
+import org.jpc.emulator.memory.codeblock.InstructionSource;
+import org.jpc.emulator.memory.codeblock.ProtectedModeCodeBlock;
+import org.jpc.emulator.memory.codeblock.RealModeCodeBlock;
+import org.jpc.emulator.memory.codeblock.Virtual8086ModeCodeBlock;
 
 /**
  * 
@@ -52,7 +58,8 @@ public class OptimisedCompiler implements CodeBlockCompiler {
     }
 
 
-    public RealModeCodeBlock getRealModeCodeBlock(InstructionSource source) {
+    @NonNull
+    public RealModeCodeBlock getRealModeCodeBlock(@NonNull InstructionSource source) {
         buildCodeBlockBuffers(source);
 
         int[] newMicrocodes = new int[bufferOffset];
@@ -63,7 +70,8 @@ public class OptimisedCompiler implements CodeBlockCompiler {
         return new RealModeUBlock(newMicrocodes, newPositions);
     }
 
-    public ProtectedModeCodeBlock getProtectedModeCodeBlock(InstructionSource source) {
+    @NonNull
+    public ProtectedModeCodeBlock getProtectedModeCodeBlock(@NonNull InstructionSource source) {
         buildCodeBlockBuffers(source);
 
         int[] newMicrocodes = new int[bufferOffset];
@@ -74,7 +82,8 @@ public class OptimisedCompiler implements CodeBlockCompiler {
         return new ProtectedModeUBlock(newMicrocodes, newPositions);
     }
 
-    public Virtual8086ModeCodeBlock getVirtual8086ModeCodeBlock(InstructionSource source) {
+    @NonNull
+    public Virtual8086ModeCodeBlock getVirtual8086ModeCodeBlock(@NonNull InstructionSource source) {
         buildCodeBlockBuffers(source);
 
         int[] newMicrocodes = new int[bufferOffset];
@@ -85,7 +94,7 @@ public class OptimisedCompiler implements CodeBlockCompiler {
         return new Virtual8086ModeUBlock(newMicrocodes, newPositions);
     }
 
-    private void buildCodeBlockBuffers(InstructionSource source) {
+    private void buildCodeBlockBuffers(@NonNull InstructionSource source) {
         bufferOffset = 0;
         int position = 0;
 

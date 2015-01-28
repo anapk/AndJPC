@@ -33,6 +33,8 @@
 
 package org.jpc.debugger;
 
+import android.support.annotation.NonNull;
+
 import org.jpc.emulator.processor.Processor;
 
 /**
@@ -55,13 +57,10 @@ public abstract class Breakpoint implements Comparable<Breakpoint> {
     public abstract boolean satisfied(Processor cpu);
 
     public boolean equals(Object another) {
-        if (!(another instanceof Breakpoint)) {
-            return false;
-        }
-        return address == ((Breakpoint) another).address;
+        return another instanceof Breakpoint && address == ((Breakpoint) another).address;
     }
 
-    public int compareTo(Breakpoint bp) {
+    public int compareTo(@NonNull Breakpoint bp) {
         return address - bp.address;
     }
 

@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.constantpool;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -45,7 +47,7 @@ public class DoubleInfo extends ConstantPoolInfo
 {
     private final double value;
 
-    DoubleInfo(DataInputStream in) throws IOException
+    DoubleInfo(@NonNull DataInputStream in) throws IOException
     {
         this(in.readDouble());
     }
@@ -71,7 +73,7 @@ public class DoubleInfo extends ConstantPoolInfo
         return value;
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         out.writeByte(DOUBLE);
         out.writeDouble(value);
@@ -80,11 +82,11 @@ public class DoubleInfo extends ConstantPoolInfo
     public boolean equals(Object obj)
     {
         if (obj == this) return true;
-        if (!(obj instanceof DoubleInfo)) return false;
+        return obj instanceof DoubleInfo && getValue() == ((DoubleInfo) obj).getValue();
 
-        return getValue() == ((DoubleInfo) obj).getValue();
     }
 
+    @NonNull
     public String toString()
     {
         return "CONSTANT_Double_info : value=" + getValue();

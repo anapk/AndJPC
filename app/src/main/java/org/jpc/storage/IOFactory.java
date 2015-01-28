@@ -33,13 +33,16 @@
 
 package org.jpc.storage;
 
-import java.net.URI;
-import java.io.IOException;
+import android.support.annotation.NonNull;
+
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 
 class IOFactory {
 
-    public static DataIO open(URI uri) throws IOException{
+    @NonNull
+    public static DataIO open(@NonNull URI uri) throws IOException{
         if(uri.getScheme().equals("file")){
             File file = new File(uri);
             if(file.exists()){
@@ -52,7 +55,8 @@ class IOFactory {
         }
     }
 
-    public static DataIO create(URI uri) throws IOException{
+    @NonNull
+    public static DataIO create(@NonNull URI uri) throws IOException{
         if(uri.getScheme().equals("file")){
             return new FileIO(uri);
         }else{

@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.attribute;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -46,14 +48,14 @@ public class UnknownAttribute extends AttributeInfo
 {
     private byte[] contents;
 
-    UnknownAttribute(DataInputStream in, int index) throws IOException
+    UnknownAttribute(@NonNull DataInputStream in, int index) throws IOException
     {
         super(in, index);
         contents = new byte[super.attributeLength];
         in.readFully(contents);
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         super.write(out);
         out.write(contents);

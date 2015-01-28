@@ -33,9 +33,15 @@
 
 package org.jpc.classfile;
 
+import android.support.annotation.NonNull;
+
+import org.jpc.classfile.attribute.AttributeInfo;
+import org.jpc.classfile.attribute.CodeAttribute;
 import org.jpc.classfile.constantpool.ConstantPoolInfo;
-import org.jpc.classfile.attribute.*;
-import java.io.*;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * 
@@ -62,7 +68,7 @@ class MethodInfo
     static final int STRICT = 0x0800;
     static final int SYNTHETIC = 0x1000;
 
-    MethodInfo(DataInputStream in, ConstantPoolInfo[] pool) throws IOException
+    MethodInfo(@NonNull DataInputStream in, ConstantPoolInfo[] pool) throws IOException
     {
         accessFlags = in.readUnsignedShort();
         nameIndex = in.readUnsignedShort();
@@ -76,7 +82,7 @@ class MethodInfo
         }
     }
 
-    void write(DataOutputStream out) throws IOException
+    void write(@NonNull DataOutputStream out) throws IOException
     {
         out.writeShort(accessFlags);
         out.writeShort(nameIndex);
@@ -91,7 +97,7 @@ class MethodInfo
 
     int getDescriptorIndex() { return descriptorIndex; }
 
-    void setCode(byte[] code, CodeAttribute.ExceptionEntry[] exceptionTable, ClassFile cf)
+    void setCode(@NonNull byte[] code, CodeAttribute.ExceptionEntry[] exceptionTable, @NonNull ClassFile cf)
     {
         String descriptor = cf.getConstantPoolUtf8(this.getDescriptorIndex());
         int argLength = ClassFile.getMethodArgLength(descriptor);

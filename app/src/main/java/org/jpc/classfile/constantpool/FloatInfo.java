@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.constantpool;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -45,7 +47,7 @@ public class FloatInfo extends ConstantPoolInfo
 {
     private final float value;
 
-    FloatInfo(DataInputStream in) throws IOException
+    FloatInfo(@NonNull DataInputStream in) throws IOException
     {
         this(in.readFloat());
     }
@@ -70,7 +72,7 @@ public class FloatInfo extends ConstantPoolInfo
         return value;
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         out.writeByte(FLOAT);
         out.writeFloat(value);
@@ -79,11 +81,11 @@ public class FloatInfo extends ConstantPoolInfo
     public boolean equals(Object obj)
     {
         if (obj == this) return true;
-        if (!(obj instanceof FloatInfo)) return false;
+        return obj instanceof FloatInfo && getValue() == ((FloatInfo) obj).getValue();
 
-        return getValue() == ((FloatInfo) obj).getValue();
     }
 
+    @NonNull
     public String toString()
     {
         return "CONSTANT_Float_info : value=" + getValue();

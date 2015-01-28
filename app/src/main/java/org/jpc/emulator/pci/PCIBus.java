@@ -33,13 +33,20 @@
 
 package org.jpc.emulator.pci;
 
-import org.jpc.emulator.motherboard.IOPortHandler;
-import org.jpc.emulator.memory.PhysicalAddressSpace;
-import org.jpc.emulator.pci.peripheral.VGACard;
-import org.jpc.emulator.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
-import java.util.logging.*;
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.memory.PhysicalAddressSpace;
+import org.jpc.emulator.motherboard.IOPortHandler;
+import org.jpc.emulator.pci.peripheral.VGACard;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides an implementation of a PCI bus to allow access to all PCI devices.
@@ -61,8 +68,11 @@ public class PCIBus extends AbstractHardwareComponent {
     private int biosIOAddress;
     private int biosMemoryAddress;
     private PCIDevice devices[];
+    @Nullable
     private PCIISABridge isaBridge;
+    @Nullable
     private IOPortHandler ioports;
+    @Nullable
     private PhysicalAddressSpace memory;
     private int pciIRQIndex;
     private int pciIRQLevels[][];
@@ -81,7 +91,7 @@ public class PCIBus extends AbstractHardwareComponent {
         devFNMinimum = 8;
     }
 
-    public void saveState(DataOutput output) throws IOException {
+    public void saveState(@NonNull DataOutput output) throws IOException {
         output.writeInt(busNumber);
         output.writeInt(devFNMinimum);
         output.writeInt(pciIRQIndex);
@@ -98,7 +108,7 @@ public class PCIBus extends AbstractHardwareComponent {
         output.writeInt(biosMemoryAddress);
     }
 
-    public void loadState(DataInput input) throws IOException {
+    public void loadState(@NonNull DataInput input) throws IOException {
         updated = false;
         devices = new PCIDevice[256];
         busNumber = input.readInt();
@@ -130,7 +140,7 @@ public class PCIBus extends AbstractHardwareComponent {
      * @param device PCI card to be connected.
      * @return <code>true</code> if the device is successfully registered.
      */
-    public boolean registerDevice(PCIDevice device) {
+    public boolean registerDevice(@NonNull PCIDevice device) {
         if (pciIRQIndex >= PCI_DEVICES_MAX) {
             return false;
         }
@@ -165,7 +175,7 @@ public class PCIBus extends AbstractHardwareComponent {
         return -1;
     }
 
-    private boolean registerPCIIORegions(PCIDevice device) {
+    private boolean registerPCIIORegions(@NonNull PCIDevice device) {
         IORegion[] regions = device.getIORegions();
 
         if (regions == null) {
@@ -188,7 +198,7 @@ public class PCIBus extends AbstractHardwareComponent {
         return ret;
     }
 
-    private void updateMappings(PCIDevice device) {
+    private void updateMappings(@NonNull PCIDevice device) {
         IORegion[] regions = device.getIORegions();
         if (regions == null) {
             return;
@@ -262,7 +272,7 @@ public class PCIBus extends AbstractHardwareComponent {
         }
     }
 
-    private void loadMappings(PCIDevice device)
+    private void loadMappings(@NonNull PCIDevice device)
     {
         IORegion[] regions = device.getIORegions();
 
@@ -276,11 +286,12 @@ public class PCIBus extends AbstractHardwareComponent {
             }
     }
 
-    private void addDevice(PCIDevice device) {
+    private void addDevice(@NonNull PCIDevice device) {
         devices[device.getDeviceFunctionNumber()] = device;
     }
 
     //PCIHostBridge shifted functionality
+    @Nullable
     private PCIDevice validPCIDataAccess(int address) {
         int bus = (address >>> 16) & 0xff;
         if (0 != bus) {
@@ -378,7 +389,7 @@ public class PCIBus extends AbstractHardwareComponent {
         }
     }
 
-    private final void biosInitDevice(PCIDevice device) {
+    private void biosInitDevice(@NonNull PCIDevice device) {
         int deviceClass = 0xffff & device.configReadWord(PCIDevice.PCI_CONFIG_CLASS_DEVICE);
         int vendorID = 0xffff & device.configReadWord(PCIDevice.PCI_CONFIG_VENDOR_ID);
         int deviceID = 0xffff & device.configReadWord(PCIDevice.PCI_CONFIG_DEVICE_ID);
@@ -435,7 +446,7 @@ public class PCIBus extends AbstractHardwareComponent {
         }
     }
 
-    private void defaultIOMap(PCIDevice device) {
+    private void defaultIOMap(@NonNull PCIDevice device) {
         IORegion[] regions = device.getIORegions();
         if (regions == null) {
             return;
@@ -460,7 +471,7 @@ public class PCIBus extends AbstractHardwareComponent {
         }
     }
 
-    private void setIORegionAddress(PCIDevice device, int regionNumber, int address) {
+    private void setIORegionAddress(@NonNull PCIDevice device, int regionNumber, int address) {
         int offset;
         if (regionNumber == PCIDevice.PCI_ROM_SLOT) {
             offset = PCIDevice.PCI_CONFIG_EXPANSION_ROM_BASE_ADDRESS;

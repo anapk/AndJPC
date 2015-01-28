@@ -33,14 +33,26 @@
 
 package org.jpc.emulator.pci.peripheral;
 
-import org.jpc.emulator.pci.*;
-import org.jpc.emulator.motherboard.*;
-import org.jpc.support.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.jpc.emulator.HardwareComponent;
 import org.jpc.emulator.memory.PhysicalAddressSpace;
+import org.jpc.emulator.motherboard.IOPortHandler;
+import org.jpc.emulator.motherboard.InterruptController;
+import org.jpc.emulator.pci.AbstractPCIDevice;
+import org.jpc.emulator.pci.IORegion;
+import org.jpc.emulator.pci.PCIBus;
+import org.jpc.emulator.pci.PCIDevice;
+import org.jpc.emulator.pci.PCIISABridge;
+import org.jpc.support.BlockDevice;
+import org.jpc.support.DriveSet;
 
-import java.io.*;
-import java.util.logging.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -50,12 +62,14 @@ public class PIIX3IDEInterface extends AbstractPCIDevice
 {
     private static final Logger LOGGING = Logger.getLogger(PIIX3IDEInterface.class.getName());
     
+    @Nullable
     private InterruptController irqDevice;
     private IDEChannel[] channels;
     private boolean drivesUpdated;
 
     private BMDMAIORegion[] bmdmaRegions;
 
+    @Nullable
     private BlockDevice[] drives;
 
     public PIIX3IDEInterface()
@@ -82,7 +96,7 @@ public class PIIX3IDEInterface extends AbstractPCIDevice
 	bmdmaRegions[0] = new BMDMAIORegion(bmdmaRegions[1]);
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         channels[0].saveState(output);
         channels[1].saveState(output);
@@ -92,7 +106,7 @@ public class PIIX3IDEInterface extends AbstractPCIDevice
         }
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         channels[0].loadState(input);
         channels[1].loadState(input);
@@ -100,7 +114,7 @@ public class PIIX3IDEInterface extends AbstractPCIDevice
         bmdmaRegions[1].loadState(input);
     }
 
-    public void loadIOPorts(IOPortHandler ioportHandler, DataInput input) throws IOException
+    public void loadIOPorts(@NonNull IOPortHandler ioportHandler, @NonNull DataInput input) throws IOException
     {
         drivesUpdated = false;
         devfnSet = true;
@@ -128,10 +142,12 @@ public class PIIX3IDEInterface extends AbstractPCIDevice
 
 
 
+    @NonNull
     public IORegion[] getIORegions()
     {
 	return new IORegion[]{bmdmaRegions[0]};
     }
+    @Nullable
     public IORegion getIORegion(int index)
     {
 	if (index == 4) {
@@ -263,6 +279,7 @@ public class PIIX3IDEInterface extends AbstractPCIDevice
 	}
     }
 
+    @NonNull
     public String toString()
     {
 	return "Intel PIIX3 IDE Interface";

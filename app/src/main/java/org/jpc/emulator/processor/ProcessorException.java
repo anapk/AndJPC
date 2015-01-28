@@ -33,6 +33,8 @@
 
 package org.jpc.emulator.processor;
 
+import android.support.annotation.NonNull;
+
 /**
  * 
  * @author Chris Dennis
@@ -112,7 +114,7 @@ public final class ProcessorException extends RuntimeException
         return pointsToSelf;
     }
 
-    public boolean combinesToDoubleFault(ProcessorException original)
+    public boolean combinesToDoubleFault(@NonNull ProcessorException original)
     {
         switch (getType()) {
             case DIVIDE_ERROR:
@@ -138,6 +140,7 @@ public final class ProcessorException extends RuntimeException
         }
     }
 
+    @NonNull
     public String toString()
     {
 	if (hasErrorCode())

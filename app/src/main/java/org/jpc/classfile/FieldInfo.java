@@ -33,9 +33,14 @@
 
 package org.jpc.classfile;
 
-import org.jpc.classfile.constantpool.ConstantPoolInfo;
+import android.support.annotation.NonNull;
+
 import org.jpc.classfile.attribute.AttributeInfo;
-import java.io.*;
+import org.jpc.classfile.constantpool.ConstantPoolInfo;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * 
@@ -59,7 +64,7 @@ class FieldInfo
     static final int ENUM = 0x4000;
 
 
-    FieldInfo(DataInputStream in, ConstantPoolInfo[] pool) throws IOException
+    FieldInfo(@NonNull DataInputStream in, ConstantPoolInfo[] pool) throws IOException
     {
         accessFlags = in.readUnsignedShort();
         nameIndex = in.readUnsignedShort();
@@ -70,7 +75,7 @@ class FieldInfo
             attributes[i] = AttributeInfo.construct(in, pool);
     }
 
-    void write(DataOutputStream out) throws IOException
+    void write(@NonNull DataOutputStream out) throws IOException
     {
         out.writeShort(accessFlags);
         out.writeShort(nameIndex);

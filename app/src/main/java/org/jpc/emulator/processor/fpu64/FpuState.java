@@ -35,8 +35,11 @@
 package org.jpc.emulator.processor.fpu64;
 
 // import java.math.BigDecimal;
-import org.jpc.emulator.processor.*;
-import org.jpc.emulator.*;
+
+import android.support.annotation.NonNull;
+
+import org.jpc.emulator.Hibernatable;
+import org.jpc.emulator.processor.ProcessorException;
 
 /**
  * 
@@ -129,7 +132,7 @@ public abstract class FpuState implements Hibernatable
     public abstract void setTagWord(int w);
     public abstract int getTag(int index);
 
-    public void copyStateInto(FpuState copy)
+    public void copyStateInto(@NonNull FpuState copy)
     {
         copy.conditionCode = conditionCode;
         copy.top = top;
@@ -144,9 +147,7 @@ public abstract class FpuState implements Hibernatable
         if (!(another instanceof FpuState))
             return false;
         FpuState s = (FpuState) another;
-        if ((s.conditionCode != conditionCode) || (s.top != top) || (s.infinityControl != infinityControl) || (s.lastIP != lastIP) || (s.lastData != lastData) || (s.lastOpcode != lastOpcode))
-            return false;
+        return !((s.conditionCode != conditionCode) || (s.top != top) || (s.infinityControl != infinityControl) || (s.lastIP != lastIP) || (s.lastData != lastData) || (s.lastOpcode != lastOpcode));
 
-        return true;
     }
 }

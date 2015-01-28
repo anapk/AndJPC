@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.constantpool;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -45,7 +47,7 @@ public class LongInfo extends ConstantPoolInfo
 {
     private final long value;
 
-    LongInfo(DataInputStream in) throws IOException
+    LongInfo(@NonNull DataInputStream in) throws IOException
     {
         this(in.readLong());
     }
@@ -70,7 +72,7 @@ public class LongInfo extends ConstantPoolInfo
         return value;
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         out.writeByte(LONG);
         out.writeLong(value);
@@ -79,11 +81,11 @@ public class LongInfo extends ConstantPoolInfo
     public boolean equals(Object obj)
     {
         if (obj == this) return true;
-        if (!(obj instanceof LongInfo)) return false;
+        return obj instanceof LongInfo && getValue() == ((LongInfo) obj).getValue();
 
-        return getValue() == ((LongInfo) obj).getValue();
     }
 
+    @NonNull
     public String toString()
     {
         return "CONSTANT_Long_info : value=" + getValue();

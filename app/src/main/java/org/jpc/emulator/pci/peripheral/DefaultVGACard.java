@@ -1,6 +1,9 @@
 package org.jpc.emulator.pci.peripheral;
 
-import uk.co.jads.android.jpc.*;
+import android.support.annotation.NonNull;
+
+import uk.co.jads.android.jpc.Dimension;
+import uk.co.jads.android.jpc.PCMonitor;
 
 public final class DefaultVGACard extends VGACard
 {
@@ -25,6 +28,7 @@ public final class DefaultVGACard extends VGACard
         return this.rawImageData;
     }
 
+    @NonNull
     @Override
     public Dimension getDisplaySize() {
         return new Dimension(this.width, this.height);

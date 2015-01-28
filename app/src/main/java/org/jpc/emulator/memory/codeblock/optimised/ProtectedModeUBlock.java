@@ -33,11 +33,22 @@
 
 package org.jpc.emulator.memory.codeblock.optimised;
 
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import org.jpc.emulator.processor.*;
-import org.jpc.emulator.processor.fpu64.*;
-import org.jpc.emulator.memory.codeblock.*;
+import org.jpc.emulator.memory.codeblock.ArrayBackedInstructionSource;
+import org.jpc.emulator.memory.codeblock.InstructionSource;
+import org.jpc.emulator.memory.codeblock.ProtectedModeCodeBlock;
+import org.jpc.emulator.processor.Processor;
+import org.jpc.emulator.processor.ProcessorException;
+import org.jpc.emulator.processor.ProtectedModeSegment;
+import org.jpc.emulator.processor.Segment;
+import org.jpc.emulator.processor.SegmentFactory;
+import org.jpc.emulator.processor.fpu64.FpuState;
+import org.jpc.emulator.processor.fpu64.FpuState64;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet.*;
 
@@ -50,6 +61,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 {
     private static final Logger LOGGING = Logger.getLogger(ProtectedModeUBlock.class.getName());
 
+    @NonNull
     private static final boolean[] parityMap;
 
     static
@@ -73,6 +85,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
     private int[] microcodes;
     private int[] cumulativeX86Length;
     private int executeCount;
+    @Nullable
     private static final OpcodeLogger opcodeCounter = null;//new OpcodeLogger("PM Stats:");
 
     private ProtectedModeUBlock()
@@ -111,6 +124,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
         return false;
     }
 
+    @NonNull
     public String getDisplayString()
     {
         StringBuilder buf = new StringBuilder();
@@ -120,11 +134,13 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
         return buf.toString();
     }
 
+    @NonNull
     public String toString()
     {
 	return "Protected Mode Interpreted Block";
     }
 
+    @NonNull
     public InstructionSource getAsInstructionSource()
     {
         int[] codes = new int[microcodes.length];
@@ -139,6 +155,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
         return new ArrayBackedInstructionSource(codes, positions);
     }
 
+    @NonNull
     int[] getMicrocodes()
     {
         int[] result = new int[microcodes.length];
@@ -146,7 +163,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
         return result;
     }
 
-    public int execute(Processor cpu)
+    public int execute(@NonNull Processor cpu)
     {
        	this.fpu = cpu.fpu;
 	this.cpu = cpu;
@@ -841,7 +858,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
                     break;
 
                 case INTO_O32_A32:
-                    if (cpu.getOverflowFlag() == true)
+                    if (cpu.getOverflowFlag())
                         cpu.handleSoftProtectedModeInterrupt(4, getInstructionLength(position));
                     break;
 		case IRET_O32_A32:
@@ -1879,7 +1896,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
             }
 
 	    cpu.handleProtectedModeException(e);
-	} catch (IllegalStateException | NullPointerException e) {
+	} catch (@NonNull IllegalStateException | NullPointerException e) {
             System.out.println("Failed at index: " + (position -1) + " with microcode: " + microcodes[position-1]);
             System.out.println("Microcodes for failed block:");
             System.out.println(this.getDisplayString());
@@ -1906,7 +1923,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
         return ans;
     }
 
-    private void cmpsb_a32(Segment seg0)
+    private void cmpsb_a32(@NonNull Segment seg0)
     {
 	int addrOne = cpu.esi;
 	int addrTwo = cpu.edi;
@@ -1927,7 +1944,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	sub_o8_flags(dataOne - dataTwo, dataOne, dataTwo);
     }
 
-    private void cmpsw_a32(Segment seg0)
+    private void cmpsw_a32(@NonNull Segment seg0)
     {
 	int addrOne = cpu.esi;
 	int addrTwo = cpu.edi;
@@ -1948,7 +1965,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	sub_o16_flags(dataOne - dataTwo, dataOne, dataTwo);
     }
 
-    private void cmpsd_a32(Segment seg0)
+    private void cmpsd_a32(@NonNull Segment seg0)
     {
 	int addrOne = cpu.esi;
 	int addrTwo = cpu.edi;
@@ -1969,7 +1986,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	sub_o32_flags(dataOne, dataTwo);
     }
 
-    private void repe_cmpsb_a16(Segment seg0)
+    private void repe_cmpsb_a16(@NonNull Segment seg0)
     {
 	int count = 0xFFFF & cpu.ecx;
 	int addrOne = 0xFFFF & cpu.esi;
@@ -2012,7 +2029,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void repe_cmpsb_a32(Segment seg0)
+    private void repe_cmpsb_a32(@NonNull Segment seg0)
     {
 	int count = cpu.ecx;
 	int addrOne = cpu.esi;
@@ -2055,7 +2072,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void repe_cmpsw_a32(Segment seg0)
+    private void repe_cmpsw_a32(@NonNull Segment seg0)
     {
 	int count = cpu.ecx;
 	int addrOne = cpu.esi;
@@ -2098,7 +2115,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void repe_cmpsd_a32(Segment seg0)
+    private void repe_cmpsd_a32(@NonNull Segment seg0)
     {
 	int count = cpu.ecx;
 	int addrOne = cpu.esi;
@@ -2141,7 +2158,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void repne_cmpsb_a32(Segment seg0)
+    private void repne_cmpsb_a32(@NonNull Segment seg0)
     {
 	int count = cpu.ecx;
 	int addrOne = cpu.esi;
@@ -2184,7 +2201,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void repne_cmpsw_a32(Segment seg0)
+    private void repne_cmpsw_a32(@NonNull Segment seg0)
     {
 	int count = cpu.ecx;
 	int addrOne = cpu.esi;
@@ -2227,7 +2244,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void repne_cmpsd_a32(Segment seg0)
+    private void repne_cmpsd_a32(@NonNull Segment seg0)
     {
 	int count = cpu.ecx;
 	int addrOne = cpu.esi;
@@ -2426,7 +2443,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void lodsb_a16(Segment dataSegment)
+    private void lodsb_a16(@NonNull Segment dataSegment)
     {
 	int addr = 0xFFFF & cpu.esi ;
 	cpu.eax = (cpu.eax & ~0xff) | (0xff & dataSegment.getByte(addr));
@@ -2439,7 +2456,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi =(cpu.esi & ~0xffff) | (0xffff &  addr);
     }
 
-    private void lodsb_a32(Segment dataSegment)
+    private void lodsb_a32(@NonNull Segment dataSegment)
     {
 	int addr = cpu.esi;
 	cpu.eax = (cpu.eax & ~0xff) | (0xff & dataSegment.getByte(addr));
@@ -2452,7 +2469,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = addr;
     }
 
-    private void lodsw_a16(Segment dataSegment)
+    private void lodsw_a16(@NonNull Segment dataSegment)
     {
 	int addr = cpu.esi & 0xFFFF;
 	cpu.eax = (cpu.eax & ~0xffff) | (0xffff & dataSegment.getWord(addr));
@@ -2465,7 +2482,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi =(cpu.esi & ~0xffff) | (0xffff &  addr);
     }
 
-    private void lodsw_a32(Segment dataSegment)
+    private void lodsw_a32(@NonNull Segment dataSegment)
     {
 	int addr = cpu.esi;
 	cpu.eax = (cpu.eax & ~0xffff) | (0xffff & dataSegment.getWord(addr));
@@ -2478,7 +2495,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = addr;
     }
 
-    private void lodsd_a16(Segment dataSegment)
+    private void lodsd_a16(@NonNull Segment dataSegment)
     {
 	int addr = cpu.esi & 0xFFFF;
 	cpu.eax = dataSegment.getDoubleWord(addr);
@@ -2491,7 +2508,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (0xffff &  addr);
     }
 
-    private void lodsd_a32(Segment dataSegment)
+    private void lodsd_a32(@NonNull Segment dataSegment)
     {
 	int addr = cpu.esi;
 	cpu.eax = dataSegment.getDoubleWord(addr);
@@ -2504,7 +2521,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = addr;
     }
 
-    private void rep_lodsb_a32(Segment dataSegment)
+    private void rep_lodsb_a32(@NonNull Segment dataSegment)
     {
 	int count = cpu.ecx;
 	int addr = cpu.esi;
@@ -2535,7 +2552,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void rep_lodsw_a32(Segment dataSegment)
+    private void rep_lodsw_a32(@NonNull Segment dataSegment)
     {
 	int count = cpu.ecx;
 	int addr = cpu.esi;
@@ -2566,7 +2583,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void rep_lodsd_a32(Segment dataSegment)
+    private void rep_lodsd_a32(@NonNull Segment dataSegment)
     {
 	int count = cpu.ecx;
 	int addr = cpu.esi;
@@ -2597,7 +2614,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void movsb_a16(Segment outSegment)
+    private void movsb_a16(@NonNull Segment outSegment)
     {
 	int inAddr = cpu.edi & 0xffff;
 	int outAddr = cpu.esi & 0xffff;
@@ -2615,7 +2632,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (outAddr & 0xffff);
     }
 
-    private void movsw_a16(Segment outSegment)
+    private void movsw_a16(@NonNull Segment outSegment)
     {
 	int inAddr = cpu.edi & 0xffff;
 	int outAddr = cpu.esi & 0xffff;
@@ -2633,7 +2650,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (outAddr & 0xffff);
     }
 
-    private void movsd_a16(Segment outSegment)
+    private void movsd_a16(@NonNull Segment outSegment)
     {
 	int inAddr = cpu.edi & 0xffff;
 	int outAddr = cpu.esi & 0xffff;
@@ -2651,7 +2668,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (outAddr & 0xffff);
     }
 
-    private void rep_movsb_a16(Segment outSegment)
+    private void rep_movsb_a16(@NonNull Segment outSegment)
     {
 	int count = cpu.ecx & 0xffff;
 	int inAddr = cpu.edi & 0xffff;
@@ -2684,7 +2701,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void rep_movsw_a16(Segment outSegment)
+    private void rep_movsw_a16(@NonNull Segment outSegment)
     {
 	int count = cpu.ecx & 0xffff;
 	int inAddr = cpu.edi & 0xffff;
@@ -2717,7 +2734,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void rep_movsd_a16(Segment outSegment)
+    private void rep_movsd_a16(@NonNull Segment outSegment)
     {
 	int count = cpu.ecx & 0xffff;
 	int inAddr = cpu.edi & 0xffff;
@@ -2750,7 +2767,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void movsb_a32(Segment outSegment)
+    private void movsb_a32(@NonNull Segment outSegment)
     {
 	int inAddr = cpu.edi;
 	int outAddr = cpu.esi;
@@ -2768,7 +2785,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = outAddr;
     }
 
-    private void movsw_a32(Segment outSegment)
+    private void movsw_a32(@NonNull Segment outSegment)
     {
 	int inAddr = cpu.edi;
 	int outAddr = cpu.esi;
@@ -2786,7 +2803,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = outAddr;
     }
 
-    private void movsd_a32(Segment outSegment)
+    private void movsd_a32(@NonNull Segment outSegment)
     {
 	int inAddr = cpu.edi;
 	int outAddr = cpu.esi;
@@ -2804,7 +2821,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = outAddr;
     }
 
-    private void rep_movsb_a32(Segment outSegment)
+    private void rep_movsb_a32(@NonNull Segment outSegment)
     {
 	int count = cpu.ecx;
 	int inAddr = cpu.edi;
@@ -2837,7 +2854,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void rep_movsw_a32(Segment outSegment)
+    private void rep_movsw_a32(@NonNull Segment outSegment)
     {
 	int count = cpu.ecx;
 	int inAddr = cpu.edi;
@@ -2870,7 +2887,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void rep_movsd_a32(Segment outSegment)
+    private void rep_movsd_a32(@NonNull Segment outSegment)
     {
 	int count = cpu.ecx;
 	int inAddr = cpu.edi;
@@ -2903,7 +2920,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void outsb_a16(int port, Segment storeSegment)
+    private void outsb_a16(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsByte(port)) {
             LOGGING.log(Level.INFO, "denied access to io port 0x{0} at cpl {1}", new Object[]{Integer.toHexString(port), cpu.getCPL()});
@@ -2922,7 +2939,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (addr & 0xffff);
     }
 
-    private void outsw_a16(int port, Segment storeSegment)
+    private void outsw_a16(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsShort(port)) {
             LOGGING.log(Level.INFO, "denied access to io port 0x{0} at cpl {1}", new Object[]{Integer.toHexString(port), cpu.getCPL()});
@@ -2941,7 +2958,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (addr & 0xffff);
     }
 
-    private void outsd_a16(int port, Segment storeSegment)
+    private void outsd_a16(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsInt(port)) {
             LOGGING.log(Level.INFO, "denied access to io port 0x{0} at cpl {1}", new Object[]{Integer.toHexString(port), cpu.getCPL()});
@@ -2960,7 +2977,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = (cpu.esi & ~0xffff) | (addr & 0xffff);
     }
 
-    private void rep_outsb_a16(int port, Segment storeSegment)
+    private void rep_outsb_a16(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsByte(port)) {
             LOGGING.log(Level.INFO, "denied access to io port 0x{0} at cpl {1}", new Object[]{Integer.toHexString(port), cpu.getCPL()});
@@ -2994,7 +3011,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void rep_outsw_a16(int port, Segment storeSegment)
+    private void rep_outsw_a16(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsShort(port)) {
             LOGGING.log(Level.INFO, "denied access to io port 0x{0} at cpl {1}", new Object[]{Integer.toHexString(port), cpu.getCPL()});
@@ -3028,7 +3045,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void rep_outsd_a16(int port, Segment storeSegment)
+    private void rep_outsd_a16(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsInt(port)) {
             LOGGING.log(Level.INFO, "denied access to io port 0x{0} at cpl {1}", new Object[]{Integer.toHexString(port), cpu.getCPL()});
@@ -3062,7 +3079,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void outsb_a32(int port, Segment storeSegment)
+    private void outsb_a32(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsByte(port)) {
             LOGGING.log(Level.INFO, "denied access to io port 0x{0} at cpl {1}", new Object[]{Integer.toHexString(port), cpu.getCPL()});
@@ -3081,7 +3098,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = addr;
     }
 
-    private void outsw_a32(int port, Segment storeSegment)
+    private void outsw_a32(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsShort(port)) {
             LOGGING.log(Level.INFO, "denied access to io port 0x{0} at cpl {1}", new Object[]{Integer.toHexString(port), cpu.getCPL()});
@@ -3100,7 +3117,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = addr;
     }
 
-    private void outsd_a32(int port, Segment storeSegment)
+    private void outsd_a32(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsInt(port)) {
             LOGGING.log(Level.INFO, "denied access to io port 0x{0} at cpl {1}", new Object[]{Integer.toHexString(port), cpu.getCPL()});
@@ -3119,7 +3136,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.esi = addr;
     }
 
-    private void rep_outsb_a32(int port, Segment storeSegment)
+    private void rep_outsb_a32(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsByte(port)) {
             LOGGING.log(Level.INFO, "denied access to io port 0x{0} at cpl {1}", new Object[]{Integer.toHexString(port), cpu.getCPL()});
@@ -3153,7 +3170,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void rep_outsw_a32(int port, Segment storeSegment)
+    private void rep_outsw_a32(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsShort(port)) {
             LOGGING.log(Level.INFO, "denied access to io port 0x{0} at cpl {1}", new Object[]{Integer.toHexString(port), cpu.getCPL()});
@@ -3187,7 +3204,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	}
     }
 
-    private void rep_outsd_a32(int port, Segment storeSegment)
+    private void rep_outsd_a32(int port, @NonNull Segment storeSegment)
     {
 	if (!checkIOPermissionsInt(port)) {
             LOGGING.log(Level.INFO, "denied access to io port 0x{0} at cpl {1}", new Object[]{Integer.toHexString(port), cpu.getCPL()});
@@ -4024,7 +4041,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.edx =  (int)remainder;    //EDX is remainder
     }
 
-    private void btc_mem(int offset, Segment segment, int address) throws ProcessorException
+    private void btc_mem(int offset, @NonNull Segment segment, int address) throws ProcessorException
     {
 	address += (offset >>> 3);
 	offset &= 0x7;
@@ -4034,7 +4051,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.setCarryFlag(data, offset, Processor.CY_NTH_BIT_SET);
     }
 
-    private void bts_mem(int offset, Segment segment, int address) throws ProcessorException
+    private void bts_mem(int offset, @NonNull Segment segment, int address) throws ProcessorException
     {
 	address += (offset >>> 3);
 	offset &= 0x7;
@@ -4044,7 +4061,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.setCarryFlag(data, offset, Processor.CY_NTH_BIT_SET);
     }
 
-    private void btr_mem(int offset, Segment segment, int address) throws ProcessorException
+    private void btr_mem(int offset, @NonNull Segment segment, int address) throws ProcessorException
     {
 	address += (offset >>> 3);
 	offset &= 0x7;
@@ -4054,7 +4071,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	cpu.setCarryFlag(data, offset, Processor.CY_NTH_BIT_SET);
     }
 
-    private void bt_mem(int offset, Segment segment, int address) throws ProcessorException
+    private void bt_mem(int offset, @NonNull Segment segment, int address) throws ProcessorException
     {
 	address += (offset >>> 3);
 	offset &= 0x7;
@@ -4786,8 +4803,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	    newSegment.setRPL(cpu.getCPL());
 	    cpu.cs = newSegment;
 	    cpu.eip = targetEIP;
-	    return;
-	}
+        }
         }
     }
 
@@ -7398,8 +7414,7 @@ public class ProtectedModeUBlock implements ProtectedModeCodeBlock
 	    cpu.ebx = 0;
 	    cpu.ecx = 0;
 	    cpu.edx = 0;
-	    return;
-	}
+    }
     }
 
     private long rdtsc()

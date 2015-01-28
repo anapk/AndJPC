@@ -33,23 +33,58 @@
 
 package org.jpc.emulator;
 
-import org.jpc.emulator.motherboard.*;
-import org.jpc.emulator.memory.*;
-import org.jpc.emulator.pci.peripheral.*;
-import org.jpc.emulator.pci.*;
-import org.jpc.emulator.peripheral.*;
-import org.jpc.emulator.processor.*;
-import org.jpc.support.*;
-import java.io.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import org.jpc.emulator.memory.LinearAddressSpace;
+import org.jpc.emulator.memory.PhysicalAddressSpace;
+import org.jpc.emulator.memory.codeblock.CodeBlockManager;
+import org.jpc.emulator.motherboard.DMAController;
+import org.jpc.emulator.motherboard.GateA20Handler;
+import org.jpc.emulator.motherboard.IOPortCapable;
+import org.jpc.emulator.motherboard.IOPortHandler;
+import org.jpc.emulator.motherboard.InterruptController;
+import org.jpc.emulator.motherboard.IntervalTimer;
+import org.jpc.emulator.motherboard.RTC;
+import org.jpc.emulator.motherboard.SystemBIOS;
+import org.jpc.emulator.motherboard.VGABIOS;
+import org.jpc.emulator.pci.PCIBus;
+import org.jpc.emulator.pci.PCIHostBridge;
+import org.jpc.emulator.pci.PCIISABridge;
+import org.jpc.emulator.pci.peripheral.DefaultVGACard;
+import org.jpc.emulator.pci.peripheral.EthernetCard;
+import org.jpc.emulator.pci.peripheral.PIIX3IDEInterface;
+import org.jpc.emulator.peripheral.FloppyController;
+import org.jpc.emulator.peripheral.Keyboard;
+import org.jpc.emulator.peripheral.PCSpeaker;
+import org.jpc.emulator.peripheral.SerialPort;
+import org.jpc.emulator.processor.ModeSwitchException;
+import org.jpc.emulator.processor.Processor;
+import org.jpc.emulator.processor.ProcessorException;
+import org.jpc.j2se.VirtualClock;
+import org.jpc.support.ArgProcessor;
+import org.jpc.support.Clock;
+import org.jpc.support.DriveSet;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
-import java.util.logging.*;
-import java.util.zip.*;
-import org.jpc.emulator.memory.codeblock.CodeBlockManager;
-import org.jpc.j2se.VirtualClock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * This class represents the emulated PC as a whole, and holds references
@@ -67,13 +102,19 @@ public class PC {
 
     private static final Logger LOGGING = Logger.getLogger(PC.class.getName());
 
+    @NonNull
     private final Processor processor;
+    @NonNull
     private final PhysicalAddressSpace physicalAddr;
+    @NonNull
     private final LinearAddressSpace linearAddr;
     private final Clock vmClock;
+    @NonNull
     private final Set<HardwareComponent> parts;
+    @NonNull
     private final CodeBlockManager manager;
-    private final EthernetCard ethernet;   
+    @NonNull
+    private final EthernetCard ethernet;
 
     /**
      * Constructs a new <code>PC</code> instance with the specified external time-source and
@@ -157,7 +198,7 @@ public class PC {
      * @param args command-line args specifying the drive set to use.
      * @throws java.io.IOException propogates from <code>DriveSet</code> construction
      */
-    public PC(Clock clock, String[] args) throws IOException {
+    public PC(Clock clock, @NonNull String[] args) throws IOException {
         this(clock, DriveSet.buildFromArgs(args));
     }
 
@@ -169,7 +210,7 @@ public class PC {
      * @param ramSize the size of the system ram for the virtual machine in bytes.
      * @throws java.io.IOException propogates from <code>DriveSet</code> construction
      */
-    private PC(Clock clock, String[] args, int ramSize) throws IOException {
+    private PC(Clock clock, @NonNull String[] args, int ramSize) throws IOException {
         this(clock, DriveSet.buildFromArgs(args), ramSize);
     }
 
@@ -213,14 +254,14 @@ public class PC {
                 fullyInitialised &= outer.initialised();
             }
             count++;
-        } while ((fullyInitialised == false) && (count < 100));
+        } while ((!fullyInitialised) && (count < 100));
 
         if (!fullyInitialised) {
             StringBuilder sb = new StringBuilder("pc >> component configuration errors\n");
             List<HardwareComponent> args = new ArrayList<>();
             for (HardwareComponent hwc : parts) {
                 if (!hwc.initialised()) {
-                    sb.append("component {" + args.size() + "} not configured");
+                    sb.append("component {").append(args.size()).append("} not configured");
                     args.add(hwc);
                 }
             }
@@ -255,7 +296,7 @@ public class PC {
         LOGGING.log(Level.INFO, "snapshot done");
     }
 
-    private void saveComponent(ZipOutputStream zip, HardwareComponent component) throws IOException {
+    private void saveComponent(@NonNull ZipOutputStream zip, @NonNull HardwareComponent component) throws IOException {
         LOGGING.log(Level.FINE, "snapshot saving {0}", component);
         int i = 0;
         while (true) {
@@ -355,14 +396,14 @@ public class PC {
                 fullyInitialised &= outer.updated();
             }
             count++;
-        } while ((fullyInitialised == false) && (count < 100));
+        } while ((!fullyInitialised) && (count < 100));
 
         if (!fullyInitialised) {
             StringBuilder sb = new StringBuilder("pc >> component linking errors\n");
             List<HardwareComponent> args = new ArrayList<>();
             for (HardwareComponent hwc : parts) {
                 if (!hwc.initialised()) {
-                    sb.append("component {" + args.size() + "} not linked");
+                    sb.append("component {").append(args.size()).append("} not linked");
                     args.add(hwc);
                 }
             }
@@ -390,7 +431,8 @@ public class PC {
      * @param cls component type required.
      * @return an instance of class <code>cls</code>, or <code>null</code> on failure
      */
-    public HardwareComponent getComponent(Class<? extends HardwareComponent> cls) {
+    @Nullable
+    public HardwareComponent getComponent(@NonNull Class<? extends HardwareComponent> cls) {
         if (!HardwareComponent.class.isAssignableFrom(cls)) {
             return null;
         }
@@ -407,6 +449,7 @@ public class PC {
      * Gets the processor instance associated with this PC.
      * @return associated processor instance.
      */
+    @NonNull
     public Processor getProcessor() {
         return processor;
     }
@@ -522,7 +565,7 @@ public class PC {
         return x86Count;
     }
 
-    public static void main(String[] args) {
+    public static void main(@NonNull String[] args) {
         try {
             if (args.length == 0) {
                 ClassLoader cl = PC.class.getClassLoader();

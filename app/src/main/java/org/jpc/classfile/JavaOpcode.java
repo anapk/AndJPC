@@ -33,8 +33,11 @@
 
 package org.jpc.classfile;
 
+import android.support.annotation.NonNull;
+
 import java.lang.reflect.Field;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides static constants for the Java bytecode set, and also utility methods 
@@ -252,6 +255,7 @@ public class JavaOpcode
     private static final byte IMPDEP1 = (byte)254;
     private static final byte IMPDEP2 = (byte)255;
 
+    @NonNull
     private static final String[] opcodes;
     static {
         opcodes = new String[256];
@@ -370,7 +374,7 @@ public class JavaOpcode
      * @param cf associated class file
      * @return stack delta of instruction
      */
-    public static int getStackDelta(byte[] code, int i, ClassFile cf)
+    public static int getStackDelta(byte[] code, int i, @NonNull ClassFile cf)
     {
         switch (code[i]) {
             case DCONST_0:

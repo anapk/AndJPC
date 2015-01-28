@@ -33,6 +33,8 @@
 
 package org.jpc.emulator.memory.codeblock;
 
+import android.support.annotation.NonNull;
+
 import org.jpc.emulator.memory.Memory;
 
 /**
@@ -73,6 +75,7 @@ class ByteSourceWrappedMemory implements ByteSource
         offset = startingPosition;
     }
     
+    @NonNull
     public String toString()
     {
         return "ByteSourceWrappedMemory: [" + source + "] @ 0x" + Integer.toHexString(startingPosition); 

@@ -33,11 +33,15 @@
 
 package org.jpc.emulator.motherboard;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
 
-import org.jpc.emulator.*;
+import org.jpc.emulator.HardwareComponent;
+
+import java.io.DataInput;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class provides a <code>Bios</code> implementation for the emulated
@@ -66,19 +70,20 @@ public class SystemBIOS extends Bios implements IOPortCapable
      * @throws java.io.IOException propogated from the resource load.
      * @throws java.util.MissingResourceException propogated from the resource load
      */
-    public SystemBIOS(String image) throws IOException
+    public SystemBIOS(@NonNull String image) throws IOException
     {
         super(image);
         ioportRegistered = false;
 
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         super.loadState(input);
         ioportRegistered = false;
     }
 
+    @NonNull
     public int[] ioPortsRequested()
     {
         return new int[]{0x400, 0x401, 0x402, 0x403, 0x8900};

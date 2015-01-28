@@ -33,8 +33,13 @@
 
 package org.jpc.support;
 
-import java.io.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <code>SeekableIODevice</code> that loads its data from a resource, and then
@@ -134,7 +139,7 @@ public class ArrayBackedSeekableIODevice implements SeekableIODevice
      * @param name mock resource name
      * @param imageData data contents
      */
-    public ArrayBackedSeekableIODevice(String name, byte[] imageData)
+    public ArrayBackedSeekableIODevice(String name, @NonNull byte[] imageData)
     {
         this(name, imageData, imageData.length);
     }
@@ -145,7 +150,7 @@ public class ArrayBackedSeekableIODevice implements SeekableIODevice
      * @param name mock resource name
      * @param imageData data contents
      */
-    public ArrayBackedSeekableIODevice(String name, byte[] imageData, int length)
+    public ArrayBackedSeekableIODevice(String name, @NonNull byte[] imageData, int length)
     {
         resource = name;
         imageOffset = 0;
@@ -158,7 +163,7 @@ public class ArrayBackedSeekableIODevice implements SeekableIODevice
      * @param name mock resource name
      * @param data stream to get the image data
      */
-    public ArrayBackedSeekableIODevice(String name, InputStream data) throws IOException
+    public ArrayBackedSeekableIODevice(String name, @NonNull InputStream data) throws IOException
     {
         imageOffset = 0;
         resource = name;
@@ -187,7 +192,7 @@ public class ArrayBackedSeekableIODevice implements SeekableIODevice
             throw new IOException("seek offset out of range: " + offset + " not in [0," + length + "]");
     }
 
-    public int write(byte[] data, int off, int len) throws IOException
+    public int write(@NonNull byte[] data, int off, int len) throws IOException
     {
         int space = Math.min(data.length - off, length - imageOffset);
         int count = Math.min(len, space);
@@ -195,7 +200,7 @@ public class ArrayBackedSeekableIODevice implements SeekableIODevice
         return count;
     }
 
-    public int read(byte[] data, int off, int len) throws IOException
+    public int read(@NonNull byte[] data, int off, int len) throws IOException
     {
         int space = Math.min(data.length - off, length - imageOffset);
         int count = Math.min(len, space);

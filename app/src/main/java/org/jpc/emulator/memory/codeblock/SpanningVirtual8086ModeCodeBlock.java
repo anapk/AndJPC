@@ -33,8 +33,11 @@
 
 package org.jpc.emulator.memory.codeblock;
 
-import org.jpc.emulator.processor.Processor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.jpc.emulator.memory.AddressSpace;
+import org.jpc.emulator.processor.Processor;
 
 /**
  * 
@@ -51,7 +54,8 @@ class SpanningVirtual8086ModeCodeBlock extends SpanningCodeBlock implements Virt
 	this.factories = factories;
     }
 
-    protected CodeBlock decode(Processor cpu)
+    @Nullable
+    protected CodeBlock decode(@NonNull Processor cpu)
     {
 	Virtual8086ModeCodeBlock block = null;
 	AddressSpace memory = cpu.linearMemory;
@@ -67,6 +71,7 @@ class SpanningVirtual8086ModeCodeBlock extends SpanningCodeBlock implements Virt
 	return block;
     }
     
+    @NonNull
     public String toString()
     {
 	return "Spanning Virtual8086 Mode CodeBlock";

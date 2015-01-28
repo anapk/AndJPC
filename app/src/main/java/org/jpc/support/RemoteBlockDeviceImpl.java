@@ -33,8 +33,14 @@
 
 package org.jpc.support;
 
-import java.io.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.jpc.support.RemoteBlockDevice.Protocol;
 
@@ -45,13 +51,16 @@ import static org.jpc.support.RemoteBlockDevice.Protocol;
 class RemoteBlockDeviceImpl implements Runnable
 {
     private static final Logger LOGGING = Logger.getLogger(RemoteBlockDeviceImpl.class.getName());
+    @NonNull
     private final DataInputStream in;
+    @NonNull
     private final DataOutputStream out;
     private final BlockDevice target;
 
+    @NonNull
     private final byte[] buffer;
     
-    public RemoteBlockDeviceImpl(InputStream in, OutputStream out, BlockDevice target)
+    public RemoteBlockDeviceImpl(@NonNull InputStream in, OutputStream out, BlockDevice target)
     {
         this.target = target;
         this.in = new DataInputStream(in);

@@ -33,8 +33,15 @@
 
 package org.jpc.support;
 
-import java.io.*;
-import java.net.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 
 /**
  * 
@@ -44,13 +51,13 @@ public class RemoteBlockDevice implements BlockDevice
 {
     static enum Protocol {
         READ, WRITE, TOTAL_SECTORS, CYLINDERS, HEADS, SECTORS, TYPE, INSERTED,
-        LOCKED, READ_ONLY, SET_LOCKED, CLOSE;
+        LOCKED, READ_ONLY, SET_LOCKED, CLOSE
     }
             
     private DataInputStream in;
     private DataOutputStream out;
     
-    public void configure(String spec) throws IOException
+    public void configure(@NonNull String spec) throws IOException
     {
         String server = spec;
 	int port = 6666;
@@ -70,7 +77,7 @@ public class RemoteBlockDevice implements BlockDevice
     {
     }
     
-    public RemoteBlockDevice(InputStream in, OutputStream out)
+    public RemoteBlockDevice(@NonNull InputStream in, OutputStream out)
     {
 	this.in = new DataInputStream(in);
 	this.out = new DataOutputStream(out);
@@ -240,6 +247,7 @@ public class RemoteBlockDevice implements BlockDevice
         return -1;
     }
 
+    @Nullable
     public synchronized Type getType()
     {
         try

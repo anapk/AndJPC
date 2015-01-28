@@ -33,7 +33,10 @@
 
 package org.jpc.storage;
 
-import java.io.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.io.IOException;
 import java.net.URI;
 
 public class BufferedIO implements DataIO
@@ -43,26 +46,27 @@ public class BufferedIO implements DataIO
     private static final int DEFAULT_CHUNK_SIZE = 1 << 16;
 
     private DataIO dio;
-    private int chunkSize;
+    @Nullable
     private LimitedLinkedHashMap bufferedIOMap;
     
-    public BufferedIO(URI uri) throws IOException
+    public BufferedIO(@NonNull URI uri) throws IOException
     {
         this(uri, DEFAULT_CHUNK_SIZE);
     }
 
-    private BufferedIO(URI uri, int chunkSize) throws IOException
+    private BufferedIO(@NonNull URI uri, int chunkSize) throws IOException
     {
         this(uri, chunkSize, DEFAULT_BUFFER_SIZE);
     }
 
-    private BufferedIO(URI uri, int chunkSize, long bufferSize) throws IOException
+    private BufferedIO(@NonNull URI uri, int chunkSize, long bufferSize) throws IOException
     {
         this.dio = IOFactory.open(uri);
-        this.chunkSize = (chunkSize / SECTOR_SIZE) * SECTOR_SIZE;
+        int chunkSize1 = (chunkSize / SECTOR_SIZE) * SECTOR_SIZE;
         bufferedIOMap = new LimitedLinkedHashMap((int)(bufferSize / SECTOR_SIZE + 1));
     }
 
+    @NonNull
     private byte[] getSectorBytes(int sector) throws IOException
     {
         Integer key = sector;
@@ -78,7 +82,7 @@ public class BufferedIO implements DataIO
         return result;
     }
 
-    public synchronized int read(long address, byte[] content, int offset, int length) throws IOException
+    public synchronized int read(long address, @NonNull byte[] content, int offset, int length) throws IOException
     {
         int toRead = Math.min(content.length - offset, length);
         toRead = (int) Math.min(toRead, dio.getLength()-address);
@@ -102,7 +106,7 @@ public class BufferedIO implements DataIO
         return totalRead;
     }
 
-    public int readFully(long address, byte[] content, int offset, int length) throws IOException
+    public int readFully(long address, @NonNull byte[] content, int offset, int length) throws IOException
     {
         int toRead = Math.min(content.length - offset, length);
         if (dio.getLength()-address < toRead)
@@ -110,7 +114,7 @@ public class BufferedIO implements DataIO
         return read(address, content, offset, length);
     }
 
-    public synchronized int write(long address, byte[] content, int offset, int length) throws IOException
+    public synchronized int write(long address, @NonNull byte[] content, int offset, int length) throws IOException
     {
         int toWrite = Math.min(content.length - offset, length);
         toWrite = (int) Math.min(toWrite, dio.getLength()-address);
@@ -134,7 +138,7 @@ public class BufferedIO implements DataIO
         return totalWritten;
     }
 
-    public synchronized void writeFully(long address, byte[] content, int offset, int length) throws IOException
+    public synchronized void writeFully(long address, @NonNull byte[] content, int offset, int length) throws IOException
     {
         int toWrite = Math.min(content.length - offset, length);
         if (dio.getLength()-address < toWrite)

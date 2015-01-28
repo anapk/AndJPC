@@ -33,6 +33,9 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler.virt;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.jpc.emulator.processor.Processor;
 
 /**
@@ -56,16 +59,19 @@ public class Virtual8086ModeSkeletonBlock extends Virtual8086ModeTemplateBlock
         return 0;
     }
 
+    @Nullable
     public int[] getMicrocodes()
     {
         return null;
     }
 
+    @Nullable
     public int[] getPositions()
     {
         return null;
     }
 
+    @NonNull
     public String getDisplayString()
     {
         StringBuilder buf = new StringBuilder();

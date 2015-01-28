@@ -33,19 +33,31 @@
 
 package org.jpc.emulator.pci.peripheral;
 
-import org.jpc.emulator.pci.*;
-import org.jpc.emulator.motherboard.*;
-import org.jpc.emulator.memory.*;
-import org.jpc.emulator.processor.Processor;
-import org.jpc.emulator.HardwareComponent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-//import java.awt.*;
-import java.io.*;
-import java.util.logging.*;
-//import org.jpc.j2se.PCMonitor;
-import uk.co.jads.android.jpc.PCMonitor;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.memory.Memory;
+import org.jpc.emulator.memory.PhysicalAddressSpace;
+import org.jpc.emulator.motherboard.IOPortCapable;
+import org.jpc.emulator.motherboard.IOPortHandler;
+import org.jpc.emulator.pci.AbstractPCIDevice;
+import org.jpc.emulator.pci.IORegion;
+import org.jpc.emulator.pci.MemoryMappedIORegion;
+import org.jpc.emulator.pci.PCIBus;
+import org.jpc.emulator.processor.Processor;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import uk.co.jads.android.jpc.Dimension;
+import uk.co.jads.android.jpc.PCMonitor;
+
+//import java.awt.*;
+//import org.jpc.j2se.PCMonitor;
 
 /**
  * 
@@ -261,15 +273,25 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	0xffffffff, 0xffffffff,
 	0xffffffff, 0xffffffff};
    
+    @NonNull
     private final GraphicsUpdater VGA_DRAW_LINE2;
+    @NonNull
     private final GraphicsUpdater VGA_DRAW_LINE2D2;
+    @NonNull
     private final GraphicsUpdater VGA_DRAW_LINE4;
+    @NonNull
     private final GraphicsUpdater VGA_DRAW_LINE4D2;
+    @NonNull
     private final GraphicsUpdater VGA_DRAW_LINE8D2;
+    @NonNull
     private final GraphicsUpdater VGA_DRAW_LINE8;
+    @NonNull
     private final GraphicsUpdater VGA_DRAW_LINE15;
+    @NonNull
     private final GraphicsUpdater VGA_DRAW_LINE16;
+    @NonNull
     private final GraphicsUpdater VGA_DRAW_LINE24;
+    @NonNull
     private final GraphicsUpdater VGA_DRAW_LINE32;
 
     private int latch;
@@ -304,6 +326,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
     private int lastScreenWidth, lastScreenHeight;
     private int cursorStart, cursorEnd;
     private int cursorOffset;
+    @NonNull
     private final int[] lastPalette;
     private int[] lastChar;
 
@@ -315,6 +338,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 
     private VGARAMIORegion ioRegion;
 
+    @NonNull
     private final VGALowMemoryRegion lowIORegion;
 
     public VGACard()
@@ -358,7 +382,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
         vbeRegs[VBE_DISPI_INDEX_BPP] = 32;
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         super.saveState(output);
         output.writeInt(expand4to8.length);
@@ -423,7 +447,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
         ioRegion.dumpState(output);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         super.loadState(input);
         ioportRegistered =false;
@@ -563,11 +587,13 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
     }
 
     //PCIDevice Methods
+    @NonNull
     public IORegion[] getIORegions()
     {
 	return new IORegion[]{ioRegion};
     }
 
+    @Nullable
     public IORegion getIORegion(int index)
     {
 	if(index == 0)
@@ -636,6 +662,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
         return b0 | (b1 << 16);
     }
 
+    @NonNull
     public int[] ioPortsRequested()
     {
 	return new int[]{0x3b4, 0x3b5, 0x3ba,
@@ -648,7 +675,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	};
     }
 
-    private final void vgaIOPortWriteByte(int address, int data)
+    private void vgaIOPortWriteByte(int address, int data)
     {
 	if ((address >= 0x3b0 && address <= 0x3bf && ((miscellaneousOutputRegister & MOR_COLOR_EMULATION) != 0)) ||
 	    (address >= 0x3d0 && address <= 0x3df && ((miscellaneousOutputRegister & MOR_COLOR_EMULATION) == 0)))
@@ -744,8 +771,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	case 0x3c9:
 	    dacCache[dacSubIndex] = data;
 	    if (++dacSubIndex == 3) {
-		for (int i = 0; i < 3; i++)
-		    palette[((0xff & dacWriteIndex) * 3) + i] = dacCache[i];
+            System.arraycopy(dacCache, 0, palette, ((0xff & dacWriteIndex) * 3) + 0, 3);
 		dacSubIndex = 0;
 		dacWriteIndex++;
 	    }
@@ -759,7 +785,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	}
     }
 
-    private final int vgaIOPortReadByte(int address)
+    private int vgaIOPortReadByte(int address)
     {
 	if ((address >= 0x3b0 && address <= 0x3bf && ((miscellaneousOutputRegister & MOR_COLOR_EMULATION) != 0)) ||
 	    (address >= 0x3d0 && address <= 0x3df && ((miscellaneousOutputRegister & MOR_COLOR_EMULATION) == 0))) 
@@ -825,12 +851,12 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	}
     }
 
-    private final void vbeIOPortWriteIndex(int data)
+    private void vbeIOPortWriteIndex(int data)
     {
 	vbeIndex = data;
     }
 
-    private final void vbeIOPortWriteData(int data)
+    private void vbeIOPortWriteData(int data)
     {
 	if (vbeIndex <= VBE_DISPI_INDEX_NB) {
 	    switch(vbeIndex) {
@@ -956,12 +982,12 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	}
     }
 
-    private final int vbeIOPortReadIndex()
+    private int vbeIOPortReadIndex()
     {
 	return vbeIndex;
     }
 
-    private final int vbeIOPortReadData()
+    private int vbeIOPortReadData()
     {
 	if (vbeIndex <= VBE_DISPI_INDEX_NB) {
 	    return vbeRegs[vbeIndex];
@@ -970,7 +996,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	}
     }
 
-    private final void internalReset()
+    private void internalReset()
     {
 	latch = 0;
 	sequencerRegisterIndex = graphicsRegisterIndex = attributeRegisterIndex = crtRegisterIndex = 0;
@@ -1328,7 +1354,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	    startAddress = -1;
 	}
 	
-        public void dumpState(DataOutput output) throws IOException
+        public void dumpState(@NonNull DataOutput output) throws IOException
         {
             output.writeInt(startAddress);
             output.writeInt(buffer.length);
@@ -1337,7 +1363,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
             for (boolean dirtyPage : dirtyPages) output.writeBoolean(dirtyPage);
         }
 
-        public void loadState(DataInput input) throws IOException
+        public void loadState(@NonNull DataInput input) throws IOException
         {
             startAddress = input.readInt();
             int len = input.readInt();
@@ -1366,12 +1392,12 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
             buffer = newBuf;
         }
 	
-	public void copyContentsIntoArray(int address, byte[] buf, int off, int len)
+	public void copyContentsIntoArray(int address, @NonNull byte[] buf, int off, int len)
 	{
 	    System.arraycopy(buffer, address, buf, off, len);
 	}
 	
-	public void copyArrayIntoContents(int address, byte[] buf, int off, int len)
+	public void copyArrayIntoContents(int address, @NonNull byte[] buf, int off, int len)
 	{
 	    System.arraycopy(buf, off, buffer, address, len);
 	}
@@ -1392,7 +1418,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	    try {
 		for (int i = start; i < limit; i++)
 		    buffer[i] = 0;
-	    } catch (ArrayIndexOutOfBoundsException e) {}
+	    } catch (ArrayIndexOutOfBoundsException ignored) {}
 
 	    int pageStart = start >>> PAGE_SHIFT;
 	    int pageLimit = (limit - 1) >>> PAGE_SHIFT;
@@ -1540,7 +1566,8 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
             }
 	}
 
-	public String toString()
+	@NonNull
+    public String toString()
 	{
 	    return "VGA RAM ByteArray["+getSize()+"]";
 	}
@@ -1608,7 +1635,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
     }
     
 
-    private final void drawText(boolean fullUpdate)
+    private void drawText(boolean fullUpdate)
     {
 	boolean temp = updatePalette16();
 	fullUpdate |= temp;
@@ -1817,9 +1844,8 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	    }
 	    return;
 	default:
-            LOGGING.log(Level.WARNING, "Unknown character width {0}", Integer.valueOf(charWidth));
-	    return;
-	}
+            LOGGING.log(Level.WARNING, "Unknown character width {0}", charWidth);
+    }
     } 
 
     abstract class GraphicsUpdater
@@ -1921,14 +1947,14 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
                 dest[index++] = palette[v >>> 12];
                 dest[index++] = palette[(v >>> 8) & 0xf];
                 dest[index++] = palette[(v >>> 4) & 0xf];
-                dest[index++] = palette[(v >>> 0) & 0xf];
+                dest[index++] = palette[(v) & 0xf];
                 
                 v = expand2[(data >>> 8) & 0xff];
                 v |= expand2[(data >>> 24) & 0xff] << 2;
                 dest[index++] = palette[v >>> 12];
                 dest[index++] = palette[(v >>> 8) & 0xf];
                 dest[index++] = palette[(v >>> 4) & 0xf];
-                dest[index++] = palette[(v >>> 0) & 0xf];
+                dest[index++] = palette[(v) & 0xf];
                 offset += 4;
             } while (--width != 0);
 
@@ -1961,14 +1987,14 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
                 dest[index++] = dest[index++] = palette[v >>> 12];
                 dest[index++] = dest[index++] = palette[(v >>> 8) & 0xf];
                 dest[index++] = dest[index++] = palette[(v >>> 4) & 0xf];
-                dest[index++] = dest[index++] = palette[(v >>> 0) & 0xf];
+                dest[index++] = dest[index++] = palette[(v) & 0xf];
                 
                 v = expand2[(data >>> 8) & 0xff];
                 v |= expand2[(data >>> 24) & 0xff] << 2;
                 dest[index++] = dest[index++] = palette[v >>> 12];
                 dest[index++] = dest[index++] = palette[(v >>> 8) & 0xf];
                 dest[index++] = dest[index++] = palette[(v >>> 4) & 0xf];
-                dest[index++] = dest[index++] = palette[(v >>> 0) & 0xf];
+                dest[index++] = dest[index++] = palette[(v) & 0xf];
                 offset += 4;
             } while (--width != 0);
 
@@ -2010,7 +2036,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
                 dest[index++] = palette[(v >>> 12) & 0xF];
                 dest[index++] = palette[(v >>> 8) & 0xF];
                 dest[index++] = palette[(v >>> 4) & 0xF];
-                dest[index++] = palette[(v >>> 0) & 0xF];
+                dest[index++] = palette[(v) & 0xF];
                 offset += 4;
             } while (--width != 0);
 	    
@@ -2050,7 +2076,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
                 dest[index++] = dest[index++] = palette[(v >>> 12) & 0xF];
                 dest[index++] = dest[index++] = palette[(v >>> 8) & 0xF];
                 dest[index++] = dest[index++] = palette[(v >>> 4) & 0xF];
-                dest[index++] = dest[index++] = palette[(v >>> 0) & 0xF];
+                dest[index++] = dest[index++] = palette[(v) & 0xF];
                 offset += 4;
             } while (--width != 0);
 
@@ -2212,7 +2238,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
         }
     }
 
-    private final void drawGraphic(boolean fullUpdate)
+    private void drawGraphic(boolean fullUpdate)
     {
 	boolean temp = updateBasicParameters();
         fullUpdate |= temp;
@@ -2309,7 +2335,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
         graphicUpdater.updateDisplay(width, height, dispWidth, fullUpdate, multiScan);
     }
 
-    private final void drawBlank(boolean fullUpdate)
+    private void drawBlank(boolean fullUpdate)
     {
 	if (!fullUpdate)
 	    return;
@@ -2324,7 +2350,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
         dirtyDisplayRegion(0, 0, lastScreenWidth, lastScreenHeight);
     }
 
-    private final boolean updatePalette16()
+    private boolean updatePalette16()
     {
 	boolean fullUpdate = false;
         int[] palette = lastPalette;
@@ -2350,7 +2376,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	return fullUpdate;
     }
 
-    private final boolean updatePalette256()
+    private boolean updatePalette256()
     {
 	boolean fullUpdate = false;
 	int[] palette = lastPalette;
@@ -2367,7 +2393,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	return fullUpdate;
     }
 
-    private final boolean updateBasicParameters()
+    private boolean updateBasicParameters()
     {
 	int curStartAddress, curLineOffset;
 	if ((vbeRegs[VBE_DISPI_INDEX_ENABLE] & VBE_DISPI_ENABLED) != 0) {
@@ -2403,7 +2429,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	return (v << 2) | (b << 1) | b;
     }
 
-    private final void drawGlyph8(int[] buffer, int startOffset, int scanSize, int glyphOffset, int charHeight, int foregroundColor, int backgroundColor)
+    private void drawGlyph8(int[] buffer, int startOffset, int scanSize, int glyphOffset, int charHeight, int foregroundColor, int backgroundColor)
     {
 	int xorColor = backgroundColor ^ foregroundColor;
 	scanSize -= 8;
@@ -2419,7 +2445,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	} while (--charHeight != 0);
     }
 
-    private final void drawGlyph16(int[] buffer, int startOffset, int scanSize, int glyphOffset, int charHeight, int foregroundColor, int backgroundColor)
+    private void drawGlyph16(int[] buffer, int startOffset, int scanSize, int glyphOffset, int charHeight, int foregroundColor, int backgroundColor)
     {
 	int xorColor = backgroundColor ^ foregroundColor;
 	scanSize -= 16;
@@ -2441,7 +2467,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	} while (--charHeight != 0);
     }
 
-    private final void drawGlyph9(int[] buffer, int startOffset, int scanSize, int glyphOffset, int charHeight, int foregroundColor, int backgroundColor, boolean dup9)
+    private void drawGlyph9(int[] buffer, int startOffset, int scanSize, int glyphOffset, int charHeight, int foregroundColor, int backgroundColor, boolean dup9)
     {
 	int xorColor = backgroundColor ^ foregroundColor;		
 	scanSize -= 9;
@@ -2477,7 +2503,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 	}
     }
 
-    private final void drawCursorGlyph8(int[] buffer, int startOffset, int scanSize, int charHeight, int foregroundColor, int backgroundColor)
+    private void drawCursorGlyph8(int[] buffer, int startOffset, int scanSize, int charHeight, int foregroundColor, int backgroundColor)
     {
 	int xorColor = backgroundColor ^ foregroundColor;
 	int glyphOffset = 0;		
@@ -2497,7 +2523,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
         while (--charHeight != 0);
     }
 
-    private final void drawCursorGlyph16(int[] buffer, int startOffset, int scanSize, int charHeight, int foregroundColor, int backgroundColor)
+    private void drawCursorGlyph16(int[] buffer, int startOffset, int scanSize, int charHeight, int foregroundColor, int backgroundColor)
     {
 	int glyphOffset = 0;
 	int xorColor = backgroundColor ^ foregroundColor;
@@ -2524,7 +2550,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
         while (--charHeight != 0);
     }
 
-    private final void drawCursorGlyph9(int[] buffer, int startOffset, int scanSize, int charHeight, int foregroundColor, int backgroundColor)
+    private void drawCursorGlyph9(int[] buffer, int startOffset, int scanSize, int charHeight, int foregroundColor, int backgroundColor)
     {
 	int glyphOffset = 0;
 	int xorColor = backgroundColor ^ foregroundColor;		
@@ -2633,6 +2659,7 @@ public abstract class VGACard extends AbstractPCIDevice implements IOPortCapable
 
     public abstract void setMonitor(PCMonitor mon);
 
+    @NonNull
     public String toString()
     {
 	return "VGA Card [Mode: " + lastScreenWidth + " x " + lastScreenHeight + "]";

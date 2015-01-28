@@ -33,15 +33,26 @@
 
 package org.jpc.emulator.processor;
 
-import org.jpc.emulator.HardwareComponent;
-import org.jpc.emulator.motherboard.*;
-import org.jpc.emulator.memory.*;
-import org.jpc.emulator.processor.fpu64.*;
-import org.jpc.support.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.memory.AlignmentCheckedAddressSpace;
+import org.jpc.emulator.memory.LinearAddressSpace;
+import org.jpc.emulator.memory.PhysicalAddressSpace;
+import org.jpc.emulator.motherboard.IOPortHandler;
+import org.jpc.emulator.motherboard.InterruptController;
+import org.jpc.emulator.processor.fpu64.FpuState;
+import org.jpc.emulator.processor.fpu64.FpuState64;
+import org.jpc.support.Clock;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -106,6 +117,7 @@ public class Processor implements HardwareComponent
     private int dr6;
     public int dr7;
 
+    @Nullable
     public Segment cs, ds, ss, es, fs, gs;
     public Segment idtr, gdtr, ldtr, tss;
 
@@ -130,9 +142,13 @@ public class Processor implements HardwareComponent
     public boolean eflagsID;
     public boolean eflagsInterruptEnableSoon;
 
+    @Nullable
     public LinearAddressSpace linearMemory;
+    @Nullable
     public PhysicalAddressSpace physicalMemory;
+    @Nullable
     private AlignmentCheckedAddressSpace alignmentCheckedMemory;
+    @Nullable
     public IOPortHandler ioports;
 
     private volatile int interruptFlags;
@@ -146,6 +162,7 @@ public class Processor implements HardwareComponent
     private boolean started = false;
     private final Clock vmClock;
 
+    @NonNull
     public final FpuState fpu;
 
     public Processor(Clock clock)
@@ -205,7 +222,7 @@ public class Processor implements HardwareComponent
         System.out.println("********************************");
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(this.eax);
         output.writeInt(this.ebx);
@@ -272,7 +289,7 @@ public class Processor implements HardwareComponent
         tss.saveState(output);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         eax = input.readInt();
         ebx = input.readInt();
@@ -343,7 +360,7 @@ public class Processor implements HardwareComponent
         tss = loadSegment(input);
     }
 
-    private Segment loadSegment(DataInput input) throws IOException
+    private Segment loadSegment(@NonNull DataInput input) throws IOException
     {
         //isProtectedMode()
         //alignmentChecking
@@ -485,12 +502,12 @@ public class Processor implements HardwareComponent
         eflagsVirtualInterruptPending = ((eflags & (1 << 20)) != 0);
         eflagsID                      = ((eflags & (1 << 21)) != 0);
 
-	if (eflagsAlignmentCheck != ((eflags & (1 << 18)) != 0)) {
+	if (eflagsAlignmentCheck == ((eflags & (1 << 18)) == 0)) {
 	    eflagsAlignmentCheck = ((eflags & (1 << 18)) != 0);
 	    checkAlignmentChecking();
 	}
 
-	if (eflagsVirtual8086Mode != ((eflags & (1 << 17)) != 0)) {
+	if (eflagsVirtual8086Mode == ((eflags & (1 << 17)) == 0)) {
 	    eflagsVirtual8086Mode = ((eflags & (1 << 17)) != 0);
 	    if (eflagsVirtual8086Mode) {
 		throw ModeSwitchException.VIRTUAL8086_MODE_EXCEPTION;
@@ -830,7 +847,7 @@ public class Processor implements HardwareComponent
 	return SegmentFactory.createDescriptorTableSegment(linearMemory, base, limit);
     }
 
-    public void correctAlignmentChecking(Segment segment)
+    public void correctAlignmentChecking(@NonNull Segment segment)
     {
 	if (alignmentChecking) {
 	    if ((segment.getType() & 0x18) == 0x10) // Should make this a data segment
@@ -869,7 +886,7 @@ public class Processor implements HardwareComponent
     }
 
 
-    public Segment getSegment(int segmentSelector, Segment local, Segment global)
+    public Segment getSegment(int segmentSelector, @NonNull Segment local, @NonNull Segment global)
     {
         boolean isSup = linearMemory.isSupervisor();
 	try 
@@ -1019,7 +1036,7 @@ public class Processor implements HardwareComponent
 	eflagsInterruptEnable = eflagsInterruptEnableSoon;
     }
 	
-    public final void handleRealModeException(ProcessorException e)
+    public final void handleRealModeException(@NonNull ProcessorException e)
     {
         handleRealModeInterrupt(e.getType().vector());
     }
@@ -1058,7 +1075,7 @@ public class Processor implements HardwareComponent
         }
     }
 
-    public final void handleProtectedModeException(ProcessorException pe)
+    public final void handleProtectedModeException(@NonNull ProcessorException pe)
     {
 	int savedESP = esp;
 	int savedEIP = eip;
@@ -1137,7 +1154,7 @@ public class Processor implements HardwareComponent
 	}
     }
 
-    private void checkGate(Segment gate, int selector, boolean software)
+    private void checkGate(@NonNull Segment gate, int selector, boolean software)
     {
 	if (software) {
 	    if (gate.getDPL() < currentPrivilegeLevel)
@@ -1148,7 +1165,7 @@ public class Processor implements HardwareComponent
 	    throw new ProcessorException(ProcessorException.Type.NOT_PRESENT, selector +2, true);
     }
 
-    public final void setSupervisorQuadWord(Segment seg, int offset, long data)
+    public final void setSupervisorQuadWord(@NonNull Segment seg, int offset, long data)
     {
         boolean isSup = linearMemory.isSupervisor();
         linearMemory.setSupervisor(true);
@@ -1156,7 +1173,7 @@ public class Processor implements HardwareComponent
         linearMemory.setSupervisor(isSup);
     }
 
-    public final void setSupervisorDoubleWord(Segment seg, int offset, int data)
+    public final void setSupervisorDoubleWord(@NonNull Segment seg, int offset, int data)
     {
         boolean isSup = linearMemory.isSupervisor();
         linearMemory.setSupervisor(true);
@@ -1164,7 +1181,7 @@ public class Processor implements HardwareComponent
         linearMemory.setSupervisor(isSup);
     }
 
-    public final long readSupervisorQuadWord(Segment seg, int offset)
+    public final long readSupervisorQuadWord(@NonNull Segment seg, int offset)
     {
         boolean isSup = linearMemory.isSupervisor();
         linearMemory.setSupervisor(true);
@@ -1173,7 +1190,7 @@ public class Processor implements HardwareComponent
         return data;
     }
 
-    public final int readSupervisorDoubleWord(Segment seg, int offset)
+    public final int readSupervisorDoubleWord(@NonNull Segment seg, int offset)
     {
         boolean isSup = linearMemory.isSupervisor();
         linearMemory.setSupervisor(true);
@@ -1182,7 +1199,7 @@ public class Processor implements HardwareComponent
         return data;
     }
 
-    public final int readSupervisorWord(Segment seg, int offset)
+    public final int readSupervisorWord(@NonNull Segment seg, int offset)
     {
         boolean isSup = linearMemory.isSupervisor();
         linearMemory.setSupervisor(true);
@@ -1191,7 +1208,7 @@ public class Processor implements HardwareComponent
         return data;
     }
 
-    public final int readSupervisorByte(Segment seg, int offset)
+    public final int readSupervisorByte(@NonNull Segment seg, int offset)
     {
         boolean isSup = linearMemory.isSupervisor();
         linearMemory.setSupervisor(true);
@@ -2260,7 +2277,7 @@ public class Processor implements HardwareComponent
 	}
     }
 
-    public final void handleVirtual8086ModeException(ProcessorException pe)
+    public final void handleVirtual8086ModeException(@NonNull ProcessorException pe)
     {
 	int savedESP = esp;
 	int savedEIP = eip;
@@ -2856,6 +2873,7 @@ public class Processor implements HardwareComponent
 	}
     }
 
+    @NonNull
     private static final boolean[] parityMap;
     static 
     {

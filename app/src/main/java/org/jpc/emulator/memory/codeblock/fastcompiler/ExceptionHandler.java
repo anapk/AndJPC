@@ -33,12 +33,20 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler;
 
-import java.io.*;
-import java.util.*;
+import android.support.annotation.NonNull;
 
 import org.jpc.classfile.ClassFile;
 
-import static org.jpc.classfile.JavaOpcode.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.jpc.classfile.JavaOpcode.IADD;
+import static org.jpc.classfile.JavaOpcode.ILOAD;
+import static org.jpc.classfile.JavaOpcode.IRETURN;
+import static org.jpc.classfile.JavaOpcode.LDC;
+import static org.jpc.classfile.JavaOpcode.LDC_W;
 
 /**
  * Stores state information related to a single exception path.  This includes
@@ -47,6 +55,7 @@ import static org.jpc.classfile.JavaOpcode.*;
  */
 public abstract class ExceptionHandler
 {
+    @NonNull
     private final Map<Integer, RPNNode> graphSinks;
     private final RPNNode throwingNode;
 
@@ -66,7 +75,7 @@ public abstract class ExceptionHandler
     {
 	graphSinks = new HashMap<>(stateMap);
 	for (int i = FASTCompiler.PROCESSOR_ELEMENT_COUNT; i < FASTCompiler.ELEMENT_COUNT; i++)
-	    graphSinks.remove(Integer.valueOf(i));
+	    graphSinks.remove(i);
 
 	this.lastX86Position = lastX86Position;
 	this.throwingNode = initialNode;
@@ -95,7 +104,7 @@ public abstract class ExceptionHandler
 
     int end() { return maxPC; }
 
-    void write(OutputStream byteCodes, ClassFile cf) throws IOException
+    void write(@NonNull OutputStream byteCodes, @NonNull ClassFile cf) throws IOException
     {
 	int affectedCount = 0;
         for (RPNNode rpn : graphSinks.values()) {
@@ -123,7 +132,7 @@ public abstract class ExceptionHandler
 	
 	RPNNode.writeBytecodes(byteCodes, cf, BytecodeFragments.pushCode(FASTCompiler.PROCESSOR_ELEMENT_EIP));
 // 	byteCodes.write(cf.addToConstantPool(Integer.valueOf(throwingNode.getX86Position())));
-	int cpIndex = cf.addToConstantPool(Integer.valueOf(lastX86Position));
+	int cpIndex = cf.addToConstantPool(lastX86Position);
 	if (cpIndex < 0x100) {
 	    byteCodes.write(LDC);
 	} else {

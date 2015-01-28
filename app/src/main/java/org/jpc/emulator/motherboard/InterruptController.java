@@ -33,11 +33,19 @@
 
 package org.jpc.emulator.motherboard;
 
-import org.jpc.emulator.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.Hibernatable;
 import org.jpc.emulator.processor.Processor;
 
-import java.io.*;
-import java.util.logging.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * i8259 Programmable Interrupt Controller emulation.
@@ -51,9 +59,12 @@ public class InterruptController extends AbstractHardwareComponent implements IO
 {
     private static final Logger LOGGING = Logger.getLogger(InterruptController.class.getName());
     
+    @NonNull
     private final InterruptControllerElement master;
+    @NonNull
     private final InterruptControllerElement slave;
 
+    @Nullable
     private Processor connectedCPU;
 
     /**
@@ -67,13 +78,13 @@ public class InterruptController extends AbstractHardwareComponent implements IO
 	slave = new InterruptControllerElement(false);
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         master.saveState(output);
         slave.saveState(output);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         ioportRegistered = false;
         master.loadState(input);
@@ -182,7 +193,7 @@ public class InterruptController extends AbstractHardwareComponent implements IO
 
 	public InterruptControllerElement(boolean master)
 	{
-	    if (master == true) {
+	    if (master) {
 		ioPorts = new int[]{0x20, 0x21, 0x4d0};
 		elcrMask = 0xf8;
 	    } else {
@@ -191,7 +202,7 @@ public class InterruptController extends AbstractHardwareComponent implements IO
 	    }
 	}
 
-        public void saveState(DataOutput output) throws IOException
+        public void saveState(@NonNull DataOutput output) throws IOException
         {
             output.writeInt(lastInterruptRequestRegister);
             output.writeInt(interruptRequestRegister);
@@ -214,7 +225,7 @@ public class InterruptController extends AbstractHardwareComponent implements IO
                 output.writeInt(port);
         }
 
-        public void loadState(DataInput input) throws IOException
+        public void loadState(@NonNull DataInput input) throws IOException
         {
             lastInterruptRequestRegister = input.readInt();
             interruptRequestRegister = input.readInt();
@@ -491,7 +502,8 @@ public class InterruptController extends AbstractHardwareComponent implements IO
 	    elcr = 0x0; //(elcr) PIIX3 edge/level trigger selection
 	}
 
-	public String toString()
+	@NonNull
+    public String toString()
 	{
 	    if (isMaster()) {
 		return (InterruptController.this).toString() + ": [Master Element]";
@@ -503,6 +515,7 @@ public class InterruptController extends AbstractHardwareComponent implements IO
 
 
     /* BEGIN IOPortCapable Defined Methods */
+    @NonNull
     public int[] ioPortsRequested()
     {
 	int[] masterIOPorts = master.ioPortsRequested();
@@ -624,6 +637,7 @@ public class InterruptController extends AbstractHardwareComponent implements IO
 	}
     }
 
+    @NonNull
     public String toString()
     {
 	return "Intel i8259 Programmable Interrupt Controller";

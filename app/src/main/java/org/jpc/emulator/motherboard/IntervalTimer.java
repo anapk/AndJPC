@@ -33,11 +33,19 @@
 
 package org.jpc.emulator.motherboard;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.Timer;
+import org.jpc.emulator.TimerResponsive;
 import org.jpc.emulator.peripheral.PCSpeaker;
 import org.jpc.support.Clock;
-import org.jpc.emulator.*;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * Emulation of an 8254 Interval Timer.
@@ -59,7 +67,9 @@ public class IntervalTimer extends AbstractHardwareComponent implements IOPortCa
     private static final int MODE_HARDWARE_TRIGGERED_STROBE = 5;
     public static final int PIT_FREQ = 1193182;
     private TimerChannel[] channels;
+    @Nullable
     private InterruptController irqDevice;
+    @Nullable
     private Clock timingSource;
     private PCSpeaker speaker;
     private boolean madeNewTimer;
@@ -93,14 +103,14 @@ public class IntervalTimer extends AbstractHardwareComponent implements IOPortCa
         ioPortBase = ioPort;
     }
 
-    public void saveState(DataOutput output) throws IOException {
+    public void saveState(@NonNull DataOutput output) throws IOException {
         output.writeInt(channels.length);
         for (TimerChannel channel : channels) {
             channel.saveState(output);
         }
     }
 
-    public void loadState(DataInput input) throws IOException {
+    public void loadState(@NonNull DataInput input) throws IOException {
         madeNewTimer = false;
         ioportRegistered = false;
         int len = input.readInt();
@@ -112,6 +122,7 @@ public class IntervalTimer extends AbstractHardwareComponent implements IOPortCa
         }
     }
 
+    @NonNull
     public int[] ioPortsRequested() {
         return new int[]{ioPortBase, ioPortBase + 1, ioPortBase + 2, ioPortBase + 3};
     }
@@ -241,7 +252,7 @@ public class IntervalTimer extends AbstractHardwareComponent implements IOPortCa
             nullCount = true;
         }
 
-        public void saveState(DataOutput output) throws IOException {
+        public void saveState(@NonNull DataOutput output) throws IOException {
             output.writeInt(countValue);
             output.writeInt(outputLatch);
             output.writeInt(inputLatch);
@@ -264,7 +275,7 @@ public class IntervalTimer extends AbstractHardwareComponent implements IOPortCa
             }
         }
 
-        public void loadState(DataInput input) throws IOException {
+        public void loadState(@NonNull DataInput input) throws IOException {
             countValue = input.readInt();
             outputLatch = input.readInt();
             inputLatch = input.readInt();
@@ -632,6 +643,7 @@ public class IntervalTimer extends AbstractHardwareComponent implements IOPortCa
         }
     }
 
+    @NonNull
     public String toString() {
         return "Intel i8254 Interval Timer";
     }

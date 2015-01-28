@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.attribute;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -47,14 +49,14 @@ public class EnclosingMethodAttribute extends AttributeInfo
     private int classIndex;
     private int methodIndex;
 
-    EnclosingMethodAttribute(DataInputStream in, int index) throws IOException
+    EnclosingMethodAttribute(@NonNull DataInputStream in, int index) throws IOException
     {
         super(in, index);
         classIndex = in.readUnsignedShort();
         methodIndex = in.readUnsignedShort();
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         super.write(out);
         out.writeShort(classIndex);

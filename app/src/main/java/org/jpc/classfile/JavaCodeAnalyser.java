@@ -33,6 +33,8 @@
 
 package org.jpc.classfile;
 
+import android.support.annotation.NonNull;
+
 /**
  * Provides static methods to calculate the maximal stack depth and local
  * variable usage of a given set of bytecode.
@@ -54,7 +56,7 @@ public class JavaCodeAnalyser
      * @param cf associated class file
      * @return maximum stack depth
      */
-    public static int getMaxStackDepth(byte[] code, int start, int end, ClassFile cf)
+    public static int getMaxStackDepth(@NonNull byte[] code, int start, int end, @NonNull ClassFile cf)
     {
 	int[] depth = new int[code.length];
            
@@ -97,7 +99,7 @@ public class JavaCodeAnalyser
      * @param code array of bytecodes
      * @return local variable slots used
      */
-    public static int getMaxLocalVariables(byte[] code)
+    public static int getMaxLocalVariables(@NonNull byte[] code)
     {
         int currentMax = 0;
 

@@ -33,7 +33,11 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler.virt;
 
-import org.jpc.emulator.processor.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import org.jpc.emulator.processor.ProcessorException;
+import org.jpc.emulator.processor.Segment;
 
 /**
  * 
@@ -41,6 +45,7 @@ import org.jpc.emulator.processor.*;
  */
 class Virtual8086ModeUCodeStaticMethods
 {
+    @NonNull
     private static final boolean[] parityMap;
     static 
     {
@@ -226,17 +231,17 @@ class Virtual8086ModeUCodeStaticMethods
         return immediate; 
     }
 
-    public static int reg0_hef_LOAD0_MEM_BYTE_seg0_addr0(Segment seg0, int addr0)
+    public static int reg0_hef_LOAD0_MEM_BYTE_seg0_addr0(@NonNull Segment seg0, int addr0)
     {
         return 0xff & seg0.getByte(addr0);
     }
 
-    public static int reg0_hef_LOAD0_MEM_WORD_seg0_addr0(Segment seg0, int addr0)
+    public static int reg0_hef_LOAD0_MEM_WORD_seg0_addr0(@NonNull Segment seg0, int addr0)
     {
         return 0xffff & seg0.getWord(addr0);
     }
 
-    public static int reg0_hef_LOAD0_MEM_DWORD_seg0_addr0(Segment seg0, int addr0)
+    public static int reg0_hef_LOAD0_MEM_DWORD_seg0_addr0(@NonNull Segment seg0, int addr0)
     {
         return seg0.getDoubleWord(addr0);
     }
@@ -399,17 +404,17 @@ class Virtual8086ModeUCodeStaticMethods
         return immediate; 
     }
 
-    public static int reg1_hef_LOAD1_MEM_BYTE_seg0_addr0(Segment seg0, int addr0)
+    public static int reg1_hef_LOAD1_MEM_BYTE_seg0_addr0(@NonNull Segment seg0, int addr0)
     {
         return 0xff & seg0.getByte(addr0);
     }
 
-    public static int reg1_hef_LOAD1_MEM_WORD_seg0_addr0(Segment seg0, int addr0)
+    public static int reg1_hef_LOAD1_MEM_WORD_seg0_addr0(@NonNull Segment seg0, int addr0)
     {
         return 0xffff & seg0.getWord(addr0);
     }
 
-    public static int reg1_hef_LOAD1_MEM_DWORD_seg0_addr0(Segment seg0, int addr0)
+    public static int reg1_hef_LOAD1_MEM_DWORD_seg0_addr0(@NonNull Segment seg0, int addr0)
     {
         return seg0.getDoubleWord(addr0);
     }
@@ -625,17 +630,17 @@ class Virtual8086ModeUCodeStaticMethods
 //        return gs;
 //    }
 
-    public static void memorywrite_hef_STORE0_MEM_BYTE_seg0_addr0_reg0(Segment seg0, int addr0, int reg0)
+    public static void memorywrite_hef_STORE0_MEM_BYTE_seg0_addr0_reg0(@NonNull Segment seg0, int addr0, int reg0)
     {
         seg0.setByte(addr0, (byte)reg0);
     }
 
-    public static void memorywrite_hef_STORE0_MEM_WORD_seg0_addr0_reg0(Segment seg0, int addr0, int reg0)
+    public static void memorywrite_hef_STORE0_MEM_WORD_seg0_addr0_reg0(@NonNull Segment seg0, int addr0, int reg0)
     {
         seg0.setWord(addr0, (short)reg0);
     }
 
-    public static void memorywrite_hef_STORE0_MEM_DWORD_seg0_addr0_reg0(Segment seg0, int addr0, int reg0)
+    public static void memorywrite_hef_STORE0_MEM_DWORD_seg0_addr0_reg0(@NonNull Segment seg0, int addr0, int reg0)
     {
         seg0.setDoubleWord(addr0, reg0);
     }
@@ -851,17 +856,17 @@ class Virtual8086ModeUCodeStaticMethods
 //        return gs;
 //    }
 
-    public static void memorywrite_hef_STORE1_MEM_BYTE_seg0_addr0_reg1(Segment seg0, int addr0, int reg1)
+    public static void memorywrite_hef_STORE1_MEM_BYTE_seg0_addr0_reg1(@NonNull Segment seg0, int addr0, int reg1)
     {
         seg0.setByte(addr0, (byte)reg1);
     }
 
-    public static void memorywrite_hef_STORE1_MEM_WORD_seg0_addr0_reg1(Segment seg0, int addr0, int reg1)
+    public static void memorywrite_hef_STORE1_MEM_WORD_seg0_addr0_reg1(@NonNull Segment seg0, int addr0, int reg1)
     {
         seg0.setWord(addr0, (short)reg1);
     }
 
-    public static void memorywrite_hef_STORE1_MEM_DWORD_seg0_addr0_reg1(Segment seg0, int addr0, int reg1)
+    public static void memorywrite_hef_STORE1_MEM_DWORD_seg0_addr0_reg1(@NonNull Segment seg0, int addr0, int reg1)
     {
         seg0.setDoubleWord(addr0, reg1);
     }
@@ -1101,6 +1106,7 @@ class Virtual8086ModeUCodeStaticMethods
         return 0;
     }
 
+    @Nullable
     public static Segment seg0_nef_MEM_RESET()
     {
         return null;
@@ -1777,10 +1783,8 @@ class Virtual8086ModeUCodeStaticMethods
 
     public static boolean oflag_nef_SAR_O8_FLAGS_oflag_reg1(boolean oflag, int reg1)
     {
-        if (reg1 == 1) 
-            return false;
+        return reg1 != 1 && oflag;
 
-        return oflag;
     }
 
     public static boolean pflag_nef_SAR_O8_FLAGS_pflag_reg0_reg1(boolean pflag, int reg0, int reg1)
@@ -1817,10 +1821,8 @@ class Virtual8086ModeUCodeStaticMethods
 
     public static boolean oflag_nef_SAR_O16_FLAGS_oflag_reg1(boolean oflag, int reg1)
     {
-        if (reg1 == 1) 
-            return false;
+        return reg1 != 1 && oflag;
 
-        return oflag;
     }
 
     public static boolean pflag_nef_SAR_O16_FLAGS_pflag_reg0_reg1(boolean pflag, int reg0, int reg1)
@@ -1857,10 +1859,8 @@ class Virtual8086ModeUCodeStaticMethods
 
     public static boolean oflag_nef_SAR_O32_FLAGS_oflag_reg1(boolean oflag, int reg1)
     {
-        if (reg1 == 1) 
-            return false;
+        return reg1 != 1 && oflag;
 
-        return oflag;
     }
 
     public static boolean pflag_nef_SAR_O32_FLAGS_pflag_reg0_reg1(boolean pflag, int reg0, int reg1)
@@ -2695,10 +2695,7 @@ class Virtual8086ModeUCodeStaticMethods
 
     public static boolean cflag_nef_ADC_O8_FLAGS_cflag_reg1_reg0(boolean cflag, int reg1, int reg0)
     {
-        if (cflag && (reg1 == 0xff)) 
-            return true;
-        else
-            return ((reg0 & (~0xff)) != 0);
+        return cflag && (reg1 == 0xff) || ((reg0 & (~0xff)) != 0);
     }
         
     public static boolean oflag_nef_ADC_O8_FLAGS_reg0_reg1_reg2(int reg0, int reg1, int reg2)
@@ -2733,10 +2730,7 @@ class Virtual8086ModeUCodeStaticMethods
 
     public static boolean cflag_nef_ADC_O16_FLAGS_cflag_reg1_reg0(boolean cflag, int reg1, int reg0)
     {
-	if (cflag && (reg1 == 0xffff))
-            return true;
-        else
-            return ((reg0 & (~0xffff)) != 0);
+        return cflag && (reg1 == 0xffff) || ((reg0 & (~0xffff)) != 0);
     }
 
     public static boolean oflag_nef_ADC_O16_FLAGS_reg0_reg1_reg2(int reg0, int reg1, int reg2)
@@ -3356,7 +3350,7 @@ class Virtual8086ModeUCodeStaticMethods
         return (eax | result);
     }
 
-    public static int eax_hef_LODSB_A16_eax_seg0_esi(int eax, Segment seg0, int esi)
+    public static int eax_hef_LODSB_A16_eax_seg0_esi(int eax, @NonNull Segment seg0, int esi)
     {
 	return (eax & ~0xff) | (0xff & seg0.getByte(esi & 0xffff));
     }
@@ -3373,7 +3367,7 @@ class Virtual8086ModeUCodeStaticMethods
 	return (esi & ~0xffff) | (addr & 0xffff);
     }
 
-    public static int eax_hef_LODSW_A16_eax_seg0_esi(int eax, Segment seg0, int esi)
+    public static int eax_hef_LODSW_A16_eax_seg0_esi(int eax, @NonNull Segment seg0, int esi)
     {
         return (eax & ~0xffff) | (0xffff & seg0.getWord(esi & 0xffff));
     }
@@ -3390,7 +3384,7 @@ class Virtual8086ModeUCodeStaticMethods
         return (esi & ~0xffff) | (addr & 0xffff);
     }
 
-    public static int eax_hef_LODSD_A16_seg0_esi(Segment seg0, int esi)
+    public static int eax_hef_LODSD_A16_seg0_esi(@NonNull Segment seg0, int esi)
     {
 	return seg0.getDoubleWord(esi & 0xffff);
     }
@@ -3431,7 +3425,7 @@ class Virtual8086ModeUCodeStaticMethods
         return (esi & ~0xffff) | (outAddr & 0xffff);
     }
 
-    public static void memorywrite_hef_MOVSB_A16_es_edi_seg0_esi(Segment es, int edi, Segment seg0, int esi)
+    public static void memorywrite_hef_MOVSB_A16_es_edi_seg0_esi(@NonNull Segment es, int edi, @NonNull Segment seg0, int esi)
     {
         es.setByte(edi & 0xffff, seg0.getByte(esi & 0xffff));
     }
@@ -3460,7 +3454,7 @@ class Virtual8086ModeUCodeStaticMethods
         return (esi & ~0xffff) | (outAddr & 0xffff);
     }
 
-    public static void memorywrite_hef_MOVSW_A16_es_edi_seg0_esi(Segment es, int edi, Segment seg0, int esi)
+    public static void memorywrite_hef_MOVSW_A16_es_edi_seg0_esi(@NonNull Segment es, int edi, @NonNull Segment seg0, int esi)
     {
         es.setWord(edi & 0xffff, seg0.getWord(esi & 0xffff));
     }
@@ -3489,7 +3483,7 @@ class Virtual8086ModeUCodeStaticMethods
         return (esi & ~0xffff) | (outAddr & 0xffff);
     }
 
-    public static void memorywrite_hef_MOVSD_A16_es_edi_seg0_esi(Segment es, int edi, Segment seg0, int esi)
+    public static void memorywrite_hef_MOVSD_A16_es_edi_seg0_esi(@NonNull Segment es, int edi, @NonNull Segment seg0, int esi)
     {
         es.setDoubleWord(edi & 0xffff, seg0.getDoubleWord(esi & 0xffff));
     }
@@ -3529,7 +3523,7 @@ class Virtual8086ModeUCodeStaticMethods
  	return (esp & ~0xffff) | (esp - 2) & 0xffff;
     }
 
-    public static void memorywrite_hef_PUSH_O16_A16_ss_reg0_esp(Segment ss, int reg0, int esp)
+    public static void memorywrite_hef_PUSH_O16_A16_ss_reg0_esp(@NonNull Segment ss, int reg0, int esp)
     {
         ss.setWord((esp - 2) & 0xffff, (short) reg0);
     }
@@ -3539,12 +3533,12 @@ class Virtual8086ModeUCodeStaticMethods
 	return (esp & ~0xffff) | (esp - 4) & 0xffff;
     }
 
-    public static void memorywrite_hef_PUSH_O32_A16_ss_reg0_esp(Segment ss, int reg0, int esp)
+    public static void memorywrite_hef_PUSH_O32_A16_ss_reg0_esp(@NonNull Segment ss, int reg0, int esp)
     {
         ss.setDoubleWord((esp - 4) & 0xffff, reg0);
     }
 
-    public static int reg0_hef_POP_O16_A16_ss_esp(Segment ss, int esp)
+    public static int reg0_hef_POP_O16_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return ss.getWord(esp & 0xffff); 
     }
@@ -3554,7 +3548,7 @@ class Virtual8086ModeUCodeStaticMethods
         return (esp & ~0xffff) | ((esp + 2) & 0xffff);		
     }
 
-    public static int reg0_hef_POP_O32_A16_ss_esp(Segment ss, int esp)
+    public static int reg0_hef_POP_O32_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return ss.getDoubleWord(esp & 0xffff); 
     }
@@ -3569,7 +3563,7 @@ class Virtual8086ModeUCodeStaticMethods
 	return (esp & ~0xffff) | (esp - 2) & 0xffff;
     }
 
-    public static void memorywrite_hef_PUSHF_O16_A16_ss_reg0_esp(Segment ss, int reg0, int esp)
+    public static void memorywrite_hef_PUSHF_O16_A16_ss_reg0_esp(@NonNull Segment ss, int reg0, int esp)
     {
         ss.setWord((esp - 2) & 0xffff, (short) reg0);
     }
@@ -3579,7 +3573,7 @@ class Virtual8086ModeUCodeStaticMethods
         return (esp & ~0xffff) | ((esp + 2) & 0xffff);		
     }
 
-    public static int reg0_hef_POPF_O16_A16_ss_esp(Segment ss, int esp)
+    public static int reg0_hef_POPF_O16_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return ss.getWord(esp & 0xffff);
     }
@@ -3589,7 +3583,7 @@ class Virtual8086ModeUCodeStaticMethods
 	return (esp & ~0xffff) | ((esp - 16) & 0xffff);
     }
 
-    public static void memorywrite_hef_PUSHA_A16_edi_esi_ebp_ebx_edx_ecx_eax_ss_esp(int edi, int esi, int ebp, int ebx, int edx, int ecx, int eax, Segment ss, int esp)
+    public static void memorywrite_hef_PUSHA_A16_edi_esi_ebp_ebx_edx_ecx_eax_ss_esp(int edi, int esi, int ebp, int ebx, int edx, int ecx, int eax, @NonNull Segment ss, int esp)
     {
 	int offset = esp & 0xffff;
 
@@ -4121,7 +4115,7 @@ class Virtual8086ModeUCodeStaticMethods
         return (edi & ~0xffff) | (inAddr & 0xffff);
     }
 
-    public static void memorywrite_hef_REP_STOSW_A16_dflag_reg0_es_edi_ecx(boolean dflag, int reg0, Segment es, int edi, int ecx)
+    public static void memorywrite_hef_REP_STOSW_A16_dflag_reg0_es_edi_ecx(boolean dflag, int reg0, @NonNull Segment es, int edi, int ecx)
     {
         int count = ecx & 0xffff;
         int addr = edi & 0xffff;
@@ -4215,7 +4209,7 @@ class Virtual8086ModeUCodeStaticMethods
 	    return (edi & ~0xffff) | ((edi + 1) & 0xffff);
     }
 
-    public static void memorywrite_hef_STOSB_A16_es_reg0_edi(Segment es, int reg0, int edi)
+    public static void memorywrite_hef_STOSB_A16_es_reg0_edi(@NonNull Segment es, int reg0, int edi)
     {
 	es.setByte(edi & 0xffff, (byte) reg0);
     }
@@ -4228,7 +4222,7 @@ class Virtual8086ModeUCodeStaticMethods
 	    return (edi & ~0xffff) | ((edi + 2) & 0xffff);
     }
 
-    public static void memorywrite_hef_STOSW_A16_es_reg0_edi(Segment es, int reg0, int edi)
+    public static void memorywrite_hef_STOSW_A16_es_reg0_edi(@NonNull Segment es, int reg0, int edi)
     {
 	es.setWord(edi & 0xffff, (short) reg0);		
     }
@@ -4241,7 +4235,7 @@ class Virtual8086ModeUCodeStaticMethods
 	    return (edi & ~0xffff) | ((edi + 4) & 0xffff);
     }
 
-    public static void memorywrite_hef_STOSD_A16_es_reg0_edi(Segment es, int reg0, int edi)
+    public static void memorywrite_hef_STOSD_A16_es_reg0_edi(@NonNull Segment es, int reg0, int edi)
     {
 	es.setDoubleWord(edi & 0xffff, reg0);
     }
@@ -4278,7 +4272,7 @@ class Virtual8086ModeUCodeStaticMethods
 
     public static boolean cflag_nef_CMC_cflag(boolean cflag)
     {
-        return cflag ^ true;
+        return !cflag;
     }
 
     public static int eip_nef_CALL_O16_A16_eip_reg0(int eip, int reg0)
@@ -4291,7 +4285,7 @@ class Virtual8086ModeUCodeStaticMethods
         return (esp & ~0xffff) | (esp - 2) & 0xffff;       
     }
 
-    public static void memorywrite_hef_CALL_O16_A16_ss_esp_eip(Segment ss, int esp, int eip)
+    public static void memorywrite_hef_CALL_O16_A16_ss_esp_eip(@NonNull Segment ss, int esp, int eip)
     {
         ss.setWord((esp - 2) & 0xffff, (short)eip);
     }
@@ -4306,7 +4300,7 @@ class Virtual8086ModeUCodeStaticMethods
         return (esp & 0xffff0000) | ((esp - 2) & 0xffff);
     }
 
-    public static void memorywrite_hef_CALL_ABS_O16_A16_ss_eip_esp(Segment ss, int eip, int esp)
+    public static void memorywrite_hef_CALL_ABS_O16_A16_ss_eip_esp(@NonNull Segment ss, int eip, int esp)
     {
         ss.setWord((esp - 2) & 0xffff, (short)eip);
     }
@@ -4333,7 +4327,7 @@ class Virtual8086ModeUCodeStaticMethods
 //        ss.setWord((esp - 4) & 0xffff, (short)eip);
 //    }
     
-    public static int eip_hef_RET_O16_A16_ss_esp(Segment ss, int esp)
+    public static int eip_hef_RET_O16_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return ss.getWord(esp & 0xffff) & 0xffff;
     }
@@ -4343,7 +4337,7 @@ class Virtual8086ModeUCodeStaticMethods
         return (esp & ~0xffff) | ((esp + 2) & 0xffff);
     }
 
-    public static int eip_hef_RET_IW_O16_A16_ss_esp(Segment ss, int esp)
+    public static int eip_hef_RET_IW_O16_A16_ss_esp(@NonNull Segment ss, int esp)
     {
         return ss.getWord(esp & 0xffff) & 0xffff;
     }
@@ -4396,7 +4390,7 @@ class Virtual8086ModeUCodeStaticMethods
 //         return (esp & ~0xffff) | ((esp - (reg0 + (((reg1 % 32) + 1) << 2))) & 0xffff);
     }
 
-    public static void memorywrite_hef_ENTER_O16_A16_ss_ebp_esp_reg1(Segment ss, int ebp, int esp, int reg1)
+    public static void memorywrite_hef_ENTER_O16_A16_ss_ebp_esp_reg1(@NonNull Segment ss, int ebp, int esp, int reg1)
     {
   	reg1 %= 32;
 
@@ -4422,7 +4416,7 @@ class Virtual8086ModeUCodeStaticMethods
 	}
     }
 
-    public static int ebp_hef_LEAVE_O16_A16_ss_ebp(Segment ss, int ebp)
+    public static int ebp_hef_LEAVE_O16_A16_ss_ebp(@NonNull Segment ss, int ebp)
     {
 	return (ebp & ~0xffff) | (ss.getWord(ebp & 0xffff) & 0xffff);
     }

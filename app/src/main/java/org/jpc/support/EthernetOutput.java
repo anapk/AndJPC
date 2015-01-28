@@ -33,6 +33,8 @@
 
 package org.jpc.support;
 
+import android.support.annotation.Nullable;
+
 /**
  * 
  * @author Ian Preston
@@ -40,5 +42,6 @@ package org.jpc.support;
 public abstract class EthernetOutput
 {
     public abstract void sendPacket(byte[] data, int offset, int length);
+    @Nullable
     public abstract byte[] getPacket();
 }

@@ -33,8 +33,11 @@
 
 package org.jpc.emulator.memory.codeblock;
 
-import org.jpc.emulator.processor.Processor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.jpc.emulator.memory.AddressSpace;
+import org.jpc.emulator.processor.Processor;
 
 /**
  * 
@@ -51,7 +54,8 @@ class SpanningRealModeCodeBlock extends SpanningCodeBlock implements RealModeCod
 	this.factories = factories;
     }
 
-    protected CodeBlock decode(Processor cpu)
+    @Nullable
+    protected CodeBlock decode(@NonNull Processor cpu)
     {
 	RealModeCodeBlock block = null;
 	AddressSpace memory = cpu.physicalMemory;
@@ -68,6 +72,7 @@ class SpanningRealModeCodeBlock extends SpanningCodeBlock implements RealModeCod
 	return block;
     }
 
+    @NonNull
     public String toString()
     {
 	return "Spanning Real Mode CodeBlock";

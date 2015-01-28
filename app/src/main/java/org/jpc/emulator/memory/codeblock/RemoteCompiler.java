@@ -33,12 +33,23 @@
 
 package org.jpc.emulator.memory.codeblock;
 
-import java.util.*;
-import java.net.*;
-import java.io.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
 
-import org.jpc.emulator.memory.codeblock.optimised.*;
+import org.jpc.emulator.memory.codeblock.optimised.ProtectedModeUBlock;
+import org.jpc.emulator.memory.codeblock.optimised.RealModeUBlock;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -56,10 +67,11 @@ public class RemoteCompiler implements CodeBlockCompiler
     private final CodeBlockCompiler immediate;
 
     private URLClassLoader urlClassLoader;
+    @NonNull
     private final LinkedList remoteClassQueue;
     private HashMap realClassCache, realBlockCache, protectedClassCache, protectedBlockCache;
 
-    private RemoteCompiler(CodeBlockCompiler immediate, String remoteServerURI)
+    private RemoteCompiler(CodeBlockCompiler immediate, @NonNull String remoteServerURI)
     {
         this.immediate = immediate;
         remoteClassQueue = new LinkedList();
@@ -239,6 +251,7 @@ public class RemoteCompiler implements CodeBlockCompiler
 	}
     }
 
+    @NonNull
     public RealModeCodeBlock getRealModeCodeBlock(InstructionSource source)
     {
         RealModeCodeBlock result = new RealModeCodeBlockWrapper(immediate.getRealModeCodeBlock(source));
@@ -250,6 +263,7 @@ public class RemoteCompiler implements CodeBlockCompiler
 	return result;
     }
 
+    @NonNull
     public ProtectedModeCodeBlock getProtectedModeCodeBlock(InstructionSource source)
     {
 	ProtectedModeCodeBlock result = new ProtectedModeCodeBlockWrapper(immediate.getProtectedModeCodeBlock(source));

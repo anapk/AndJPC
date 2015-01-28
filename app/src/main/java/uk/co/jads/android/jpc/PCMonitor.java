@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -18,6 +19,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class PCMonitor extends View {
+    @NonNull
     private final Paint solidPaint;
     private Bitmap bmp;
     private int[] buffer;
@@ -31,7 +33,7 @@ public class PCMonitor extends View {
         this.solidPaint = new Paint();
     }
 
-    public PCMonitor(final Context context, final AttributeSet set) {
+    public PCMonitor(@NonNull final Context context, final AttributeSet set) {
         super(context, set);
         this.solidPaint = new Paint();
     }
@@ -54,7 +56,7 @@ public class PCMonitor extends View {
         return this.pc;
     }
 
-    public void setPC(final PC pc) {
+    public void setPC(@NonNull final PC pc) {
         this.pc = pc;
         this.solidPaint.setStyle(Paint.Style.FILL);
         this.solidPaint.setARGB(255, 255, 255, 255);
@@ -68,7 +70,7 @@ public class PCMonitor extends View {
         }
     }
 
-    public void loadState(InputStream in) throws IOException {
+    public void loadState(@NonNull InputStream in) throws IOException {
         DataInputStream input = new DataInputStream(in);
         int len = input.readInt();
         int[] rawImageData = vgaCard.getDisplayBuffer();
@@ -88,7 +90,7 @@ public class PCMonitor extends View {
         }
     }
 
-    protected void onDraw(final Canvas canvas) {
+    protected void onDraw(@NonNull final Canvas canvas) {
         if (this.vgaCard != null) {
             final int width = this.vgaCard.getWidth();
             final int height = this.vgaCard.getHeight();
@@ -114,7 +116,7 @@ public class PCMonitor extends View {
         this.postInvalidate();
     }
 
-    public void saveState(OutputStream out) throws IOException {
+    public void saveState(@NonNull OutputStream out) throws IOException {
         int[] rawImageData = vgaCard.getDisplayBuffer();
         byte[] dummy = new byte[rawImageData.length * 4];
         for (int i = 0, j = 0; i < rawImageData.length; i++) {

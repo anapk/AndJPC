@@ -33,6 +33,8 @@
 
 package org.jpc.classfile.constantpool;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -46,7 +48,7 @@ public class StringInfo extends ConstantPoolInfo
 {
     private final int utf8Index;
 
-    StringInfo(DataInputStream in) throws IOException
+    StringInfo(@NonNull DataInputStream in) throws IOException
     {
         this(in.readUnsignedShort());
     }
@@ -71,7 +73,7 @@ public class StringInfo extends ConstantPoolInfo
         return utf8Index;
     }
 
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         out.writeByte(STRING);
         out.writeShort(utf8Index);
@@ -80,11 +82,11 @@ public class StringInfo extends ConstantPoolInfo
     public boolean equals(Object obj)
     {
         if (obj == this) return true;
-        if (!(obj instanceof StringInfo)) return false;
+        return obj instanceof StringInfo && getUtf8Index() == ((StringInfo) obj).getUtf8Index();
 
-        return getUtf8Index() == ((StringInfo) obj).getUtf8Index();
     }
 
+    @NonNull
     public String toString()
     {
         return "CONSTANT_String_info : string=" + getUtf8Index();

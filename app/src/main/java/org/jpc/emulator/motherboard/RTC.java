@@ -33,11 +33,22 @@
 
 package org.jpc.emulator.motherboard;
 
-import org.jpc.emulator.*;
-import org.jpc.emulator.peripheral.FloppyController;
-import org.jpc.support.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.PC;
+import org.jpc.emulator.Timer;
+import org.jpc.emulator.TimerResponsive;
+import org.jpc.emulator.peripheral.FloppyController;
+import org.jpc.support.BlockDevice;
+import org.jpc.support.Clock;
+import org.jpc.support.DriveSet;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.Calendar;
 
 /**
@@ -91,9 +102,12 @@ public class RTC extends AbstractHardwareComponent implements IOPortCapable
     private PeriodicCallback periodicCallback;
     private SecondCallback secondCallback;
     private DelayedSecondCallback delayedSecondCallback;
+    @Nullable
     private InterruptController irqDevice;
+    @Nullable
     private Clock timeSource;
     private int ioPortBase;
+    @Nullable
     private DriveSet.BootType bootType;
     private boolean ioportRegistered;
     private boolean drivesInited;
@@ -126,7 +140,7 @@ public class RTC extends AbstractHardwareComponent implements IOPortCapable
         delayedSecondCallback = new DelayedSecondCallback();
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(cmosData.length);
         output.write(cmosData);
@@ -146,7 +160,7 @@ public class RTC extends AbstractHardwareComponent implements IOPortCapable
         delayedSecondTimer.saveState(output);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         ioportRegistered = false;
         int len = input.readInt();
@@ -228,7 +242,7 @@ public class RTC extends AbstractHardwareComponent implements IOPortCapable
         }
     }
 
-    private void cmosInitHD(DriveSet drives)
+    private void cmosInitHD(@NonNull DriveSet drives)
     {
         BlockDevice drive0 = drives.getHardDrive(0);
         BlockDevice drive1 = drives.getHardDrive(1);
@@ -277,7 +291,7 @@ public class RTC extends AbstractHardwareComponent implements IOPortCapable
         cmosData[0x39] = (byte) value;
     }
 
-    private void cmosInitFloppy(FloppyController fdc)
+    private void cmosInitFloppy(@NonNull FloppyController fdc)
     {
         int val = (cmosGetFDType(fdc, 0) << 4) | cmosGetFDType(fdc, 1);
         cmosData[0x10] = (byte) val;
@@ -303,7 +317,7 @@ public class RTC extends AbstractHardwareComponent implements IOPortCapable
         cmosData[RTC_REG_EQUIPMENT_BYTE] = (byte) val;
     }
 
-    private int cmosGetFDType(FloppyController fdc, int drive)
+    private int cmosGetFDType(@NonNull FloppyController fdc, int drive)
     {
         switch (fdc.getDriveType(drive)) {
             case DRIVE_144:
@@ -317,6 +331,7 @@ public class RTC extends AbstractHardwareComponent implements IOPortCapable
         }
     }
 
+    @NonNull
     public int[] ioPortsRequested()
     {
         int base = ioPortBase;
@@ -501,7 +516,7 @@ public class RTC extends AbstractHardwareComponent implements IOPortCapable
             }
     }
 
-    private void setTime(Calendar date)
+    private void setTime(@NonNull Calendar date)
     {
         this.currentTime = Calendar.getInstance(date.getTimeZone());
         this.currentTime.setTime(date.getTime());
@@ -671,6 +686,7 @@ public class RTC extends AbstractHardwareComponent implements IOPortCapable
         }
     }
 
+    @NonNull
     public String toString()
     {
         return "MC146818 RealTime Clock";

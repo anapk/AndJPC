@@ -33,6 +33,8 @@
 
 package org.jpc.emulator.pci;
 
+import android.support.annotation.Nullable;
+
 /**
  * A <code>PCIDevice</code> object can be registered with a <code>PCIBus</code>
  * object which will configure it and organise the allocation of its resources.
@@ -221,6 +223,7 @@ public interface PCIDevice
      * @param number <code>IORegion</code> number.
      * @return <code>IORegion</code> with number <code>number</code>.
      */
+    @Nullable
     public IORegion getIORegion(int number);
 
     public void setIRQIndex(int irqIndex);

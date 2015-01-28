@@ -33,14 +33,23 @@
 
 package org.jpc.emulator.memory.codeblock.fastcompiler;
 
-import java.io.*;
-import java.util.MissingResourceException;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
 
+import org.jpc.classfile.ClassFile;
+import org.jpc.emulator.memory.codeblock.CodeBlock;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.MissingResourceException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import org.jpc.emulator.memory.codeblock.CodeBlock;
-import org.jpc.classfile.ClassFile;
 
 /**
  * Provides access to <code>ClassFile</code> instances constructed from the
@@ -53,6 +62,7 @@ class ClassFileBuilder {
 
     private static final Logger LOGGING = Logger.getLogger(ClassFileBuilder.class.getName());
     private static final int CLASSES_PER_LOADER = 10;
+    @NonNull
     private static final InputStream realModeSkeleton,  virtual8086ModeSkeleton,  protectedModeSkeleton;
     private static CustomClassLoader currentClassLoader;
     private static ZipOutputStream zip;
@@ -92,7 +102,8 @@ class ClassFileBuilder {
         saveClasses = false;
     }
 
-    private static InputStream loadSkeletonClass(Class clz) throws IOException {
+    @NonNull
+    private static InputStream loadSkeletonClass(@NonNull Class clz) throws IOException {
         InputStream in = clz.getResourceAsStream(clz.getSimpleName() + ".class");
         if (in == null) {
             throw new MissingResourceException("Skeleton class not found, mistake in packaging?", clz.getName(), clz.getSimpleName() + ".class");
@@ -122,6 +133,7 @@ class ClassFileBuilder {
      * template class.
      * @return Real-mode codeblock template.
      */
+    @NonNull
     public static ClassFile createNewRealModeSkeletonClass() {
         ClassFile cf = new ClassFile();
 
@@ -135,6 +147,7 @@ class ClassFileBuilder {
         return cf;
     }
 
+    @NonNull
     public static ClassFile createNewVirtual8086ModeSkeletonClass() {
         ClassFile cf = new ClassFile();
 
@@ -154,6 +167,7 @@ class ClassFileBuilder {
      * template class.
      * @return Protected-mode codeblock template.
      */
+    @NonNull
     public static ClassFile createNewProtectedModeSkeletonClass() {
         ClassFile cf = new ClassFile();
 
@@ -173,7 +187,8 @@ class ClassFileBuilder {
      * @param cf Class to be loaded and instantiated.
      * @return Singleton instance of the given class.
      */
-    public static CodeBlock instantiateClass(ClassFile cf) throws InstantiationException {
+    @NonNull
+    public static CodeBlock instantiateClass(@NonNull ClassFile cf) throws InstantiationException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             cf.write(bos);
@@ -222,13 +237,14 @@ class ClassFileBuilder {
             super(CustomClassLoader.class.getClassLoader());
         }
 
-        public Class createClass(String name, byte[] b) {
+        public Class createClass(String name, @NonNull byte[] b) {
 //	    if (++classesCount == CLASSES_PER_LOADER)
 //		newClassLoader();
 
             return defineClass(name, b, 0, b.length);
         }
 
+        @NonNull
         @Override
         protected Class findClass(String name) throws ClassNotFoundException {
             throw new ClassNotFoundException(name);

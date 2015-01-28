@@ -33,15 +33,19 @@
 
 package org.jpc.storage;
 
-import java.net.*;
-import java.io.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.io.IOException;
+import java.net.URI;
 
 class SeekableDataIOFactory {
 
     private static final String RAW = "raw";
     private static final String VMDK = "vmdk";
 
-    public static SeekableDataIO open(URI uri, String format) throws IOException
+    @NonNull
+    public static SeekableDataIO open(@NonNull URI uri, @NonNull String format) throws IOException
     {
         switch (format) {
             case RAW:
@@ -56,7 +60,8 @@ class SeekableDataIOFactory {
     }
 
     
-    public static SeekableDataIO open(URI uri) throws IOException
+    @Nullable
+    public static SeekableDataIO open(@NonNull URI uri) throws IOException
     {
         SeekableDataIO sid = new Raw(uri);
         byte[] header = new byte[512];
@@ -74,7 +79,8 @@ class SeekableDataIOFactory {
     }
 
 
-    public static SeekableDataIO create(URI uri, long length, String format) throws IOException
+    @NonNull
+    public static SeekableDataIO create(@NonNull URI uri, long length, @NonNull String format) throws IOException
     {
         switch (format) {
             case RAW:

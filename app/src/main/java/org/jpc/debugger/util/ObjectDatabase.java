@@ -34,7 +34,13 @@
 
 package org.jpc.debugger.util;
 
-import java.util.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 class ObjectDatabase
 {
@@ -42,10 +48,10 @@ class ObjectDatabase
 
     public ObjectDatabase()
     {
-        table = new HashMap<Class, Object>();
+        table = new HashMap<>();
     }
     
-    public synchronized boolean addObject(Object value)
+    public synchronized boolean addObject(@Nullable Object value)
     {
         if (value == null)
             return false;
@@ -64,7 +70,8 @@ class ObjectDatabase
         return table.get(cls);
     }
 
-    public synchronized Object removeObject(Object obj)
+    @Nullable
+    public synchronized Object removeObject(@Nullable Object obj)
     {
         if (obj == null)
             return null;
@@ -72,7 +79,8 @@ class ObjectDatabase
         return removeObject(obj.getClass());
     }
 
-    synchronized Object removeObject(Class cls)
+    @Nullable
+    synchronized Object removeObject(@Nullable Class cls)
     {
         if (cls == null)
             return null;
@@ -80,8 +88,9 @@ class ObjectDatabase
         return table.remove(cls);
     }
 
+    @NonNull
     public synchronized List<Object> entries()
     {
-        return new ArrayList<Object>(table.values());
+        return new ArrayList<>(table.values());
     }
 }

@@ -33,7 +33,12 @@
 
 package org.jpc.classfile.constantpool;
 
-import java.io.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * Abstract superclass of all constant pool entry objects.
@@ -80,7 +85,8 @@ public abstract class ConstantPoolInfo
      * @return relevant <code>ConstantPoolInfo</code> subclass
      * @throws java.io.IOException on an underlying stream error.
      */
-    public static ConstantPoolInfo construct(DataInputStream in) throws IOException
+    @Nullable
+    public static ConstantPoolInfo construct(@NonNull DataInputStream in) throws IOException
     {
         switch (in.readUnsignedByte())
         {

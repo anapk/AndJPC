@@ -33,6 +33,8 @@
 
 package org.jpc.support;
 
+import android.support.annotation.NonNull;
+
 /**
  * Provides simple command line parsing for the various frontends to the
  * emulator.
@@ -48,7 +50,7 @@ public class ArgProcessor
      * @param defaultValue value returned on failure
      * @return result, or <code>defaultValue</code> on failure
      */
-    public static String findVariable(String[] args, String key, String defaultValue)
+    public static String findVariable(@NonNull String[] args, @NonNull String key, String defaultValue)
     {           
         int keyIndex = findKey(args, key);
         if (keyIndex < 0)
@@ -67,12 +69,12 @@ public class ArgProcessor
      * @param flag parameter to search for
      * @return true if flag is found
      */
-    public static boolean findFlag(String[] args, String flag)
+    public static boolean findFlag(@NonNull String[] args, @NonNull String flag)
     {
         return findKey(args, flag) >= 0;
     }
 
-    private static int findKey(String[] args, String key)
+    private static int findKey(@NonNull String[] args, @NonNull String key)
     {
         if (key.startsWith("-"))
             key = key.substring(1);

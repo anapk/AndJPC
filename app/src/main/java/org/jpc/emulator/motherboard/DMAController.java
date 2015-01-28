@@ -33,10 +33,19 @@
 
 package org.jpc.emulator.motherboard;
 
-import org.jpc.emulator.*;
-import org.jpc.emulator.memory.*;
-import java.io.*;
-import java.util.logging.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.HardwareComponent;
+import org.jpc.emulator.Hibernatable;
+import org.jpc.emulator.memory.PhysicalAddressSpace;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Emulation of an 8237 Direct Memory Access Controller
@@ -80,6 +89,7 @@ public class DMAController extends AbstractHardwareComponent implements IOPortCa
     private int dShift;
     private int ioBase,  pageLowBase,  pageHighBase;
     private int controllerNumber;
+    @Nullable
     private PhysicalAddressSpace memory;
     private DMAChannel[] dmaChannels;
 
@@ -93,10 +103,11 @@ public class DMAController extends AbstractHardwareComponent implements IOPortCa
         public int baseAddress,  baseWordCount;
         public int mode;
         public int dack,  eop;
+        @Nullable
         public DMATransferCapable transferDevice;
         public int pageLow,  pageHigh;
 
-        public void saveState(DataOutput output) throws IOException
+        public void saveState(@NonNull DataOutput output) throws IOException
         {
             output.writeInt(currentAddress);
             output.writeInt(currentWordCount);
@@ -111,7 +122,7 @@ public class DMAController extends AbstractHardwareComponent implements IOPortCa
 
         }
 
-        public void loadState(DataInput input) throws IOException
+        public void loadState(@NonNull DataInput input) throws IOException
         {
             currentAddress = input.readInt();
             currentWordCount = input.readInt();
@@ -224,7 +235,7 @@ public class DMAController extends AbstractHardwareComponent implements IOPortCa
         reset();
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(status);
         output.writeInt(command);
@@ -239,7 +250,7 @@ public class DMAController extends AbstractHardwareComponent implements IOPortCa
         for (DMAChannel dmaChannel : dmaChannels) dmaChannel.saveState(output);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         ioportRegistered = false;
         status =
@@ -730,6 +741,7 @@ public class DMAController extends AbstractHardwareComponent implements IOPortCa
 
     }
 
+    @NonNull
     public String toString()
     {
         return "DMA Controller [element " + dShift + "]";

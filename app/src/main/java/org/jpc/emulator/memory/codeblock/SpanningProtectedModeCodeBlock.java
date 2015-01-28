@@ -33,8 +33,11 @@
 
 package org.jpc.emulator.memory.codeblock;
 
-import org.jpc.emulator.processor.Processor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.jpc.emulator.memory.AddressSpace;
+import org.jpc.emulator.processor.Processor;
 
 /**
  * 
@@ -57,7 +60,8 @@ class SpanningProtectedModeCodeBlock extends SpanningCodeBlock implements Protec
         return length;
     }
     
-    protected CodeBlock decode(Processor cpu)
+    @Nullable
+    protected CodeBlock decode(@NonNull Processor cpu)
     {
 	ProtectedModeCodeBlock block = null;
 	AddressSpace memory = cpu.linearMemory;
@@ -74,6 +78,7 @@ class SpanningProtectedModeCodeBlock extends SpanningCodeBlock implements Protec
 	return block;
     }
     
+    @NonNull
     public String toString()
     {
 	return "Spanning Protected Mode CodeBlock";

@@ -33,8 +33,14 @@
 
 package org.jpc.emulator.pci;
 
-import org.jpc.emulator.*;
-import java.io.*;
+import android.support.annotation.NonNull;
+
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.HardwareComponent;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * Provides a default implementations for the core features of a standard PCI
@@ -56,7 +62,7 @@ public abstract class AbstractPCIDevice extends AbstractHardwareComponent implem
         configuration = new byte[256];
     }
 
-    public void saveState(DataOutput output) throws IOException
+    public void saveState(@NonNull DataOutput output) throws IOException
     {
         output.writeInt(irq);
         output.writeInt(deviceFunctionNumber);
@@ -64,7 +70,7 @@ public abstract class AbstractPCIDevice extends AbstractHardwareComponent implem
         output.write(configuration);
     }
 
-    public void loadState(DataInput input) throws IOException
+    public void loadState(@NonNull DataInput input) throws IOException
     {
         irq = input.readInt();
         deviceFunctionNumber = input.readInt();
@@ -185,10 +191,7 @@ public abstract class AbstractPCIDevice extends AbstractHardwareComponent implem
         if (checkConfigWrite(address))
             putConfigByte(address, data);
 
-        if (address >= PCI_CONFIG_COMMAND && address < (PCI_CONFIG_COMMAND + 2))
-            /* if the command register is modified, we must modify the mappings */
-            return true;
-        return false;
+        return address >= PCI_CONFIG_COMMAND && address < (PCI_CONFIG_COMMAND + 2);
     }
 
     public final boolean configWriteWord(int address, short data) //returns true if device needs remapping
@@ -202,10 +205,7 @@ public abstract class AbstractPCIDevice extends AbstractHardwareComponent implem
             data >>>= 8;
         }
 
-        if ((modAddress > PCI_CONFIG_COMMAND) && (address < (PCI_CONFIG_COMMAND + 2)))
-            // if the command register is modified, we must modify the mappings 
-            return true;
-        return false;
+        return (modAddress > PCI_CONFIG_COMMAND) && (address < (PCI_CONFIG_COMMAND + 2));
     }
 
     public final boolean configWriteLong(int address, int data)
@@ -238,10 +238,7 @@ public abstract class AbstractPCIDevice extends AbstractHardwareComponent implem
             data = data >>> 8;
         }
 
-        if (modAddress > PCI_CONFIG_COMMAND && address < (PCI_CONFIG_COMMAND + 2))
-            /* if the command register is modified, we must modify the mappings */
-            return true;
-        return false;
+        return modAddress > PCI_CONFIG_COMMAND && address < (PCI_CONFIG_COMMAND + 2);
     }
 
     public final byte configReadByte(int address)

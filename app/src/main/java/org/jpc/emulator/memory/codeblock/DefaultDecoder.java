@@ -30,13 +30,19 @@
 
 package org.jpc.emulator.memory.codeblock;
 
-import org.jpc.emulator.memory.codeblock.optimised.*;
-import java.lang.reflect.*;
-import java.util.*;
+import android.support.annotation.NonNull;
+
+import org.jpc.emulator.memory.codeblock.optimised.MicrocodeSet;
+import org.jpc.emulator.memory.codeblock.optimised.ProtectedModeUDecoder;
+import org.jpc.emulator.memory.codeblock.optimised.RealModeUDecoder;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Hashtable;
 
 class DefaultDecoder
 {
-    public static void main(String[] args)
+    public static void main(@NonNull String[] args)
     {
         String hex = getArg(args, "-rm", null);
         if (hex != null)
@@ -52,7 +58,7 @@ class DefaultDecoder
             decodeVM8086(hex);
     }
 
-    private static void decodeReal(String hex)
+    private static void decodeReal(@NonNull String hex)
     {
         Decoder d = new RealModeUDecoder();
         byte[] x86 = hexToBytes(hex);
@@ -60,7 +66,7 @@ class DefaultDecoder
         printInstructions(ins);
     }
 
-    private static void decodeProtected(String hex, boolean operandSize)
+    private static void decodeProtected(@NonNull String hex, boolean operandSize)
     {
         Decoder d = new ProtectedModeUDecoder();
         byte[] x86 = hexToBytes(hex);
@@ -68,7 +74,7 @@ class DefaultDecoder
         printInstructions(ins);
     }
 
-    private static void decodeVM8086(String hex)
+    private static void decodeVM8086(@NonNull String hex)
     {
         Decoder d = new RealModeUDecoder();
         byte[] x86 = hexToBytes(hex);
@@ -76,7 +82,7 @@ class DefaultDecoder
         printInstructions(ins);
     }
 
-    private static void printInstructions(InstructionSource ins)
+    private static void printInstructions(@NonNull InstructionSource ins)
     {
         while (ins.getNext())
         {
@@ -91,7 +97,8 @@ class DefaultDecoder
         }
     }
 
-    private static byte[] hexToBytes(String hex)
+    @NonNull
+    private static byte[] hexToBytes(@NonNull String hex)
     {
         int len = hex.length();
         byte[] res = new byte[len/2];
@@ -122,10 +129,10 @@ class DefaultDecoder
                 reflectedNameCache.put(String.valueOf(value), f.getName());
             }
         }
-        catch (Throwable t) {}
+        catch (Throwable ignored) {}
     }
 
-    private static String getArg(String[] args, String arg, String def)
+    private static String getArg(@NonNull String[] args, String arg, String def)
     {
         for (int i=0; i < args.length; i++)
             if (args[i].equals(arg))

@@ -33,11 +33,16 @@
 
 package org.jpc.emulator.motherboard;
 
-import java.io.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import org.jpc.emulator.*;
+import org.jpc.emulator.AbstractHardwareComponent;
+import org.jpc.emulator.HardwareComponent;
 import org.jpc.emulator.memory.PhysicalAddressSpace;
 import org.jpc.emulator.processor.Processor;
+
+import java.io.DataInput;
+import java.io.IOException;
 
 /**
  * I/O Device mapped to port 0x92 that controls the enabled status of the 20th
@@ -46,7 +51,9 @@ import org.jpc.emulator.processor.Processor;
  */
 public class GateA20Handler extends AbstractHardwareComponent implements IOPortCapable
 {
+    @Nullable
     private Processor cpu;
+    @Nullable
     private PhysicalAddressSpace physicalAddressSpace;
     private boolean ioportRegistered;
 
@@ -108,6 +115,7 @@ public class GateA20Handler extends AbstractHardwareComponent implements IOPortC
 	return ioPortReadByte(address) | 0xffffff00;
     }
 
+    @NonNull
     public int[] ioPortsRequested()
     {
 	return new int[] {0x92};

@@ -33,9 +33,15 @@
 
 package org.jpc.classfile.attribute;
 
-import org.jpc.classfile.constantpool.*;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.io.*;
+import org.jpc.classfile.constantpool.ConstantPoolInfo;
+import org.jpc.classfile.constantpool.Utf8Info;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * Abstract superclass for all attribute types.
@@ -55,7 +61,7 @@ public abstract class AttributeInfo
      * @param index constant pool name index
      * @throws java.io.IOException on an underlying stream error
      */
-    AttributeInfo(DataInputStream in, int index) throws IOException
+    AttributeInfo(@NonNull DataInputStream in, int index) throws IOException
     {
         attributeNameIndex = index;
         attributeLength = in.readInt();
@@ -70,7 +76,7 @@ public abstract class AttributeInfo
      * @param out stream to write to
      * @throws java.io.IOException on an underlying stream error
      */
-    public void write(DataOutputStream out) throws IOException
+    public void write(@NonNull DataOutputStream out) throws IOException
     {
         out.writeShort(attributeNameIndex);
         out.writeInt(attributeLength);
@@ -84,7 +90,8 @@ public abstract class AttributeInfo
      * @return instance of AttributeInfo subclass
      * @throws java.io.IOException on an underlying stream error
      */
-    public static AttributeInfo construct(DataInputStream in, ConstantPoolInfo[] pool) throws IOException
+    @Nullable
+    public static AttributeInfo construct(@NonNull DataInputStream in, ConstantPoolInfo[] pool) throws IOException
     {
         int index = in.readUnsignedShort();
 
