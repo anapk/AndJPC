@@ -18,21 +18,21 @@ class KeyboardEmulator
     
     public boolean onKeyDown(final int n, final KeyEvent keyEvent) {
         boolean isShiftHeld = true;
-        if (n == 82) {
+        if (n == KeyEvent.KEYCODE_MENU) {
             isShiftHeld = false;
         }
         else {
             Log.i("JPC", "Keyboard input with key code " + n);
-            if (this.isShiftHeld && n == 56) {
+            if (this.isShiftHeld && n == KeyEvent.KEYCODE_PERIOD) {
                 this.keyboard.keyPressed((byte)39);
             }
-            else if (n == 67) {
+            else if (n == KeyEvent.KEYCODE_DEL) {
                 this.keyboard.keyPressed((byte)14);
             }
             else {
                 this.keyboard.keyPressed(KeyMapping.getScancode(n));
             }
-            if (n == 59 || n == 60) {
+            if (n == KeyEvent.KEYCODE_SHIFT_LEFT || n == KeyEvent.KEYCODE_SHIFT_RIGHT) { // use isShiftPressed()?
                 return this.isShiftHeld = isShiftHeld;
             }
         }
@@ -40,11 +40,11 @@ class KeyboardEmulator
     }
     
     public boolean onKeyUp(final int n, final KeyEvent keyEvent) {
-        if (n == 82) {
+        if (n == KeyEvent.KEYCODE_MENU) {
             return false;
         }
         this.keyboard.keyReleased(KeyMapping.getScancode(n));
-        if (n == 59 || n == 60) {
+        if (n == KeyEvent.KEYCODE_SHIFT_LEFT || n == KeyEvent.KEYCODE_SHIFT_RIGHT) {
             this.isShiftHeld = false;
         }
         return true;

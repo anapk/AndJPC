@@ -73,6 +73,7 @@ public final class DefaultVGACard extends VGACard
 
     @Override
     public void saveScreenshot() {
+        throw new RuntimeException("Not implemented");
     }
 
     public void setDisplayBuffer(final int[] rawImageData, final int width, final int height) {

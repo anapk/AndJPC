@@ -1,20 +1,28 @@
 package uk.co.jads.android.jpc;
 
-import android.view.*;
-import android.content.*;
-import android.util.*;
-import java.io.*;
-import android.graphics.*;
-import org.jpc.emulator.pci.peripheral.*;
-import org.jpc.emulator.*;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.util.AttributeSet;
+import android.view.View;
 
-public class PCMonitor extends View
-{
+import org.jpc.emulator.PC;
+import org.jpc.emulator.pci.peripheral.DefaultVGACard;
+import org.jpc.emulator.pci.peripheral.VGACard;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+public class PCMonitor extends View {
+    private final Paint solidPaint;
     private Bitmap bmp;
     private int[] buffer;
     private OnScreenButtons overlay;
     private PC pc;
-    private final Paint solidPaint;
     private Updater updater;
     private DefaultVGACard vgaCard;
 
@@ -27,55 +35,59 @@ public class PCMonitor extends View
         super(context, set);
         this.solidPaint = new Paint();
     }
-    
+
     int getOutputHeight() {
         if (this.vgaCard == null) {
             return 0;
         }
         return this.vgaCard.getHeight();
     }
-    
+
     int getOutputWidth() {
         if (this.vgaCard == null) {
             return 0;
         }
         return this.vgaCard.getWidth();
     }
-    
+
     protected PC getPC() {
         return this.pc;
     }
-    
+
+    public void setPC(final PC pc) {
+        this.pc = pc;
+        this.solidPaint.setStyle(Paint.Style.FILL);
+        this.solidPaint.setARGB(255, 255, 255, 255);
+        (this.vgaCard = (DefaultVGACard) pc.getComponent(VGACard.class)).setMonitor(this);
+        this.vgaCard.resizeDisplay(640, 480);
+    }
+
     public boolean isRunning() {
         synchronized (this) {
             return this.updater != null && this.updater.running;
         }
     }
-    
-    public void loadState(final InputStream inputStream) throws IOException {
-        final DataInputStream dataInputStream = new DataInputStream(inputStream);
-        final int int1 = dataInputStream.readInt();
-        final int[] displayBuffer = this.vgaCard.getDisplayBuffer();
-        if (int1 != displayBuffer.length) {
+
+    public void loadState(InputStream in) throws IOException {
+        DataInputStream input = new DataInputStream(in);
+        int len = input.readInt();
+        int[] rawImageData = vgaCard.getDisplayBuffer();
+        if (len != rawImageData.length) {
             throw new IOException("Image size not consistent with saved image state");
         }
-        final byte[] array = new byte[int1 * 4];
-        dataInputStream.readFully(array);
-        int i = 0;
-        int n = 0;
-        while (i < int1) {
-            final int n2 = n + 1;
-            final int n3 = (0xFF & array[n]) << 24;
-            final int n4 = n2 + 1;
-            final int n5 = n3 | (0xFF & array[n2]) << 16;
-            final int n6 = n4 + 1;
-            final int n7 = n5 | (0xFF & array[n4]) << 8;
-            n = n6 + 1;
-            displayBuffer[i] = (n7 | (0xFF & array[n6]));
-            ++i;
+        byte[] dummy = new byte[len * 4];
+        input.readFully(dummy);
+        for (int i = 0, j = 0; i < len; i++) {
+            int val = 0;
+            val |= (0xff & dummy[j++]) << 24;
+            val |= (0xff & dummy[j++]) << 16;
+            val |= (0xff & dummy[j++]) << 8;
+            val |= 0xff & dummy[j++];
+
+            rawImageData[i] = val;
         }
     }
-    
+
     protected void onDraw(final Canvas canvas) {
         if (this.vgaCard != null) {
             final int width = this.vgaCard.getWidth();
@@ -89,7 +101,7 @@ public class PCMonitor extends View
             }
         }
     }
-    
+
     public void resizeDisplay(final int n, final int n2) {
         if (this.vgaCard == null || n == 0 || n2 == 0) {
             return;
@@ -101,48 +113,35 @@ public class PCMonitor extends View
         }
         this.postInvalidate();
     }
-    
-    public void saveState(final OutputStream outputStream) throws IOException {
-        final int[] displayBuffer = this.vgaCard.getDisplayBuffer();
-        final byte[] array = new byte[4 * displayBuffer.length];
-        int i = 0;
-        int n = 0;
-        while (i < displayBuffer.length) {
-            final int n2 = displayBuffer[i];
-            final int n3 = n + 1;
-            array[n] = (byte)(n2 >> 24);
-            final int n4 = n3 + 1;
-            array[n3] = (byte)(n2 >> 16);
-            final int n5 = n4 + 1;
-            array[n4] = (byte)(n2 >> 8);
-            n = n5 + 1;
-            array[n5] = (byte)n2;
-            ++i;
+
+    public void saveState(OutputStream out) throws IOException {
+        int[] rawImageData = vgaCard.getDisplayBuffer();
+        byte[] dummy = new byte[rawImageData.length * 4];
+        for (int i = 0, j = 0; i < rawImageData.length; i++) {
+            int val = rawImageData[i];
+            dummy[j++] = (byte) (val >> 24);
+            dummy[j++] = (byte) (val >> 16);
+            dummy[j++] = (byte) (val >> 8);
+            dummy[j++] = (byte) (val);
         }
-        new DataOutputStream(outputStream).writeInt(displayBuffer.length);
-        outputStream.write(array);
-        outputStream.flush();
+
+        DataOutputStream output = new DataOutputStream(out);
+        output.writeInt(rawImageData.length);
+        out.write(dummy);
+        out.flush();
     }
-    
-    public void setPC(final PC pc) {
-        this.pc = pc;
-        this.solidPaint.setStyle(Paint.Style.FILL);
-        this.solidPaint.setARGB(255, 255, 255, 255);
-        (this.vgaCard = (DefaultVGACard)pc.getComponent(VGACard.class)).setMonitor(this);
-        this.vgaCard.resizeDisplay(640, 480);
-    }
-    
+
     public void setScreenOverlay(final OnScreenButtons overlay) {
         this.overlay = overlay;
     }
-    
+
     public void startUpdateThread() {
         synchronized (this) {
             this.stopUpdateThread();
             (this.updater = new Updater()).start();
         }
     }
-    
+
     public void stopUpdateThread() {
         synchronized (this) {
             if (this.updater != null) {
@@ -150,24 +149,23 @@ public class PCMonitor extends View
             }
         }
     }
-    
-    class Updater extends Thread
-    {
+
+    class Updater extends Thread {
         private volatile boolean running;
-        
+
         public Updater() {
             super("PC Monitor Updater Task");
             this.running = true;
         }
-        
+
         public void halt() {
             try {
                 this.running = false;
                 this.interrupt();
+            } catch (SecurityException ignored) {
             }
-            catch (SecurityException ignored) {}
         }
-        
+
         @Override
         public void run() {
             while (this.running) {
@@ -177,8 +175,7 @@ public class PCMonitor extends View
                         PCMonitor.this.vgaCard.prepareUpdate();
                         PCMonitor.this.vgaCard.updateDisplay();
                         PCMonitor.this.postInvalidate();
-                    }
-                    catch (InterruptedException ex) {
+                    } catch (InterruptedException ex) {
                         continue;
                     }
                     break;

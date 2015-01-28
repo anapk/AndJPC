@@ -57,7 +57,7 @@ public class IntervalTimer extends AbstractHardwareComponent implements IOPortCa
     private static final int MODE_SQUARE_WAVE = 3;
     private static final int MODE_SOFTWARE_TRIGGERED_STROBE = 4;
     private static final int MODE_HARDWARE_TRIGGERED_STROBE = 5;
-    private static final int PIT_FREQ = 1193182;
+    public static final int PIT_FREQ = 1193182;
     private TimerChannel[] channels;
     private InterruptController irqDevice;
     private Clock timingSource;

@@ -46,15 +46,14 @@ public class PCSpeaker extends AbstractHardwareComponent implements IOPortCapabl
         return 69 + (int)(12.0 * (Math.log(n) - Math.log(440.0)) / Math.log(2.0));
     }
 
-    private int getNote() {
-        double n = 1193182 / this.pit.getInitialCount(2);
-        if (n > 11025.0) {
-            n = 11025.0;
-        }
-        if (n < 10.0) {
-            n = 10.0;
-        }
-        return frequencyToNote(n);
+    private int getNote()
+    {
+        double freq = IntervalTimer.PIT_FREQ/pit.getInitialCount(2); //actual frequency in Hz
+        if (freq > SPEAKER_MAX_FREQ)
+            freq = SPEAKER_MAX_FREQ;
+        if (freq < SPEAKER_MIN_FREQ)
+            freq = SPEAKER_MIN_FREQ;
+        return frequencyToNote(freq);
     }
 
     private void playNote(final int n) {
@@ -92,18 +91,12 @@ public class PCSpeaker extends AbstractHardwareComponent implements IOPortCapabl
     }
 
     @Override
-    public int ioPortReadByte(final int n) {
-        final int out = this.pit.getOut(2);
-        this.dummyRefreshClock ^= 0x1;
-        final int n2 = this.speakerOn << 1;
-        boolean b;
-        if (this.pit.getGate(2)) {
-            b = true;
-        }
-        else {
-            b = false;
-        }
-        return (b ? 1 : 0) | n2 | out << 5 | this.dummyRefreshClock << 4;
+    public int ioPortReadByte(int address)
+    {
+        int out = pit.getOut(2);
+        dummyRefreshClock ^= 1;
+        return (speakerOn << 1) | (pit.getGate(2) ? 1 : 0) | (out << 5) |
+                (dummyRefreshClock << 4);
     }
 
     @Override
@@ -117,41 +110,35 @@ public class PCSpeaker extends AbstractHardwareComponent implements IOPortCapabl
     }
 
     @Override
-    public void ioPortWriteByte(final int n, final int n2) {
-        while (true) {
-            Label_0108: {
-                Label_0092: {
-                    synchronized (this) {
-                        if (this.enabled) {
-                            this.speakerOn = (0x1 & n2 >> 1);
-                            final IntervalTimer pit = this.pit;
-                            final int n3 = n2 & 0x1;
-                            boolean b = false;
-                            if (n3 != 0) {
-                                b = true;
-                            }
-                            pit.setGate(2, b);
-                            if ((n2 & 0x1) != 0x1) {
-                                break Label_0108;
-                            }
-                            if (this.speakerOn != 1) {
-                                break Label_0092;
-                            }
-                            this.mode = 3;
-                            this.waitingForPit = 0;
-                        }
-                        return;
-                    }
-                }
-                this.mode = 1;
-                this.stopNote(this.currentNote);
-                return;
+    public synchronized void ioPortWriteByte(int address, int data)
+    {
+        if (!enabled)
+            return;
+        speakerOn = (data >> 1) & 1;
+        pit.setGate(2, (data & 1) != 0);
+        if ((data & 1 ) == 1)
+        {
+            if (speakerOn == 1)
+            {
+                //connect speaker to PIT
+                mode = SPEAKER_PIT_ON;
+                waitingForPit = 0;
+                //play();
             }
-            this.mode = 0;
-            this.stopNote(this.currentNote);
-            if (this.speakerOn != 0) {
-                PCSpeaker.LOGGING.log(Level.INFO, "manual speaker management not implemented");
+            else
+            {
+                //leave speaker disconnected from following PIT
+                mode = SPEAKER_PIT_OFF;
+                stopNote(currentNote);
             }
+        }
+        else
+        {
+            // zero bit is 0, speaker follows bit 1
+            mode = SPEAKER_OFF;
+            stopNote(currentNote);
+            if (speakerOn != 0)
+                LOGGING.log(Level.INFO, "manual speaker management not implemented");
         }
     }
 
