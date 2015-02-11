@@ -46,7 +46,7 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
         this.loadSnapshot(this.openFileInput("state.dat"));
     }
     
-    private void loadSnapshot(final InputStream inputStream) throws IOException {
+    private void loadSnapshot(@NonNull final InputStream inputStream) throws IOException {
         final ZipInputStream zipInputStream = new ZipInputStream(inputStream);
         zipInputStream.getNextEntry();
         JPCAndroidActivityHelper.pc.loadState(zipInputStream);
@@ -57,11 +57,12 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
         zipInputStream.closeEntry();
         zipInputStream.close();
     }
-    
+
     @NonNull
     private static InputStream openStream(final String s) throws IOException {
         Log.i("JPC", "Loading resource: " + s);
-        return JPCAndroidActivityHelper.assets.open(s);
+        //return JPCAndroidActivityHelper.assets.open(s);
+        return JPCAndroidActivityHelper.class.getResourceAsStream("/" + s);
     }
     
     private void saveSnapshot() throws IOException {
@@ -155,7 +156,7 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
         }
         catch (Throwable t) {
             t.printStackTrace();
-            this.showError("Execute Failed", "Sorry this device encoutered a problem starting JPC: " + t.getMessage());
+            this.showError("Execute Failed", "Sorry this device encountered a problem starting JPC: " + t.getMessage());
         }
     }
     

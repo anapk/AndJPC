@@ -576,7 +576,7 @@ public class EthernetCard extends AbstractPCIDevice
                     throw new IllegalStateException("ETH0: command - tx start, tx bytes == 0");
                 }
                 //now send the packet
-                command |= 0x4;
+                command |= E8390_TRANS;
                 int index = ((tpsr & 0xFF) << 8);
                 outputDevice.sendPacket(memory, index, tcnt);
                 /* signal end of transfer */
@@ -590,6 +590,7 @@ public class EthernetCard extends AbstractPCIDevice
                     isr = (byte) (isr |ENISR_RDC);
                     this.updateIRQ();
                 }
+                command &= ~E8390_TRANS;
             }
 //                /* test specific case: zero length transfer */
 //                if ((0 != (data & (E8390_RREAD | E8390_RWRITE))) && (rcnt == 0))
