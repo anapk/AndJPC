@@ -14,10 +14,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.jpc.emulator.PC;
+import org.jpc.emulator.pci.peripheral.EthernetCard;
 import org.jpc.emulator.pci.peripheral.VGACard;
 import org.jpc.emulator.peripheral.Keyboard;
 import org.jpc.j2se.VirtualClock;
 import org.jpc.support.ArgProcessor;
+import org.jpc.support.EthernetHub;
+import org.jpc.support.EthernetOutput;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,10 +72,10 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
         this.deleteFile("state.dat");
         final ZipOutputStream zipOutputStream = new ZipOutputStream(this.openFileOutput("state.dat", 0));
         zipOutputStream.putNextEntry(new ZipEntry("pc"));
-        JPCAndroidActivityHelper.pc.saveState(zipOutputStream);
+        pc.saveState(zipOutputStream);
         zipOutputStream.closeEntry();
         zipOutputStream.putNextEntry(new ZipEntry("monitor"));
-        JPCAndroidActivityHelper.monitor.saveState(zipOutputStream);
+        monitor.saveState(zipOutputStream);
         zipOutputStream.closeEntry();
         zipOutputStream.finish();
         zipOutputStream.close();
@@ -112,10 +115,10 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
     }
     
     void forcefulExit() {
-        if (JPCAndroidActivityHelper.monitor != null) {
-            JPCAndroidActivityHelper.monitor.stopUpdateThread();
+        if (monitor != null) {
+            monitor.stopUpdateThread();
         }
-        if (JPCAndroidActivityHelper.pc != null) {
+        if (pc != null) {
             this.stopExecution();
         }
         System.runFinalizersOnExit(true);
@@ -124,34 +127,38 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
     
     void init(final String[] array, @NonNull final PCMonitor monitor) {
         try {
-            if (JPCAndroidActivityHelper.monitor != null) {
-                JPCAndroidActivityHelper.monitor.stopUpdateThread();
+            if (monitor != null) {
+                monitor.stopUpdateThread();
             }
-            JPCAndroidActivityHelper.monitor = monitor;
+            this.monitor = monitor;
             this.msgHandler = new Handler();
-            JPCAndroidActivityHelper.assets = this.getAssets();
-            if (JPCAndroidActivityHelper.pc == null) {
+            assets = this.getAssets();
+            if (pc == null) {
                 PC.compile = false;
-                JPCAndroidActivityHelper.pc = new PC(new VirtualClock(), array);
+                pc = new PC(new VirtualClock(), array);
             }
-            JPCAndroidActivityHelper.monitor.setPC(JPCAndroidActivityHelper.pc);
-            final Keyboard keyboard = (Keyboard)JPCAndroidActivityHelper.pc.getComponent(Keyboard.class);
-            JPCAndroidActivityHelper.keyboard = new KeyboardEmulator(keyboard, this);
+            EthernetOutput hub = new EthernetHub("relay.widgetry.org", 80);
+            EthernetCard card = (EthernetCard) pc.getComponent(EthernetCard.class);
+            card.setOutputDevice(hub);
+
+            JPCAndroidActivityHelper.monitor.setPC(pc);
+            final Keyboard keyboard = (Keyboard)pc.getComponent(Keyboard.class);
+            this.keyboard = new KeyboardEmulator(keyboard, this);
             OnScreenButtons overlay = new OnScreenButtons(keyboard, this);
             MouseEmulator mouse = new MouseEmulator(keyboard, overlay);
-            JPCAndroidActivityHelper.monitor.setScreenOverlay(overlay);
-            JPCAndroidActivityHelper.monitor.setOnTouchListener(mouse);
+            monitor.setScreenOverlay(overlay);
+            monitor.setOnTouchListener(mouse);
             final String variable = ArgProcessor.findVariable(array, "ss", null);
             if (variable != null) {
                 this.loadSnapshot(openStream(variable));
             }
             this.startExecution();
-            JPCAndroidActivityHelper.monitor.startUpdateThread();
+            monitor.startUpdateThread();
         }
         catch (OutOfMemoryError outOfMemoryError) {
             outOfMemoryError.printStackTrace();
-            JPCAndroidActivityHelper.pc.stop();
-            JPCAndroidActivityHelper.pc = null;
+            pc.stop();
+            pc = null;
             this.showError("Not Enough RAM", "This device does not appear to have enough RAM to start JPC. Reboot and try again.");
         }
         catch (Throwable t) {
@@ -178,11 +185,11 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
     }
     
     public boolean onKeyDown(final int n, @NonNull final KeyEvent keyEvent) {
-        return JPCAndroidActivityHelper.keyboard.onKeyDown(n, keyEvent);
+        return keyboard.onKeyDown(n, keyEvent);
     }
     
     public boolean onKeyUp(final int n, @NonNull final KeyEvent keyEvent) {
-        return JPCAndroidActivityHelper.keyboard.onKeyUp(n, keyEvent);
+        return keyboard.onKeyUp(n, keyEvent);
     }
     
     public boolean onOptionsItemSelected(@NonNull final MenuItem menuItem) {
@@ -192,11 +199,11 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
             }
             case 3: {
                 try {
-                    JPCAndroidActivityHelper.monitor.stopUpdateThread();
-                    this.stopExecution();
-                    this.loadSnapshot();
-                    this.startExecution();
-                    JPCAndroidActivityHelper.monitor.startUpdateThread();
+                    monitor.stopUpdateThread();
+                    stopExecution();
+                    loadSnapshot();
+                    startExecution();
+                    monitor.startUpdateThread();
                     return true;
                 }
                 catch (Exception ex) {
@@ -206,53 +213,53 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
             }
             case 4: {
                 try {
-                    JPCAndroidActivityHelper.monitor.stopUpdateThread();
-                    this.stopExecution();
-                    this.saveSnapshot();
-                    this.startExecution();
-                    JPCAndroidActivityHelper.monitor.startUpdateThread();
+                    monitor.stopUpdateThread();
+                    stopExecution();
+                    saveSnapshot();
+                    startExecution();
+                    monitor.startUpdateThread();
                     return true;
                 }
                 catch (IOException ex2) {
-                    this.showError("Save Failed", "Failed to save state: " + ex2.getMessage());
+                    showError("Save Failed", "Failed to save state: " + ex2.getMessage());
                     return true;
                 }
             }
             case 5: {
-                this.forcefulExit();
+                forcefulExit();
                 return true;
             }
         }
     }
     
     public void run() {
-        JPCAndroidActivityHelper.pc.start();
+        pc.start();
         try {
-            while (JPCAndroidActivityHelper.running) {
-                JPCAndroidActivityHelper.pc.execute();
+            while (running) {
+                pc.execute();
             }
         }
         catch (OutOfMemoryError outOfMemoryError) {
             outOfMemoryError.printStackTrace();
-            JPCAndroidActivityHelper.pc.stop();
-            JPCAndroidActivityHelper.pc = null;
-            this.showError("Not Enough RAM", "This device does not appear to have enough RAM to start JPC. Reboot and try again.");
+            pc.stop();
+            pc = null;
+            showError("Not Enough RAM", "This device does not appear to have enough RAM to start JPC. Reboot and try again.");
         }
         catch (Throwable t) {
             t.printStackTrace();
-            this.showError("Execute Failed", "Sorry this device encoutered a problem running JPC: " + t.getMessage());
+            showError("Execute Failed", "Sorry this device encoutered a problem running JPC: " + t.getMessage());
         }
         finally {
-            if (JPCAndroidActivityHelper.pc != null) {
-                JPCAndroidActivityHelper.pc.stop();
+            if (pc != null) {
+                pc.stop();
             }
         }
     }
     
     void startExecution() {
         synchronized (this) {
-            if (!JPCAndroidActivityHelper.running) {
-                JPCAndroidActivityHelper.running = true;
+            if (!running) {
+                running = true;
                 Thread runner;
                 (runner = new Thread(this, "PC Execute")).start();
             }

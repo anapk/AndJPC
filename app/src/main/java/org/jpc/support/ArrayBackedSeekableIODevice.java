@@ -94,7 +94,7 @@ public class ArrayBackedSeekableIODevice implements SeekableIODevice
 
         InputStream in = ArrayBackedSeekableIODevice.class.getClassLoader().getResourceAsStream(resource);
         if (in == null) {
-            LOGGING.log(Level.SEVERE, "resource not found: {0}", resource);
+            LOGGING.log(Level.SEVERE, "resource not found: " + resource);
             throw new IOException("resource not found: " + resource);
         }
         try {

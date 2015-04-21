@@ -32,7 +32,11 @@
  */
 package org.jpc.support;
 
+import android.os.AsyncTask;
+import android.util.Log;
+
 import org.glassfish.tyrus.client.ClientManager;
+import org.glassfish.tyrus.client.ClientProperties;
 
 import java.io.IOException;
 import java.net.URI;
@@ -40,6 +44,8 @@ import java.nio.ByteBuffer;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
@@ -55,6 +61,7 @@ import javax.websocket.WebSocketContainer;
  * @author Ian Preston
  */
 public class EthernetHub extends EthernetOutput {
+    private static final Logger LOGGING = Logger.getLogger(ArrayBackedSeekableIODevice.class.getName());
 
     RemoteEndpoint.Basic remoteEndpoint;
     Session session;
@@ -63,7 +70,7 @@ public class EthernetHub extends EthernetOutput {
     private String serverHost;
     private Queue<byte[]> inQueue = new ConcurrentLinkedQueue<byte[]>();
 
-    public EthernetHub(String host, int port) {
+    public EthernetHub(final String host, final int port) {
         System.out.println((char) 27 + "[31mINITIALIZE ETHERNETHUB!" + (char) 27 + "[0m");
         serverHost = host;
         this.port = port;
@@ -75,7 +82,7 @@ public class EthernetHub extends EthernetOutput {
             throw new RuntimeException(ex);
         }
 
-        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 
         ClientManager client = ClientManager.createClient();
 
@@ -98,18 +105,25 @@ public class EthernetHub extends EthernetOutput {
             }
         };
 
-        client.getProperties().put(ClientManager.RECONNECT_HANDLER, reconnectHandler);
-        try {
-            session = container.connectToServer(new WSClient(), URI.create("ws://" + host + ":" + port));
-        } catch (DeploymentException ex) {
-            throw new RuntimeException(ex);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-        remoteEndpoint = session.getBasicRemote();
+        client.getProperties().put(ClientProperties.RECONNECT_HANDLER, reconnectHandler);
+        new AsyncTask<Void,Void,Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    session = container.connectToServer(new WSClient(), URI.create("ws://" + host + ":" + port));
+                    remoteEndpoint = session.getBasicRemote();
+                } catch (DeploymentException ex) {
+                    LOGGING.log(Level.WARNING, ex.getClass().getSimpleName() + ": " + ex.getMessage());
+                    ex.printStackTrace();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                return null;
+            }
+        }.execute();
 
         try {
-            sem.acquire();
+            sem.acquire(); // wait until we are connected and sem is released
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
         }
