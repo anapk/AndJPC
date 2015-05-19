@@ -1,0 +1,3 @@
+[submodule "libs/JPC"]
+	path = libs/JPC
+	url = git@github.com:ysangkok/JPC.git

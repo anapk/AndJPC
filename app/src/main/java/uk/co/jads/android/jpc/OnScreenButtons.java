@@ -145,25 +145,25 @@ class OnScreenButtons implements View.OnTouchListener
                 b = false;
                 return b;
             }
-            case 2: {
+            case MotionEvent.ACTION_MOVE: {
                 for (int i = 0; i < motionEvent.getPointerCount(); ++i) {
                     this.release(motionEvent.getX(i), motionEvent.getY(i));
                     this.press(motionEvent.getX(i), motionEvent.getY(i));
                 }
             }
-            case 3: {
+            case MotionEvent.ACTION_CANCEL: {
                 return b;
             }
-            case 0: {
+            case MotionEvent.ACTION_DOWN: {
                 return this.press(motionEvent.getX(), motionEvent.getY());
             }
-            case 5: {
+            case MotionEvent.ACTION_POINTER_DOWN: {
                 return this.press(motionEvent.getX(n2), motionEvent.getY(n2));
             }
-            case 6: {
+            case MotionEvent.ACTION_POINTER_UP: {
                 return this.release(motionEvent.getX(n2), motionEvent.getY(n2));
             }
-            case 1: {
+            case MotionEvent.ACTION_UP: {
                 this.release(motionEvent.getX(), motionEvent.getY());
                 return b;
             }

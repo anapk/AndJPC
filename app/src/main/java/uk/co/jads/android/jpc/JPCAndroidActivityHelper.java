@@ -14,9 +14,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.jpc.emulator.PC;
+import org.jpc.emulator.pci.peripheral.DefaultVGACard;
 import org.jpc.emulator.pci.peripheral.EthernetCard;
 import org.jpc.emulator.pci.peripheral.VGACard;
 import org.jpc.emulator.peripheral.Keyboard;
+import org.jpc.j2se.Option;
 import org.jpc.j2se.VirtualClock;
 import org.jpc.support.ArgProcessor;
 import org.jpc.support.EthernetHub;
@@ -127,6 +129,8 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
     
     void init(final String[] array, @NonNull final PCMonitor monitor) {
         try {
+            Option.parse(array);
+
             if (monitor != null) {
                 monitor.stopUpdateThread();
             }
@@ -157,7 +161,7 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
         }
         catch (OutOfMemoryError outOfMemoryError) {
             outOfMemoryError.printStackTrace();
-            pc.stop();
+            if (pc != null) pc.stop();
             pc = null;
             this.showError("Not Enough RAM", "This device does not appear to have enough RAM to start JPC. Reboot and try again.");
         }
@@ -175,7 +179,8 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
         super.onCreateOptionsMenu(menu);
         menu.add(0, 4, 0, "Save state").setIcon(17301582);
         menu.add(0, 3, 0, "Load state").setIcon(17301580);
-        menu.add(0, 5, 0, "Stop JPC x86").setIcon(17301560);
+        menu.add(0, 5, 0, "Screenshot").setIcon(17301560);
+        //menu.add(0, 6, 0, "Screenshot");
         return true;
     }
     
@@ -226,7 +231,7 @@ public abstract class JPCAndroidActivityHelper extends Activity implements Runna
                 }
             }
             case 5: {
-                forcefulExit();
+                ((DefaultVGACard) pc.getComponent(VGACard.class)).saveScreenshot();
                 return true;
             }
         }
